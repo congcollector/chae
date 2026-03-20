@@ -111,65 +111,71 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 const SUPA_URL = 'https://pithlzhuqezeesprcbze.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpdGhsemh1cWV6ZWVzcHJjYnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMDc1NjgsImV4cCI6MjA4OTU4MzU2OH0.GFBnUKHQ_B_GQEQIy9nBWr38gnok_b__fAyTX7v7tNQ';
 
-const BASE_HEADERS = {
-  'apikey': SUPA_KEY,
-  'Authorization': `Bearer ${SUPA_KEY}`,
-  'Content-Type': 'application/json',
-};
-
-const api = (path, opts={}) => {
-  const { headers: extraHeaders, prefer, ...rest } = opts;
-  return fetch(`${SUPA_URL}/rest/v1/${path}`, {
-    ...rest,
+function apiGet(path) {
+  return fetch(SUPA_URL + '/rest/v1/' + path, {
+    method: 'GET',
     headers: {
-      ...BASE_HEADERS,
-      'Prefer': prefer || 'return=representation',
-      ...(extraHeaders || {})
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json'
     }
   });
-};
+}
+function apiPost(path, body, prefer) {
+  return fetch(SUPA_URL + '/rest/v1/' + path, {
+    method: 'POST',
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json',
+      'Prefer': prefer || 'return=representation'
+    },
+    body: JSON.stringify(body)
+  });
+}
+function apiDelete(path) {
+  return fetch(SUPA_URL + '/rest/v1/' + path, {
+    method: 'DELETE',
+    headers: {
+      'apikey': SUPA_KEY,
+      'Authorization': 'Bearer ' + SUPA_KEY,
+      'Content-Type': 'application/json'
+    }
+  });
+}
 
 const db = {
   async getExams() {
-    const r = await api('exams?order=created_at.desc');
+    const r = await apiGet('exams?order=created_at.desc');
     return await r.json();
   },
   async saveExam(exam) {
-    return await api('exams', {
-      method: 'POST',
-      prefer: 'resolution=merge-duplicates,return=representation',
-      body: JSON.stringify({
-        id: exam.id,
-        name: exam.name,
-        questions: exam.questions,
-        answers: exam.answers,
-        created_at: exam.createdAt
-      })
-    });
+    return await apiPost('exams', {
+      id: exam.id,
+      name: exam.name,
+      questions: exam.questions,
+      answers: exam.answers,
+      created_at: exam.createdAt
+    }, 'resolution=merge-duplicates,return=representation');
   },
   async deleteExam(id) {
-    await api(`exams?id=eq.${id}`, { method: 'DELETE', prefer: '' });
-    await api(`results?exam_id=eq.${id}`, { method: 'DELETE', prefer: '' });
+    await apiDelete('exams?id=eq.' + id);
+    await apiDelete('results?exam_id=eq.' + id);
   },
   async getResults(examId) {
-    const r = await api(`results?exam_id=eq.${examId}&order=score.desc`);
+    const r = await apiGet('results?exam_id=eq.' + examId + '&order=score.desc');
     return await r.json();
   },
   async saveResult(examId, studentName, data) {
-    // upsert by exam_id + student_name
-    await api(`results?exam_id=eq.${examId}&student_name=eq.${encodeURIComponent(studentName)}`,
-      { method: 'DELETE', prefer: '' });
-    return await api('results', {
-      method: 'POST',
-      body: JSON.stringify({
-        exam_id: examId,
-        student_name: studentName,
-        answers: data.answers,
-        score: data.score,
-        total: data.total,
-        submitted_at: data.submittedAt
-      })
-    });
+    await apiDelete('results?exam_id=eq.' + examId + '&student_name=eq.' + encodeURIComponent(studentName));
+    return await apiPost('results', {
+      exam_id: examId,
+      student_name: studentName,
+      answers: data.answers,
+      score: data.score,
+      total: data.total,
+      submitted_at: data.submittedAt
+    }, 'return=representation');
   }
 };
 
