@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>채선비영어학원 · T/F 시험</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #f2f2f7;
+  --card: #ffffff;
+  --border: rgba(0,0,0,0.08);
+  --text: #1c1c1e;
+  --text2: rgba(28,28,30,0.55);
+  --text3: rgba(28,28,30,0.32);
+  --accent: #2f7af5;
+  --accent2: #6b3ff0;
+  --green: #1a9e45;
+  --green-bg: rgba(26,158,69,0.11);
+  --red: #d93025;
+  --red-bg: rgba(217,48,37,0.11);
+  --orange: #c4600a;
+  --orange-bg: rgba(196,96,10,0.11);
+  --r: 16px; --r-sm: 12px;
+}
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
+html,body{min-height:100%;background:#f2f2f7;}
+body{font-family:'Noto Sans KR',-apple-system,sans-serif;color:var(--text);-webkit-font-smoothing:antialiased;}
+
+/* HEADER */
+.hdr{
+background:rgba(242,242,247,0.94);
+backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+border-bottom:1px solid var(–border);
+padding:13px 18px;
+display:flex;align-items:center;justify-content:space-between;
+position:sticky;top:0;z-index:50;
+}
+.hdr-left .logo{font-size:9px;letter-spacing:2px;color:var(–accent);text-transform:uppercase;font-weight:600;opacity:.75;}
+.hdr-left .title{font-size:16px;font-weight:700;letter-spacing:-.3px;}
+.mode-pill{
+font-size:11px;font-weight:700;padding:5px 13px;border-radius:20px;cursor:pointer;border:none;
+font-family:‘Noto Sans KR’,sans-serif;transition:all .2s;
+}
+.mode-pill.admin{background:linear-gradient(135deg,var(–accent),var(–accent2));color:white;}
+.mode-pill.student{background:linear-gradient(135deg,var(–green),#158a3a);color:white;}
+
+/* WRAP */
+.wrap{max-width:480px;margin:0 auto;padding:20px 16px 80px;}
+
+/* CARD */
+.card{background:var(–card);border-radius:var(–r);border:1px solid var(–border);padding:18px;margin-bottom:12px;box-shadow:0 1px 8px rgba(0,0,0,.06);}
+.sec-title{font-size:11px;font-weight:700;color:var(–text3);letter-spacing:1px;text-transform:uppercase;margin-bottom:12px;display:flex;align-items:center;gap:7px;}
+.sec-title::after{content:’’;flex:1;height:1px;background:var(–border);}
+
+/* INPUTS */
+.lbl{font-size:12px;font-weight:600;color:var(–text2);margin-bottom:5px;}
+.inp{width:100%;padding:11px 13px;border-radius:var(–r-sm);border:1.5px solid var(–border);background:var(–bg);font-size:14px;font-family:‘Noto Sans KR’,sans-serif;color:var(–text);outline:none;transition:border-color .2s;margin-bottom:10px;}
+.inp:focus{border-color:var(–accent);}
+.inp-num{width:90px;text-align:center;padding:11px 8px;}
+
+/* BUTTONS */
+.btn{padding:13px 18px;border-radius:var(–r-sm);border:none;font-size:14px;font-weight:700;font-family:‘Noto Sans KR’,sans-serif;cursor:pointer;transition:opacity .15s;white-space:nowrap;}
+.btn:active{opacity:.8;}
+.btn-full{width:100%;margin-top:6px;}
+.btn-primary{background:linear-gradient(135deg,var(–accent),var(–accent2));color:white;box-shadow:0 2px 12px rgba(47,122,245,.25);}
+.btn-green{background:linear-gradient(135deg,var(–green),#158a3a);color:white;box-shadow:0 2px 12px rgba(26,158,69,.2);}
+.btn-sm{padding:7px 13px;font-size:12px;border-radius:9px;background:var(–bg);border:1.5px solid var(–border);color:var(–text2);}
+.btn-danger{padding:7px 13px;font-size:12px;border-radius:9px;background:var(–red-bg);border:1.5px solid rgba(217,48,37,.2);color:var(–red);}
+
+/* TF TABLE */
+.tf-table{width:100%;border-collapse:collapse;}
+.tf-table th{padding:9px 6px;text-align:center;font-size:11px;font-weight:700;color:var(–text2);background:var(–bg);border-bottom:1.5px solid var(–border);}
+.tf-table th.num-col{width:42px;border-right:1px solid var(–border);}
+.tf-table th.t-col{border-right:1px solid var(–border);}
+.tf-table td{padding:7px 6px;text-align:center;border-bottom:1px solid var(–border);}
+.tf-table td.num-col{font-size:12px;font-weight:700;color:var(–text3);border-right:1px solid var(–border);}
+.tf-table td.t-col{border-right:1px solid var(–border);}
+.tf-table tr:last-child td{border-bottom:none;}
+.tf-btn{width:100%;padding:9px 4px;border-radius:9px;border:1.5px solid var(–border);background:var(–bg);font-size:13px;font-weight:700;cursor:pointer;transition:all .13s;color:var(–text2);}
+.tf-btn:active{transform:scale(.91);}
+.tf-btn.sel-T,.tf-btn.correct-T{background:var(–green-bg);border-color:var(–green);color:var(–green);}
+.tf-btn.sel-F,.tf-btn.correct-F{background:var(–red-bg);border-color:var(–red);color:var(–red);}
+.tf-btn.wrong-T,.tf-btn.wrong-F{background:rgba(100,100,100,.1);border-color:rgba(100,100,100,.3);color:rgba(100,100,100,.6);text-decoration:line-through;}
+.tf-btn[disabled]{cursor:default;}
+
+/* RESULT ICON COL */
+.res-icon{font-size:16px;}
+
+/* SCORE BOX */
+.score-box{text-align:center;padding:28px 20px;background:var(–card);border-radius:var(–r);border:1px solid var(–border);box-shadow:0 1px 8px rgba(0,0,0,.06);margin-bottom:12px;}
+.score-num{font-size:56px;font-weight:700;line-height:1;margin-bottom:5px;}
+.score-sub{font-size:14px;color:var(–text2);margin-bottom:16px;}
+.score-bar-bg{background:var(–bg);border-radius:20px;height:8px;overflow:hidden;}
+.score-bar{height:100%;border-radius:20px;transition:width .7s cubic-bezier(.34,1.56,.64,1);}
+
+/* EXAM LIST */
+.exam-item{display:flex;align-items:center;gap:12px;padding:13px 16px;background:var(–card);border:1px solid var(–border);border-radius:var(–r-sm);margin-bottom:8px;cursor:pointer;transition:all .15s;box-shadow:0 1px 6px rgba(0,0,0,.05);}
+.exam-item:active{transform:scale(.98);}
+.exam-icon{width:40px;height:40px;border-radius:11px;background:linear-gradient(135deg,var(–accent),var(–accent2));display:flex;align-items:center;justify-content:center;font-size:18px;flex-shrink:0;}
+.exam-icon.student-icon{background:linear-gradient(135deg,var(–green),#158a3a);}
+.exam-name{font-size:14px;font-weight:700;}
+.exam-meta{font-size:12px;color:var(–text2);margin-top:2px;}
+.exam-arrow{color:var(–text3);font-size:20px;}
+
+/* RESULT ROWS */
+.res-row{display:flex;align-items:center;gap:10px;padding:11px 14px;border-bottom:1px solid var(–border);}
+.res-row:last-child{border-bottom:none;}
+.res-av{width:36px;height:36px;border-radius:10px;background:var(–bg);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:var(–text2);flex-shrink:0;text-align:center;line-height:1.2;word-break:keep-all;padding:0 2px;}
+.res-name{flex:1;font-size:13px;font-weight:600;}
+.res-score{font-size:13px;font-weight:700;padding:3px 10px;border-radius:20px;}
+.res-score.high{background:var(–green-bg);color:var(–green);}
+.res-score.mid{background:var(–orange-bg);color:var(–orange);}
+.res-score.low{background:var(–red-bg);color:var(–red);}
+
+/* NAME SCREEN */
+.name-screen{padding:44px 20px 20px;text-align:center;}
+.name-big{font-size:36px;margin-bottom:14px;}
+.name-title{font-size:20px;font-weight:700;margin-bottom:6px;}
+.name-sub{font-size:13px;color:var(–text2);margin-bottom:28px;line-height:1.6;}
+.name-field{width:100%;padding:15px 16px;border-radius:var(–r-sm);border:2px solid var(–border);background:var(–bg);font-size:20px;font-family:‘Noto Sans KR’,sans-serif;color:var(–text);outline:none;text-align:center;margin-bottom:14px;transition:border-color .2s;}
+.name-field:focus{border-color:var(–accent);}
+
+/* TABS */
+.tabs{display:flex;border-bottom:1px solid var(–border);margin-bottom:14px;}
+.atab{flex:1;padding:10px 0;text-align:center;font-size:12px;font-weight:600;color:var(–text3);cursor:pointer;border-bottom:2px solid transparent;transition:all .18s;}
+.atab.active{color:var(–accent);border-bottom-color:var(–accent);}
+
+/* TOAST */
+.toast{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);background:rgba(28,28,30,.96);color:white;padding:11px 22px;border-radius:20px;font-size:13px;font-weight:600;z-index:400;opacity:0;transition:opacity .2s;pointer-events:none;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2);}
+.toast.show{opacity:1;}
+
+/* EMPTY */
+.empty{text-align:center;padding:50px 20px;color:var(–text2);}
+.empty .ei{font-size:40px;margin-bottom:12px;}
+
+/* LOADING */
+.loading{text-align:center;padding:60px 20px;color:var(–text2);font-size:14px;}
+
+/* REVIEW LEGEND */
+.legend{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;}
+.legend-item{display:flex;align-items:center;gap:5px;font-size:12px;color:var(–text2);}
+.legend-dot{width:10px;height:10px;border-radius:50%;}
+</style>
+
+</head>
+<body>
+
+<div class="hdr">
+  <div class="hdr-left">
+    <div class="logo">Chaesunbi English Academy</div>
+    <div class="title">T/F 시험</div>
+  </div>
+  <div class="mode-pill admin" id="modePill" style="cursor:default;"></div>
+</div>
+
+<div class="wrap" id="wrap">
+  <div class="loading">불러오는 중...</div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+// ── 해시 기반 모드 결정 ──
+// 선생님: URL 뒤에 #admin-chaesunbe 붙여서 접속
+// 학생:   그냥 접속하면 학생 모드만 보임
+const ADMIN_HASH = '#admin-chaesunbe';
+const IS_ADMIN = location.hash === ADMIN_HASH;
+let MODE = IS_ADMIN ? 'admin' : 'student';
+
+// 헤더 뱃지 설정
+const pill = document.getElementById('modePill');
+if(IS_ADMIN){
+  pill.className = 'mode-pill admin';
+  pill.textContent = '선생님 🔑';
+} else {
+  pill.className = 'mode-pill student';
+  pill.textContent = '학생 ✏️';
+}
+let exams = {};     // { examId: { id, name, questions, answers[], createdAt } }
+let results = {};   // { examId: { studentName: { answers[], score, total, submittedAt } } }
+let loaded = false;
+
+// student flow state
+let sExamId = '';
+let sName = '';
+let sAnswers = [];
+let sStep = 'list'; // 'list' | 'name' | 'exam' | 'result'
+
+// admin flow state
+let aStep = 'list'; // 'list' | 'create' | 'answers' | 'detail' | 'student-detail'
+let aDetailExamId = '';
+let aDetailStudent = '';
+let aDetailTab = 'results';
+let aTempName = '';
+let aTempQ = 10;
+let aTempAnswers = [];
+let aEditExamId = '';
+
+// ── STORAGE ──
+async function loadData(){
+  try {
+    const e = await window.storage.get('csb_exams');
+    if(e) exams = JSON.parse(e.value);
+  } catch(_){}
+  try {
+    const r = await window.storage.get('csb_results');
+    if(r) results = JSON.parse(r.value);
+  } catch(_){}
+  loaded = true;
+  render();
+}
+
+async function saveExams(){
+  try { await window.storage.set('csb_exams', JSON.stringify(exams)); } catch(_){}
+}
+async function saveResults(){
+  try { await window.storage.set('csb_results', JSON.stringify(results)); } catch(_){}
+}
+
+loadData();
+
+// ── MAIN RENDER ──
+function render(){
+  if(!loaded){ document.getElementById('wrap').innerHTML = '<div class="loading">불러오는 중...</div>'; return; }
+  if(MODE === 'admin') renderAdmin();
+  else renderStudent();
+}
+
+// ════════════════════════════
+// ADMIN
+// ════════════════════════════
+function renderAdmin(){
+  if(aStep === 'list')          renderAdminList();
+  else if(aStep === 'create')   renderAdminCreate();
+  else if(aStep === 'answers')  renderAdminAnswers();
+  else if(aStep === 'detail')   renderAdminDetail();
+  else if(aStep === 'student-detail') renderAdminStudentDetail();
+}
+
+function renderAdminList(){
+  const list = Object.values(exams).sort((a,b)=>b.createdAt-a.createdAt);
+  let html = `
+    <div class="card">
+      <div class="sec-title">새 시험 만들기</div>
+      <div class="lbl">시험 이름</div>
+      <input class="inp" id="aName" placeholder="예) 3월 4주차 Test / Unit 5 Quiz" value="${aTempName}">
+      <div class="lbl">문항 수</div>
+      <input class="inp inp-num" id="aQ" type="number" min="1" max="60" value="${aTempQ}">
+      <button class="btn btn-primary btn-full" onclick="goAdminCreate()">정답 등록하기 →</button>
+    </div>`;
+
+  if(list.length){
+    html += `<div class="sec-title" style="margin-top:4px;">시험 목록</div>`;
+    html += list.map(e=>{
+      const cnt = results[e.id] ? Object.keys(results[e.id]).length : 0;
+      return `<div class="exam-item" onclick="goAdminDetail('${e.id}')">
+        <div class="exam-icon">📝</div>
+        <div class="exam-info">
+          <div class="exam-name">${e.name}</div>
+          <div class="exam-meta">${e.questions}문항 · 제출 ${cnt}명</div>
+        </div>
+        <div class="exam-arrow">›</div>
+      </div>`;
+    }).join('');
+  } else {
+    html += `<div class="empty"><div class="ei">📋</div><div>아직 만든 시험이 없어요</div></div>`;
+  }
+  document.getElementById('wrap').innerHTML = html;
+}
+
+function goAdminCreate(){
+  const name = document.getElementById('aName').value.trim();
+  const q = parseInt(document.getElementById('aQ').value);
+  if(!name){ showToast('시험 이름을 입력해주세요'); return; }
+  if(!q||q<1){ showToast('문항 수를 입력해주세요'); return; }
+  aTempName = name; aTempQ = q;
+  if(!aEditExamId) aTempAnswers = new Array(q).fill('');
+  aStep = 'answers';
+  render();
+}
+
+function renderAdminAnswers(){
+  const isEdit = !!aEditExamId;
+  let rows = '';
+  for(let i=0;i<aTempQ;i++){
+    const a = aTempAnswers[i]||'';
+    rows += `<tr>
+      <td class="num-col">${i+1}</td>
+      <td class="t-col"><button class="tf-btn${a==='T'?' sel-T':''}" onclick="setAns(${i},'T')">T</button></td>
+      <td><button class="tf-btn${a==='F'?' sel-F':''}" onclick="setAns(${i},'F')">F</button></td>
+    </tr>`;
+  }
+  const filled = aTempAnswers.filter(x=>x==='T'||x==='F').length;
+  document.getElementById('wrap').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-sm" onclick="aStep='list';aEditExamId='';render()">← 뒤로</button>
+      <div><div style="font-size:15px;font-weight:700;">${aTempName}</div>
+      <div style="font-size:12px;color:var(--text2);">${filled}/${aTempQ} 등록됨</div></div>
+    </div>
+    <div class="card">
+      <div class="sec-title">정답 체크</div>
+      <table class="tf-table">
+        <thead><tr><th class="num-col">#</th><th class="t-col">True</th><th>False</th></tr></thead>
+        <tbody id="ansBody">${rows}</tbody>
+      </table>
+      <button class="btn btn-primary btn-full" style="margin-top:14px;" onclick="saveExam()">
+        ${isEdit?'수정 저장 ✓':'시험 저장 →'}
+      </button>
+    </div>`;
+}
+
+function setAns(i, v){
+  aTempAnswers[i] = v;
+  // re-render just the row buttons
+  const tbody = document.getElementById('ansBody');
+  if(!tbody){ render(); return; }
+  const rows = tbody.querySelectorAll('tr');
+  const row = rows[i];
+  if(!row) return;
+  const btns = row.querySelectorAll('.tf-btn');
+  btns[0].className = 'tf-btn' + (v==='T'?' sel-T':'');
+  btns[1].className = 'tf-btn' + (v==='F'?' sel-F':'');
+  // update counter
+  const filled = aTempAnswers.filter(x=>x==='T'||x==='F').length;
+  const sub = document.querySelector('.hdr-left .title');
+  // update filled count in subtitle
+  const allDivs = document.querySelectorAll('.wrap > div');
+  if(allDivs[0]){
+    const sub2 = allDivs[0].querySelector('div div:last-child');
+    if(sub2) sub2.textContent = `${filled}/${aTempQ} 등록됨`;
+  }
+}
+
+async function saveExam(){
+  const filled = aTempAnswers.filter(x=>x==='T'||x==='F').length;
+  if(filled < aTempQ){ showToast(`${aTempQ}문항 모두 정답을 체크해주세요 (${filled}/${aTempQ})`); return; }
+  const id = aEditExamId || 'exam_'+Date.now();
+  exams[id] = { id, name:aTempName, questions:aTempQ, answers:aTempAnswers.slice(0,aTempQ), createdAt: aEditExamId?(exams[aEditExamId]?.createdAt||Date.now()):Date.now() };
+  if(!results[id]) results[id] = {};
+  await saveExams();
+  await saveResults();
+  showToast('시험이 저장됐어요 ✅');
+  aEditExamId = '';
+  aTempName = ''; aTempQ = 10; aTempAnswers = [];
+  goAdminDetail(id);
+}
+
+function goAdminDetail(id){
+  aDetailExamId = id; aDetailTab = 'results'; aStep = 'detail'; render();
+}
+
+function renderAdminDetail(){
+  const e = exams[aDetailExamId];
+  if(!e){ aStep='list'; render(); return; }
+  const res = results[aDetailExamId] || {};
+  const list = Object.entries(res).sort((a,b)=>b[1].score-a[1].score);
+  const avg = list.length ? Math.round(list.reduce((s,r)=>s+r[1].score,0)/list.length*100/e.questions) : null;
+
+  let tabHtml = '';
+  if(aDetailTab === 'results'){
+    if(!list.length){
+      tabHtml = `<div class="empty"><div class="ei">🕐</div><div>아직 제출한 학생이 없어요<br><span style="font-size:12px;">학생에게 아래 링크를 공유해주세요</span></div></div>`;
+    } else {
+      tabHtml = `<div class="card" style="padding:0;overflow:hidden;">` +
+        list.map(([name,r])=>{
+          const pct = Math.round(r.score/r.total*100);
+          const cls = pct>=80?'high':pct>=60?'mid':'low';
+          return `<div class="res-row" style="cursor:pointer;" onclick="goAdminStudentDetail('${aDetailExamId}','${name}')">
+            <div class="res-av">${name.slice(0,4)}</div>
+            <div class="res-name">${name}</div>
+            <div style="font-size:11px;color:var(--text2);margin-right:4px;">${r.score}/${r.total}</div>
+            <div class="res-score ${cls}">${pct}점</div>
+            <div style="color:var(--text3);margin-left:4px;font-size:18px;">›</div>
+          </div>`;
+        }).join('') + `</div>`;
+    }
+  } else {
+    for(let i=0;i<e.questions;i++){
+      const a=e.answers[i];
+      rows+=`<tr>
+        <td class="num-col">${i+1}</td>
+        <td class="t-col"><button class="tf-btn${a==='T'?' sel-T':''}" disabled>${a==='T'?'✓ T':'T'}</button></td>
+        <td><button class="tf-btn${a==='F'?' sel-F':''}" disabled>${a==='F'?'✓ F':'F'}</button></td>
+      </tr>`;
+    }
+    tabHtml = `<div class="card">
+      <table class="tf-table">
+        <thead><tr><th class="num-col">#</th><th class="t-col">True</th><th>False</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <button class="btn btn-sm" style="width:100%;margin-top:12px;" onclick="editExam('${aDetailExamId}')">정답 수정</button>
+    </div>`;
+  }
+
+  document.getElementById('wrap').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-sm" onclick="aStep='list';render()">← 목록</button>
+      <div style="flex:1;">
+        <div style="font-size:16px;font-weight:700;">${e.name}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:1px;">${e.questions}문항${avg!==null?` · 평균 <b style="color:var(--accent);">${avg}점</b>`:''}</div>
+      </div>
+      <button class="btn btn-danger" onclick="deleteExam('${aDetailExamId}')">삭제</button>
+    </div>
+
+    <!-- 학생 참여 안내 -->
+    <div class="card">
+      <div class="sec-title">학생 참여 방법</div>
+      <div style="font-size:13px;color:var(--text2);margin-bottom:10px;line-height:1.6;">
+        ① 학생에게 아래 <b>학생용 링크</b>를 공유해요<br>
+        ② 학생이 링크 열면 바로 학생 모드로 접속돼요<br>
+        ③ 시험 선택 → 이름 입력 → T/F 체크 → 제출
+      </div>
+      <div style="background:var(--bg);border:1.5px solid var(--border);border-radius:var(--r-sm);padding:10px 13px;display:flex;align-items:center;gap:8px;margin-bottom:8px;">
+        <div style="flex:1;font-size:12px;color:var(--accent);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" id="studentLinkText"></div>
+        <div style="font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;flex-shrink:0;" onclick="copyStudentLink()">복사</div>
+      </div>
+      <div style="font-size:11px;color:var(--text3);text-align:center;">⚠️ 선생님 링크(#admin-chaesunbe)는 학생에게 공유하지 마세요</div>
+    </div>
+
+    <div class="tabs">
+      <div class="atab${aDetailTab==='results'?' active':''}" onclick="aDetailTab='results';renderAdminDetail()">제출 결과 (${list.length}명)</div>
+      <div class="atab${aDetailTab==='answers'?' active':''}" onclick="aDetailTab='answers';renderAdminDetail()">정답 보기</div>
+    </div>
+    ${tabHtml}`;
+
+  // 학생용 링크 텍스트 채우기
+  const studentLink = location.href.replace(location.hash,'');
+  window._studentLink = studentLink;
+  const linkEl = document.getElementById('studentLinkText');
+  if(linkEl) linkEl.textContent = studentLink;
+}
+
+function goAdminStudentDetail(examId, name){
+  aDetailExamId = examId; aDetailStudent = name; aStep = 'student-detail'; render();
+}
+
+function renderAdminStudentDetail(){
+  const e = exams[aDetailExamId];
+  const r = results[aDetailExamId]?.[aDetailStudent];
+  if(!e||!r){ aStep='detail'; render(); return; }
+  const pct = Math.round(r.score/r.total*100);
+  const barColor = pct>=80?'var(--green)':pct>=60?'var(--orange)':'var(--red)';
+
+  let rows = '';
+  for(let i=0;i<e.questions;i++){
+    const correct=e.answers[i], given=r.answers[i], ok=correct===given;
+    rows+=`<tr>
+      <td class="num-col">${i+1}</td>
+      <td class="t-col"><button class="tf-btn ${given==='T'?(ok?'correct-T':'wrong-T'):''}" disabled>${given==='T'?(ok?'✓':'✗')+' T':'T'}</button></td>
+      <td><button class="tf-btn ${given==='F'?(ok?'correct-F':'wrong-F'):''}" disabled>${given==='F'?(ok?'✓':'✗')+' F':'F'}</button></td>
+      <td style="text-align:center;font-size:15px;">${ok?'✅':'❌'}</td>
+    </tr>`;
+  }
+
+  document.getElementById('wrap').innerHTML = `
+    <div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-sm" onclick="aStep='detail';render()">← 뒤로</button>
+      <div style="font-size:15px;font-weight:700;">${aDetailStudent} · 답안</div>
+    </div>
+    <div class="score-box">
+      <div style="font-size:26px;margin-bottom:8px;">${pct>=90?'🎉':pct>=70?'👍':pct>=50?'😊':'💪'}</div>
+      <div class="score-num" style="color:${barColor}">${pct}점</div>
+      <div class="score-sub">${r.score} / ${r.total} 정답 · ${aDetailStudent}</div>
+      <div class="score-bar-bg"><div class="score-bar" style="width:${pct}%;background:${barColor};"></div></div>
+    </div>
+    <div class="card">
+      <table class="tf-table">
+        <thead><tr><th class="num-col">#</th><th class="t-col">True</th><th>False</th><th>결과</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>`;
+}
+
+function editExam(id){
+  const e = exams[id];
+  aEditExamId = id; aTempName = e.name; aTempQ = e.questions;
+  aTempAnswers = e.answers.slice();
+  aStep = 'answers'; render();
+}
+
+async function deleteExam(id){
+  if(!confirm('이 시험을 삭제할까요?')) return;
+  delete exams[id]; delete results[id];
+  await saveExams(); await saveResults();
+  aStep='list'; render(); showToast('삭제됐어요');
+}
+
+// ════════════════════════════
+// STUDENT
+// ════════════════════════════
+function renderStudent(){
+  if(sStep==='list')   renderStudentList();
+  else if(sStep==='name')  renderStudentName();
+  else if(sStep==='exam')  renderStudentExam();
+  else if(sStep==='result') renderStudentResult();
+}
+
+function renderStudentList(){
+  const list = Object.values(exams).sort((a,b)=>b.createdAt-a.createdAt);
+  let html = '';
+  if(!list.length){
+    html = `<div class="empty"><div class="ei">📋</div><div>진행 중인 시험이 없어요<br><span style="font-size:12px;">선생님이 시험을 만들면 여기에 나타나요</span></div></div>`;
+  } else {
+    html += `<div class="sec-title">시험 선택</div>`;
+    html += list.map(e=>`
+      <div class="exam-item" onclick="goStudentName('${e.id}')">
+        <div class="exam-icon student-icon">✏️</div>
+        <div class="exam-info">
+          <div class="exam-name">${e.name}</div>
+          <div class="exam-meta">${e.questions}문항</div>
+        </div>
+        <div class="exam-arrow">›</div>
+      </div>`).join('');
+  }
+  document.getElementById('wrap').innerHTML = html;
+}
+
+function goStudentName(examId){
+  sExamId = examId; sName = ''; sAnswers = new Array(exams[examId].questions).fill('');
+  sStep = 'name'; render();
+}
+
+function renderStudentName(){
+  const e = exams[sExamId];
+  document.getElementById('wrap').innerHTML = `
+    <div class="name-screen">
+      <div class="name-big">✏️</div>
+      <div class="name-title">${e.name}</div>
+      <div class="name-sub">${e.questions}문항<br>이름을 입력하고 시험을 시작하세요</div>
+      <input class="name-field" id="sNameInput" placeholder="이름 입력" maxlength="10"
+        onkeydown="if(event.key==='Enter') startStudentExam()">
+      <button class="btn btn-green btn-full" onclick="startStudentExam()">시험 시작 →</button>
+    </div>`;
+  setTimeout(()=>{ const el=document.getElementById('sNameInput'); if(el) el.focus(); },80);
+}
+
+function startStudentExam(){
+  const el = document.getElementById('sNameInput');
+  const name = el ? el.value.trim() : '';
+  if(!name){ showToast('이름을 입력해주세요'); return; }
+  sName = name; sStep = 'exam'; render();
+}
+
+function renderStudentExam(){
+  const e = exams[sExamId];
+  const filled = sAnswers.filter(a=>a).length;
+  let rows = '';
+  for(let i=0;i<e.questions;i++){
+    const a=sAnswers[i]||'';
+    rows+=`<tr>
+      <td class="num-col">${i+1}</td>
+      <td class="t-col"><button class="tf-btn${a==='T'?' sel-T':''}" onclick="pickS(${i},'T')">T</button></td>
+      <td><button class="tf-btn${a==='F'?' sel-F':''}" onclick="pickS(${i},'F')">F</button></td>
+    </tr>`;
+  }
+  document.getElementById('wrap').innerHTML = `
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+      <div>
+        <div style="font-size:15px;font-weight:700;">${e.name}</div>
+        <div style="font-size:12px;color:var(--text2);margin-top:1px;">✏️ ${sName} · ${filled}/${e.questions} 체크</div>
+      </div>
+    </div>
+    <div class="card">
+      <table class="tf-table">
+        <thead><tr><th class="num-col">#</th><th class="t-col">True</th><th>False</th></tr></thead>
+        <tbody id="sBody">${rows}</tbody>
+      </table>
+    </div>
+    <button class="btn btn-green btn-full" onclick="submitStudent()">제출하기 →</button>
+    <div style="font-size:12px;color:var(--text2);text-align:center;margin-top:10px;">모든 문항을 체크한 후 제출하세요</div>`;
+}
+
+function pickS(i, v){
+  sAnswers[i] = v;
+  // 버튼만 업데이트 (전체 리렌더 없이)
+  const tbody = document.getElementById('sBody');
+  if(!tbody){ render(); return; }
+  const row = tbody.querySelectorAll('tr')[i];
+  if(!row) return;
+  const btns = row.querySelectorAll('.tf-btn');
+  btns[0].className = 'tf-btn'+(v==='T'?' sel-T':'');
+  btns[1].className = 'tf-btn'+(v==='F'?' sel-F':'');
+  // 카운터 업데이트
+  const filled = sAnswers.filter(a=>a).length;
+  const sub = document.querySelector('.wrap > div > div:last-child');
+  const metaDiv = document.querySelector('.wrap > div div:last-child');
+}
+
+async function submitStudent(){
+  const e = exams[sExamId];
+  const filled = sAnswers.filter(a=>a).length;
+  if(filled < e.questions){ showToast(`${e.questions-filled}문항이 남았어요`); return; }
+
+  let score = 0;
+  for(let i=0;i<e.questions;i++) if(sAnswers[i]===e.answers[i]) score++;
+
+  if(!results[sExamId]) results[sExamId] = {};
+  results[sExamId][sName] = { answers:sAnswers.slice(), score, total:e.questions, submittedAt:Date.now() };
+  await saveResults();
+
+  sStep = 'result'; render();
+}
+
+function renderStudentResult(){
+  const e = exams[sExamId];
+  const r = results[sExamId][sName];
+  const pct = Math.round(r.score/r.total*100);
+  const barColor = pct>=80?'var(--green)':pct>=60?'var(--orange)':'var(--red)';
+  const msg = pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
+
+  // 문항별 리뷰
+  let rows = '';
+  for(let i=0;i<e.questions;i++){
+    const correct=e.answers[i], given=r.answers[i], ok=correct===given;
+    rows+=`<tr>
+      <td class="num-col">${i+1}</td>
+      <td class="t-col">
+        <button class="tf-btn ${given==='T'?(ok?'correct-T':'wrong-T'):( correct==='T'?'answer-hint':'')}" disabled>
+          ${given==='T'?(ok?'✓ T':'✗ T'):(correct==='T'?'→ T':'T')}
+        </button>
+      </td>
+      <td>
+        <button class="tf-btn ${given==='F'?(ok?'correct-F':'wrong-F'):(correct==='F'?'answer-hint':'')}" disabled>
+          ${given==='F'?(ok?'✓ F':'✗ F'):(correct==='F'?'→ F':'F')}
+        </button>
+      </td>
+      <td style="text-align:center;font-size:15px;">${ok?'✅':'❌'}</td>
+    </tr>`;
+  }
+
+  // 범례
+  const legendHtml = `<div class="legend">
+    <div class="legend-item"><div class="legend-dot" style="background:var(--green);"></div> 정답 (내가 맞힘)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--red);"></div> 오답 (내가 틀림)</div>
+    <div class="legend-item"><div class="legend-dot" style="background:var(--accent);"></div> 정답 (→ 표시)</div>
+  </div>`;
+
+  document.getElementById('wrap').innerHTML = `
+    <div class="score-box">
+      <div style="font-size:26px;margin-bottom:8px;">${msg}</div>
+      <div class="score-num" style="color:${barColor}">${pct}점</div>
+      <div class="score-sub">${r.score} / ${r.total} 정답 · ${sName}</div>
+      <div class="score-bar-bg"><div class="score-bar" style="width:${pct}%;background:${barColor};"></div></div>
+    </div>
+    <div class="card">
+      <div class="sec-title">문항별 결과</div>
+      ${legendHtml}
+      <table class="tf-table">
+        <thead><tr><th class="num-col">#</th><th class="t-col">True</th><th>False</th><th>결과</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+    </div>
+    <button class="btn btn-sm btn-full" style="margin-top:4px;" onclick="sStep='list';render()">다른 시험 보기</button>`;
+}
+
+// answer hint style
+const style = document.createElement('style');
+style.textContent = `.tf-btn.answer-hint{background:rgba(47,122,245,.10);border-color:rgba(47,122,245,.4);color:var(--accent);}`;
+document.head.appendChild(style);
+
+function copyStudentLink(){
+  const url = window._studentLink || location.href.replace(location.hash,'');
+  navigator.clipboard.writeText(url).catch(()=>{
+    const t=document.createElement('textarea');
+    t.value=url; document.body.appendChild(t); t.select();
+    document.execCommand('copy'); document.body.removeChild(t);
+  });
+  showToast('학생용 링크 복사됐어요! 📎');
+}
+
+// ── TOAST ──
+function showToast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg; t.className='toast show';
+  setTimeout(()=>t.className='toast',2400);
+}
+</script>
+
+</body>
+</html>
