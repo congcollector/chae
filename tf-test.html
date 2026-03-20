@@ -220,13 +220,16 @@ async function renderAList() {
   </div>`;
   if (exams.length) {
     h += `<div class="sec-title" style="margin-top:4px;">시험 목록</div>`;
-    h += exams.map(e => `<div class="exam-item" onclick="goADetail('${e.id}')">
-      <div class="e-icon e-icon-a">📝</div>
-      <div style="flex:1">
+    h += exams.map(e => `<div class="exam-item">
+      <div class="e-icon e-icon-a" onclick="goADetail('${e.id}')" style="cursor:pointer;">📝</div>
+      <div style="flex:1;cursor:pointer;" onclick="goADetail('${e.id}')">
         <div style="font-size:14px;font-weight:700;">${e.name}</div>
         <div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">${e.questions}문항</div>
       </div>
-      <div style="color:rgba(28,28,30,0.3);font-size:20px;">›</div>
+      <div style="display:flex;gap:6px;flex-shrink:0;">
+        <button class="btn btn-gray" style="padding:6px 10px;font-size:12px;" onclick="quickEdit('${e.id}')">✏️</button>
+        <button class="btn btn-red" style="padding:6px 10px;font-size:12px;" onclick="quickDelete('${e.id}','${e.name}')">🗑️</button>
+      </div>
     </div>`).join('');
   } else {
     h += `<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>아직 만든 시험이 없어요</div></div>`;
@@ -355,6 +358,7 @@ async function renderADetail() {
         <div style="font-size:16px;font-weight:700;">${e.name}</div>
         <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">${e.questions}문항${avg!==null?` · 평균 <b style="color:#2f7af5">${avg}점</b>`:''}</div>
       </div>
+      <button class="btn btn-gray" onclick="doEditExam()" style="padding:7px 13px;font-size:12px;">✏️ 수정</button>
       <button class="btn btn-red" onclick="doDelExam()">삭제</button>
     </div>
 
@@ -423,6 +427,24 @@ function doEditExam() {
   if (!e) return;
   aEditId=e.id; aTempName=e.name; aTempQ=e.questions; aTempAnswers=e.answers.slice();
   aStep='answers'; render();
+}
+
+async function quickEdit(id) {
+  W('<div class="loading">⏳ 불러오는 중...</div>');
+  const exams = await db.getExams();
+  const e = exams.find(x => x.id === id);
+  if (!e) { renderAList(); return; }
+  window._curExam = e;
+  aEditId=e.id; aTempName=e.name; aTempQ=e.questions; aTempAnswers=e.answers.slice();
+  aStep='answers'; render();
+}
+
+async function quickDelete(id, name) {
+  if (!confirm(`"${name}" 시험을 삭제할까요?\n제출된 결과도 함께 삭제됩니다.`)) return;
+  W('<div class="loading">🗑️ 삭제 중...</div>');
+  await db.deleteExam(id);
+  toast('삭제됐어요');
+  aStep='list'; render();
 }
 
 async function doDelExam() {
