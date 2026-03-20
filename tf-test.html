@@ -111,16 +111,23 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 const SUPA_URL = 'https://pithlzhuqezeesprcbze.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpdGhsemh1cWV6ZWVzcHJjYnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMDc1NjgsImV4cCI6MjA4OTU4MzU2OH0.GFBnUKHQ_B_GQEQIy9nBWr38gnok_b__fAyTX7v7tNQ';
 
-const api = (path, opts={}) => fetch(`${SUPA_URL}/rest/v1/${path}`, {
-  headers: {
-    'apikey': SUPA_KEY,
-    'Authorization': `Bearer ${SUPA_KEY}`,
-    'Content-Type': 'application/json',
-    'Prefer': opts.prefer || 'return=representation',
-    ...opts.headers
-  },
-  ...opts
-});
+const BASE_HEADERS = {
+  'apikey': SUPA_KEY,
+  'Authorization': `Bearer ${SUPA_KEY}`,
+  'Content-Type': 'application/json',
+};
+
+const api = (path, opts={}) => {
+  const { headers: extraHeaders, prefer, ...rest } = opts;
+  return fetch(`${SUPA_URL}/rest/v1/${path}`, {
+    ...rest,
+    headers: {
+      ...BASE_HEADERS,
+      'Prefer': prefer || 'return=representation',
+      ...(extraHeaders || {})
+    }
+  });
+};
 
 const db = {
   async getExams() {
@@ -131,7 +138,6 @@ const db = {
     return await api('exams', {
       method: 'POST',
       prefer: 'resolution=merge-duplicates,return=representation',
-      headers: { 'Prefer': 'resolution=merge-duplicates,return=representation' },
       body: JSON.stringify({
         id: exam.id,
         name: exam.name,
