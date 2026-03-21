@@ -570,46 +570,35 @@ async function renderSResult() {
   const r       = results.find(x => x.student_name === sName);
   const e       = sExamData;
   if (!r) { sStep='list'; render(); return; }
-  const pct = Math.round(r.score/r.total*100);
-  const col = pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
-  const msg = pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
-  let rows = '';
-  for (let i = 0; i < e.questions; i++) {
-    const cor=e.answers[i], giv=r.answers[i], ok=cor===giv;
-    rows += `<tr>
-      <td class="c0">${i+1}</td>
-      <td class="c1">
-        <button class="tfb ${giv==='T'?(ok?'ok':'no'):(cor==='T'?'hint':'')}" disabled>
-          ${giv==='T'?(ok?'✓ T':'✗ T'):(cor==='T'?'→ T':'T')}
-        </button>
-      </td>
-      <td>
-        <button class="tfb ${giv==='F'?(ok?'ok':'no'):(cor==='F'?'hint':'')}" disabled>
-          ${giv==='F'?(ok?'✓ F':'✗ F'):(cor==='F'?'→ F':'F')}
-        </button>
-      </td>
-      <td style="text-align:center;font-size:15px;">${ok?'✅':'❌'}</td>
-    </tr>`;
-  }
+  const pct    = Math.round(r.score/r.total*100);
+  const wrong  = r.total - r.score;
+  const col    = pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
+  const msg    = pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
+  const retry  = wrong > 0;
+
   W(`<div class="score-box">
       <div style="font-size:26px;margin-bottom:8px;">${msg}</div>
-      <div class="score-num" style="color:${col}">${pct}점</div>
-      <div class="score-sub">${r.score} / ${r.total} 정답 · ${sName}</div>
-      <div class="bar-bg"><div class="bar-fg" style="width:${pct}%;background:${col};"></div></div>
+      <div class="score-num" style="color:${col}">${r.score} / ${r.total}</div>
+      <div class="score-sub">${sName} · ${wrong > 0 ? `<span style="color:#d93025;font-weight:600;">${wrong}개 틀림</span>` : '전부 정답! 🎯'}</div>
+      <div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:${pct}%;background:${col};"></div></div>
     </div>
-    <div class="card">
-      <div class="sec-title">문항별 결과</div>
-      <div class="legend">
-        <div class="legend-item"><div class="dot" style="background:#1a9e45;"></div>맞힌 것</div>
-        <div class="legend-item"><div class="dot" style="background:rgba(100,100,100,0.4);"></div>틀린 것</div>
-        <div class="legend-item"><div class="dot" style="background:#2f7af5;"></div>정답(→)</div>
-      </div>
-      <table class="tbl">
-        <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th><th>결과</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
-    </div>
-    <button class="btn btn-gray btn-full" style="margin-top:4px;" onclick="sStep='list';render()">다른 시험 보기</button>`);
+    ${retry ? `
+    <div class="card" style="text-align:center;padding:20px;">
+      <div style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:6px;">다시 도전해볼까요?</div>
+      <div style="font-size:13px;color:rgba(28,28,30,0.55);margin-bottom:14px;">틀린 문제를 다시 풀어서 100점에 도전하세요!</div>
+      <button class="btn btn-green btn-full" style="margin-top:0;" onclick="retryExam()">다시 풀기 →</button>
+    </div>` : `
+    <div class="card" style="text-align:center;padding:24px;">
+      <div style="font-size:36px;margin-bottom:10px;">🎯</div>
+      <div style="font-size:16px;font-weight:700;color:#1a9e45;">전부 맞았어요!</div>
+    </div>`}
+    <button class="btn btn-gray btn-full" style="margin-top:8px;" onclick="sStep='list';render()">다른 시험 보기</button>`);
+}
+
+function retryExam() {
+  sAnswers = new Array(sExamData.questions).fill('');
+  sStep = 'exam';
+  render();
 }
 
 // ── UTILS ──
