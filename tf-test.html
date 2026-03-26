@@ -14,7 +14,7 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .hdr-logo { font-size: 9px; letter-spacing: 2px; color: #2f7af5; text-transform: uppercase; font-weight: 600; opacity: 0.8; }
 .hdr-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
 .pill { font-size: 11px; font-weight: 700; padding: 5px 13px; border-radius: 20px; }
-.pill-admin { background: linear-gradient(135deg, #2f7af5, #6b3ff0); color: white; }
+.pill-admin   { background: linear-gradient(135deg, #2f7af5, #6b3ff0); color: white; }
 .pill-student { background: linear-gradient(135deg, #1a9e45, #158a3a); color: white; }
 
 .wrap { max-width: 480px; margin: 0 auto; padding: 20px 16px 80px; }
@@ -24,17 +24,22 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .sec-title::after { content: ‘’; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
 
 .lbl { font-size: 12px; font-weight: 600; color: rgba(28,28,30,0.55); margin-bottom: 5px; }
-.inp { width: 100%; padding: 11px 13px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 14px; font-family: inherit; color: #1c1c1e; outline: none; margin-bottom: 10px; transition: border-color 0.2s; }
-.inp:focus { border-color: #2f7af5; }
+.inp { width: 100%; padding: 11px 13px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 14px; font-family: inherit; color: #1c1c1e; outline: none; margin-bottom: 10px; transition: border-color 0.2s, background 0.2s; -webkit-appearance: none; }
+.inp:focus { border-color: #2f7af5; background: #fff; }
 .inp-sm { width: 90px; text-align: center; }
+.sel-wrap { position: relative; margin-bottom: 10px; }
+.sel-wrap::after { content: ‘▾’; position: absolute; right: 13px; top: 50%; transform: translateY(-50%); font-size: 12px; color: rgba(28,28,30,0.4); pointer-events: none; }
+.sel { width: 100%; padding: 11px 36px 11px 13px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 14px; font-family: inherit; color: #1c1c1e; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; transition: border-color 0.2s; }
+.sel:focus { border-color: #2f7af5; background: #fff; }
 
-.btn { padding: 13px 18px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; transition: opacity 0.15s; }
-.btn:active { opacity: 0.75; }
+.btn { padding: 13px 18px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; transition: opacity 0.15s, transform 0.1s; }
+.btn:active { opacity: 0.75; transform: scale(0.97); }
 .btn-full { width: 100%; margin-top: 6px; display: block; }
-.btn-blue  { background: linear-gradient(135deg, #2f7af5, #6b3ff0); color: white; box-shadow: 0 2px 12px rgba(47,122,245,0.25); }
-.btn-green { background: linear-gradient(135deg, #1a9e45, #158a3a); color: white; box-shadow: 0 2px 12px rgba(26,158,69,0.2); }
-.btn-gray  { padding: 7px 13px; font-size: 12px; border-radius: 9px; background: #f2f2f7; border: 1.5px solid rgba(0,0,0,0.1); color: rgba(28,28,30,0.55); }
-.btn-red   { padding: 7px 13px; font-size: 12px; border-radius: 9px; background: rgba(217,48,37,0.1); border: 1.5px solid rgba(217,48,37,0.2); color: #d93025; }
+.btn-blue   { background: linear-gradient(135deg, #2f7af5, #6b3ff0); color: white; box-shadow: 0 2px 12px rgba(47,122,245,0.25); }
+.btn-green  { background: linear-gradient(135deg, #1a9e45, #158a3a); color: white; box-shadow: 0 2px 12px rgba(26,158,69,0.2); }
+.btn-gray   { padding: 7px 13px; font-size: 12px; border-radius: 9px; background: #f2f2f7; border: 1.5px solid rgba(0,0,0,0.1); color: rgba(28,28,30,0.55); }
+.btn-red    { padding: 7px 13px; font-size: 12px; border-radius: 9px; background: rgba(217,48,37,0.1); border: 1.5px solid rgba(217,48,37,0.2); color: #d93025; }
+.btn-orange { background: rgba(255,149,0,0.12); border: 1.5px solid rgba(255,149,0,0.3); color: #c4600a; font-size: 14px; font-weight: 700; padding: 12px 18px; border-radius: 12px; }
 
 .tbl { width: 100%; border-collapse: collapse; }
 .tbl th { padding: 9px 6px; text-align: center; font-size: 11px; font-weight: 700; color: rgba(28,28,30,0.5); background: #f2f2f7; border-bottom: 1.5px solid rgba(0,0,0,0.08); }
@@ -51,7 +56,6 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .f-on { background: #fdf0ee; border-color: #d93025; color: #d93025; }
 .ok   { background: #e8f5f0; border-color: #1a9e45; color: #1a9e45; }
 .no   { background: rgba(100,100,100,0.08); border-color: rgba(100,100,100,0.2); color: rgba(100,100,100,0.5); text-decoration: line-through; }
-.hint { background: rgba(47,122,245,0.08); border-color: rgba(47,122,245,0.4); color: #2f7af5; }
 
 .score-box { text-align: center; padding: 28px 20px; background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 1px 8px rgba(0,0,0,0.06); margin-bottom: 12px; }
 .score-num { font-size: 56px; font-weight: 700; line-height: 1; margin-bottom: 5px; }
@@ -59,11 +63,28 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .bar-bg { background: #f2f2f7; border-radius: 20px; height: 8px; overflow: hidden; }
 .bar-fg { height: 100%; border-radius: 20px; transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1); }
 
-.exam-item { display: flex; align-items: center; gap: 12px; padding: 13px 16px; background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; margin-bottom: 8px; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.05); transition: transform 0.12s; }
+/* 학교 폴더 */
+.school-folder { margin-bottom: 14px; }
+.school-header { display: flex; align-items: center; gap: 8px; padding: 11px 14px; background: white; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); margin-bottom: 6px; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.05); user-select: none; }
+.school-icon { font-size: 18px; }
+.school-name { font-size: 14px; font-weight: 700; flex: 1; }
+.school-count { font-size: 12px; color: rgba(28,28,30,0.45); }
+.school-arrow { font-size: 14px; color: rgba(28,28,30,0.3); transition: transform 0.2s; display: inline-block; }
+.school-arrow.open { transform: rotate(90deg); }
+.school-exams { padding-left: 10px; display: none; }
+.school-exams.open { display: block; }
+
+.exam-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; margin-bottom: 7px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); transition: transform 0.12s; }
 .exam-item:active { transform: scale(0.98); }
-.e-icon { width: 40px; height: 40px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 18px; flex-shrink: 0; }
+.e-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
 .e-icon-a { background: linear-gradient(135deg,#2f7af5,#6b3ff0); }
 .e-icon-s { background: linear-gradient(135deg,#1a9e45,#158a3a); }
+
+/* 드래그 핸들 */
+.drag-handle { display: flex; align-items: center; justify-content: center; width: 24px; flex-shrink: 0; cursor: grab; color: rgba(28,28,30,0.25); font-size: 16px; padding: 4px 0; user-select: none; touch-action: none; }
+.drag-handle:active { cursor: grabbing; }
+.exam-item.dragging { opacity: 0.4; background: #f2f2f7; box-shadow: none; }
+.exam-item.drag-over { border-color: #2f7af5; background: rgba(47,122,245,0.05); transform: scale(1.01); }
 
 .res-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; }
 .res-row:last-child { border-bottom: none; }
@@ -73,9 +94,8 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .sp-md { background: rgba(196,96,10,0.1);  color: #c4600a; }
 .sp-lo { background: rgba(217,48,37,0.1);  color: #d93025; }
 
-.name-screen { padding: 44px 20px 20px; text-align: center; }
-.name-inp { width: 100%; padding: 15px 16px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 20px; font-family: inherit; color: #1c1c1e; outline: none; text-align: center; margin-bottom: 14px; transition: border-color 0.2s; }
-.name-inp:focus { border-color: #2f7af5; }
+.name-inp { width: 100%; padding: 13px 14px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 16px; font-family: inherit; color: #1c1c1e; outline: none; text-align: left; transition: border-color 0.2s, background 0.2s; -webkit-appearance: none; }
+.name-inp:focus { border-color: #2f7af5; background: #fff; }
 
 .tabs { display: flex; border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 14px; }
 .tab { flex: 1; padding: 10px 0; text-align: center; font-size: 12px; font-weight: 600; color: rgba(28,28,30,0.35); cursor: pointer; border-bottom: 2px solid transparent; }
@@ -87,9 +107,14 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .empty { text-align: center; padding: 50px 20px; color: rgba(28,28,30,0.45); }
 .loading { text-align: center; padding: 60px 20px; color: rgba(28,28,30,0.45); font-size: 14px; }
 .link-box { background: #f2f2f7; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 10px 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-.legend { display: flex; gap: 12px; flex-wrap: wrap; margin-bottom: 12px; }
-.legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; color: rgba(28,28,30,0.5); }
-.dot { width: 10px; height: 10px; border-radius: 50%; }
+
+/* 학교 태그 */
+.school-tag { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; background: rgba(47,122,245,0.1); border: 1.5px solid rgba(47,122,245,0.2); font-size: 12px; font-weight: 600; color: #2f7af5; margin: 3px; }
+.stag-del { cursor: pointer; font-size: 14px; color: rgba(47,122,245,0.4); }
+.stag-del:hover { color: #d93025; }
+
+/* 수정 배너 */
+.fix-banner { background: rgba(255,149,0,0.1); border: 1.5px solid rgba(255,149,0,0.3); border-radius: 12px; padding: 11px 14px; margin-bottom: 12px; font-size: 13px; color: #c4600a; font-weight: 600; }
 </style>
 
 </head>
@@ -107,164 +132,335 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 <div class="toast" id="toast"></div>
 
 <script>
-// ── Supabase 설정 ──
 const SUPA_URL = 'https://pithlzhuqezeesprcbze.supabase.co';
 const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpdGhsemh1cWV6ZWVzcHJjYnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMDc1NjgsImV4cCI6MjA4OTU4MzU2OH0.GFBnUKHQ_B_GQEQIy9nBWr38gnok_b__fAyTX7v7tNQ';
-
-function apiGet(path) {
-  return fetch(SUPA_URL + '/rest/v1/' + path, {
-    method: 'GET',
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Content-Type': 'application/json'
-    }
-  });
-}
-function apiPost(path, body, prefer) {
-  return fetch(SUPA_URL + '/rest/v1/' + path, {
-    method: 'POST',
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Content-Type': 'application/json',
-      'Prefer': prefer || 'return=representation'
-    },
-    body: JSON.stringify(body)
-  });
-}
-function apiDelete(path) {
-  return fetch(SUPA_URL + '/rest/v1/' + path, {
-    method: 'DELETE',
-    headers: {
-      'apikey': SUPA_KEY,
-      'Authorization': 'Bearer ' + SUPA_KEY,
-      'Content-Type': 'application/json'
-    }
-  });
-}
+const H = { 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY, 'Content-Type':'application/json' };
+const api = {
+  get:   p     => fetch(SUPA_URL+'/rest/v1/'+p,{headers:H}).then(r=>r.json()),
+  post:  (p,b,pref) => fetch(SUPA_URL+'/rest/v1/'+p,{method:'POST',  headers:{...H,'Prefer':pref||'return=representation'},body:JSON.stringify(b)}),
+  patch: (p,b) => fetch(SUPA_URL+'/rest/v1/'+p,{method:'PATCH', headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(b)}),
+  del:   p     => fetch(SUPA_URL+'/rest/v1/'+p,{method:'DELETE',headers:H})
+};
 
 const db = {
-  async getExams() {
-    const r = await apiGet('exams?order=created_at.desc');
-    return await r.json();
-  },
-  async saveExam(exam) {
-    return await apiPost('exams', {
-      id: exam.id,
-      name: exam.name,
-      questions: exam.questions,
-      answers: exam.answers,
-      created_at: exam.createdAt
-    }, 'resolution=merge-duplicates,return=representation');
-  },
-  async deleteExam(id) {
-    await apiDelete('exams?id=eq.' + id);
-    await apiDelete('results?exam_id=eq.' + id);
-  },
-  async getResults(examId) {
-    const r = await apiGet('results?exam_id=eq.' + examId + '&order=score.desc');
-    return await r.json();
-  },
-  async saveResult(examId, studentName, data) {
-    await apiDelete('results?exam_id=eq.' + examId + '&student_name=eq.' + encodeURIComponent(studentName));
-    return await apiPost('results', {
-      exam_id: examId,
-      student_name: studentName,
-      answers: data.answers,
-      score: data.score,
-      total: data.total,
-      submitted_at: data.submittedAt
-    }, 'return=representation');
+  getExams:    ()  => api.get('exams?order=school.asc,order_index.asc,created_at.desc'),
+  getBySchool: (s) => api.get('exams?school=eq.'+encodeURIComponent(s)+'&order=order_index.asc,created_at.desc'),
+  saveExam:    (e) => api.post('exams',{id:e.id,name:e.name,questions:e.questions,answers:e.answers,created_at:e.createdAt,school:e.school||'기본',order_index:e.order_index||0},'resolution=merge-duplicates,return=representation'),
+  patchOrder:  (id,oi) => api.patch('exams?id=eq.'+id,{order_index:oi}),
+  delExam:     async id => { await api.del('exams?id=eq.'+id); await api.del('results?exam_id=eq.'+id); },
+  getResults:  id  => api.get('results?exam_id=eq.'+id+'&order=score.desc'),
+  saveResult:  async (eid,name,d) => {
+    await api.del('results?exam_id=eq.'+eid+'&student_name=eq.'+encodeURIComponent(name));
+    return api.post('results',{exam_id:eid,student_name:name,answers:d.answers,score:d.score,total:d.total,submitted_at:d.submittedAt});
   }
 };
 
-// ── 모드 결정 ──
-const ADMIN_HASH = '#admin-chaesunbe';
-const IS_ADMIN   = location.hash === ADMIN_HASH;
-const pill       = document.getElementById('modePill');
-pill.textContent = IS_ADMIN ? '선생님 🔑' : '학생 ✏️';
-pill.className   = 'pill ' + (IS_ADMIN ? 'pill-admin' : 'pill-student');
+// 학교 목록 (localStorage)
+const schools = {
+  get: ()    => { try{ return JSON.parse(localStorage.getItem('cs_schools')||'["기본"]'); }catch{ return['기본']; }},
+  set: (arr) => localStorage.setItem('cs_schools',JSON.stringify(arr)),
+  add: (s)   => { const a=schools.get(); if(!a.includes(s)){a.push(s);schools.set(a);} },
+  del: (s)   => schools.set(schools.get().filter(x=>x!==s))
+};
 
-// ── STATE ──
-let aStep = 'list';
-let aDetailId = '', aDetailStudent = '', aDetailTab = 'results';
-let aTempName = '', aTempQ = 10, aTempAnswers = [], aEditId = '';
-let sExamId = '', sExamData = null, sName = '', sAnswers = [], sStep = 'list';
+// 모드
+const IS_ADMIN = location.hash==='#admin-chaesunbe';
+const pill = document.getElementById('modePill');
+pill.textContent = IS_ADMIN?'선생님 🔑':'학생 ✏️';
+pill.className   = 'pill '+(IS_ADMIN?'pill-admin':'pill-student');
 
-// ── RENDER ──
-function render() {
-  if (IS_ADMIN) renderAdmin(); else renderStudent();
-}
+// STATE
+let aStep='list', aTab='create', aDetailId='', aDetailStudent='', aDetailTab='results';
+let aTempName='', aTempQ=10, aTempAnswers=[], aEditId='', aTempSchool='기본';
+let aFilterSchool='전체';
+let sStep='entry', sExamId='', sExamData=null, sName='', sSchool='', sAnswers=[], sFixMode=false;
+
+function render(){ IS_ADMIN?renderAdmin():renderStudent(); }
+function W(h){ document.getElementById('wrap').innerHTML=h; }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast t-show'; setTimeout(()=>t.className='toast',2400); }
+function copyLink(url){ navigator.clipboard.writeText(url).catch(()=>{ const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t); }); toast('링크 복사됐어요! 📎'); }
 
 // ══════════════════════════════
-// ADMIN
+//  ADMIN
 // ══════════════════════════════
-function renderAdmin() {
-  if      (aStep === 'list')    renderAList();
-  else if (aStep === 'answers') renderAAnswers();
-  else if (aStep === 'detail')  renderADetail();
-  else if (aStep === 'studet')  renderAStudentDetail();
+function renderAdmin(){
+  if(aStep==='list')    renderAList();
+  else if(aStep==='answers') renderAAnswers();
+  else if(aStep==='detail')  renderADetail();
+  else if(aStep==='studet')  renderAStudentDetail();
+  else if(aStep==='schools') renderASchools();
 }
 
-async function renderAList() {
+function aTabBar(){
+  return `<div style="display:flex;background:#e5e5ea;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;">
+    <button style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;
+      background:${aTab==='create'?'white':'transparent'};
+      color:${aTab==='create'?'#1c1c1e':'rgba(28,28,30,0.5)'};
+      box-shadow:${aTab==='create'?'0 1px 4px rgba(0,0,0,0.1)':'none'};"
+      onclick="aTab='create';renderAList()">➕ 새 시험 만들기</button>
+    <button style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;
+      background:${aTab==='view'?'white':'transparent'};
+      color:${aTab==='view'?'#1c1c1e':'rgba(28,28,30,0.5)'};
+      box-shadow:${aTab==='view'?'0 1px 4px rgba(0,0,0,0.1)':'none'};"
+      onclick="aTab='view';renderAList()">🏫 학교별 시험 보기</button>
+  </div>`;
+}
+
+async function renderAList(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
   const exams = await db.getExams();
-  let h = `<div class="card">
-    <div class="sec-title">새 시험 만들기</div>
-    <div class="lbl">시험 이름</div>
-    <input class="inp" id="aName" placeholder="예) 3월 4주차 Test / Unit 5" value="${aTempName}">
-    <div class="lbl">문항 수</div>
-    <input class="inp inp-sm" id="aQ" type="number" min="1" max="60" value="${aTempQ}">
-    <button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button>
-  </div>`;
-  if (exams.length) {
-    h += `<div class="sec-title" style="margin-top:4px;">시험 목록</div>`;
-    h += exams.map(e => `<div class="exam-item">
-      <div class="e-icon e-icon-a" onclick="goADetail('${e.id}')" style="cursor:pointer;">📝</div>
-      <div style="flex:1;cursor:pointer;" onclick="goADetail('${e.id}')">
-        <div style="font-size:14px;font-weight:700;">${e.name}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">${e.questions}문항</div>
-      </div>
-      <div style="display:flex;gap:6px;flex-shrink:0;">
-        <button class="btn btn-gray" style="padding:6px 10px;font-size:12px;" onclick="quickEdit('${e.id}')">✏️</button>
-        <button class="btn btn-red" style="padding:6px 10px;font-size:12px;" onclick="quickDelete('${e.id}','${e.name}')">🗑️</button>
-      </div>
-    </div>`).join('');
-  } else {
-    h += `<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>아직 만든 시험이 없어요</div></div>`;
+  const sl    = schools.get();
+  const opts  = sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
+
+  // ── 새 시험 만들기 탭 ──
+  if(aTab==='create'){
+    W(aTabBar()+`<div class="card">
+      <div class="sec-title">새 시험 만들기</div>
+      <div class="lbl">학교</div>
+      <div class="sel-wrap"><select class="sel" id="aSchool" onchange="aTempSchool=this.value">${opts}</select></div>
+      <div class="lbl">시험 이름</div>
+      <input class="inp" id="aName" placeholder="예) 3월 4주차 Test / Unit 5" value="${aTempName}">
+      <div class="lbl">문항 수</div>
+      <input class="inp inp-sm" id="aQ" type="number" min="1" max="60" value="${aTempQ}">
+      <button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button>
+    </div>`);
+    return;
   }
+
+  // ── 학교별 시험 보기 탭 ──
+  // 학교별 그룹핑
+  const grouped={};
+  sl.forEach(s=>grouped[s]=[]);
+  exams.forEach(e=>{ const s=e.school||'기본'; if(!grouped[s])grouped[s]=[]; grouped[s].push(e); });
+
+  // 학교 필터 칩
+  const allS=[...new Set([...sl,...Object.keys(grouped)])];
+  const filterChips=['전체',...allS].map(s=>`
+    <button onclick="aFilterSchool='${s}';renderAList()" style="
+      padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;
+      background:${aFilterSchool===s?'#2f7af5':'white'};
+      color:${aFilterSchool===s?'white':'rgba(28,28,30,0.55)'};
+      border-color:${aFilterSchool===s?'#2f7af5':'rgba(0,0,0,0.1)'};
+    ">${s}</button>`).join('');
+
+  let h = aTabBar();
+  h += `<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">${filterChips}</div>`;
+  h += `<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+    <button class="btn btn-gray" onclick="aStep='schools';render()">🏫 학교 관리</button>
+  </div>`;
+
+  // 필터 적용
+  const showSchools = aFilterSchool==='전체' ? allS : [aFilterSchool];
+  let hasAny=false;
+
+  showSchools.forEach(school=>{
+    const list=(grouped[school]||[]);
+    if(!list.length)return;
+    hasAny=true;
+    const fid='f_'+school.replace(/\W/g,'_');
+    // 전체 보기일 때만 폴더로 묶기, 특정 학교 선택시 바로 리스트
+    if(aFilterSchool==='전체'){
+      h+=`<div class="school-folder">
+        <div class="school-header" onclick="toggleF('${fid}')">
+          <span class="school-icon">🏫</span>
+          <span class="school-name">${school}</span>
+          <span class="school-count">${list.length}개</span>
+          <span class="school-arrow open" id="ar_${fid}">›</span>
+        </div>
+        <div class="school-exams open" id="${fid}">
+          ${examListHTML(list,school)}
+        </div>
+      </div>`;
+    } else {
+      h += examListHTML(list, school);
+    }
+  });
+
+  if(!hasAny) h+=`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>시험이 없어요</div></div>`;
   W(h);
 }
 
-function goACreate() {
-  const name = document.getElementById('aName').value.trim();
-  const q    = parseInt(document.getElementById('aQ').value);
-  if (!name) { toast('시험 이름을 입력해주세요'); return; }
-  if (!q || q < 1) { toast('문항 수를 입력해주세요'); return; }
-  aTempName = name; aTempQ = q;
-  if (!aEditId) aTempAnswers = new Array(q).fill('');
-  aStep = 'answers'; render();
+function examListHTML(list, school){
+  const containerId = 'drag_'+school.replace(/\W/g,'_');
+  // setTimeout으로 DOM 렌더 후 드래그 초기화
+  setTimeout(()=>initDrag(containerId, school), 50);
+  return `<div id="${containerId}">` +
+    list.map(e=>`<div class="exam-item" data-id="${e.id}" data-school="${school}">
+      <div class="drag-handle" title="드래그해서 순서 변경">⠿</div>
+      <div class="e-icon e-icon-a" onclick="goADetail('${e.id}')" style="cursor:pointer;">📝</div>
+      <div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail('${e.id}')">
+        <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
+        <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">${e.questions}문항${aFilterSchool==='전체'?'':` · 🏫 ${e.school||'기본'}`}</div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;">
+        <button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit('${e.id}')">✏️</button>
+        <button class="btn btn-red"  style="padding:6px 10px;" onclick="quickDel('${e.id}','${e.name.replace(/'/g,"\\'")}')">🗑️</button>
+      </div>
+    </div>`).join('') +
+  `</div>`;
 }
 
-function renderAAnswers() {
-  const filled = aTempAnswers.filter(x => x === 'T' || x === 'F').length;
-  let rows = '';
-  for (let i = 0; i < aTempQ; i++) {
-    const a = aTempAnswers[i] || '';
-    rows += `<tr>
-      <td class="c0">${i+1}</td>
+function toggleF(id){
+  const el=document.getElementById(id), ar=document.getElementById('ar_'+id);
+  if(!el)return;
+  el.classList.toggle('open');
+  if(ar)ar.classList.toggle('open');
+}
+
+// ── 드래그앤드롭 ──
+let _dragEl=null, _dragSchool='';
+
+function initDrag(containerId, school){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const items = container.querySelectorAll('.exam-item');
+
+  items.forEach(item=>{
+    const handle = item.querySelector('.drag-handle');
+    if(!handle) return;
+
+    // ── 데스크탑 (mouse) ──
+    handle.addEventListener('mousedown', ev=>{
+      ev.preventDefault();
+      startDrag(item, school, ev.clientY);
+    });
+
+    // ── 모바일 (touch) ──
+    handle.addEventListener('touchstart', ev=>{
+      ev.preventDefault();
+      startDrag(item, school, ev.touches[0].clientY);
+    }, {passive:false});
+  });
+}
+
+function startDrag(item, school, startY){
+  _dragEl = item;
+  _dragSchool = school;
+  item.classList.add('dragging');
+
+  const container = item.parentElement;
+  const items = ()=>[...container.querySelectorAll('.exam-item:not(.dragging)')];
+  let lastOver = null;
+
+  function onMove(clientY){
+    // 현재 Y 위치와 가장 가까운 아이템 찾기
+    const closest = items().reduce((acc, el)=>{
+      const box = el.getBoundingClientRect();
+      const mid = box.top + box.height/2;
+      const dist = Math.abs(clientY - mid);
+      return dist < acc.dist ? {el, dist, below: clientY > mid} : acc;
+    }, {el:null, dist:Infinity, below:false});
+
+    if(closest.el && closest.el !== lastOver){
+      lastOver = closest.el;
+      items().forEach(el=>el.classList.remove('drag-over'));
+      closest.el.classList.add('drag-over');
+      // 시각적으로 위치 이동
+      if(closest.below){
+        container.insertBefore(_dragEl, closest.el.nextSibling);
+      } else {
+        container.insertBefore(_dragEl, closest.el);
+      }
+    }
+  }
+
+  async function endDrag(){
+    if(!_dragEl) return;
+    _dragEl.classList.remove('dragging');
+    container.querySelectorAll('.exam-item').forEach(el=>el.classList.remove('drag-over'));
+
+    // 새 순서로 DB 업데이트
+    const newOrder = [...container.querySelectorAll('.exam-item')].map(el=>el.dataset.id);
+    await Promise.all(newOrder.map((id,i)=>db.patchOrder(id,i)));
+    toast('순서가 저장됐어요 ✅');
+    _dragEl=null; _dragSchool='';
+
+    // 이벤트 제거
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+  }
+
+  const onMouseMove = ev => onMove(ev.clientY);
+  const onMouseUp   = ()  => endDrag();
+  const onTouchMove = ev => { ev.preventDefault(); onMove(ev.touches[0].clientY); };
+  const onTouchEnd  = ()  => endDrag();
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup',   onMouseUp);
+  document.addEventListener('touchmove', onTouchMove, {passive:false});
+  document.addEventListener('touchend',  onTouchEnd);
+}
+
+function renderASchools(){
+  const sl=schools.get();
+  const tags=sl.map(s=>`<span class="school-tag">${s}${s==='기본'?'':` <span class="stag-del" onclick="doDelSchool('${s}')">×</span>`}</span>`).join('');
+  W(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+      <button class="btn btn-gray" onclick="aStep='list';aTab='view';render()">← 뒤로</button>
+      <div style="font-size:15px;font-weight:700;">🏫 학교 관리</div>
+    </div>
+    <div class="card">
+      <div class="sec-title">등록된 학교</div>
+      <div style="display:flex;flex-wrap:wrap;margin-bottom:12px;">${tags}</div>
+      <div class="lbl">새 학교 추가</div>
+      <div style="display:flex;gap:8px;">
+        <input class="inp" id="newSch" placeholder="학교명 입력" style="margin:0;flex:1;" onkeydown="if(event.key==='Enter')doAddSchool()">
+        <button class="btn btn-blue" style="margin:0;padding:11px 16px;" onclick="doAddSchool()">추가</button>
+      </div>
+    </div>
+    <div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;line-height:1.7;">
+      💡 학교를 추가하면 시험 만들기에서 선택할 수 있어요.<br>'기본'은 삭제할 수 없어요.
+    </div>`);
+}
+
+function doAddSchool(){
+  const inp=document.getElementById('newSch');
+  const n=inp?inp.value.trim():'';
+  if(!n){toast('학교명을 입력해주세요');return;}
+  if(schools.get().includes(n)){toast('이미 있는 학교예요');return;}
+  schools.add(n); toast('추가됐어요 ✅'); renderASchools();
+}
+function doDelSchool(n){
+  if(!confirm(`"${n}" 학교를 삭제할까요?\n(시험 데이터는 삭제되지 않아요)`))return;
+  schools.del(n); renderASchools();
+}
+
+function goACreate(){
+  const name=document.getElementById('aName').value.trim();
+  const q=parseInt(document.getElementById('aQ').value);
+  const school=document.getElementById('aSchool')?.value||aTempSchool;
+  if(!name){toast('시험 이름을 입력해주세요');return;}
+  if(!q||q<1){toast('문항 수를 입력해주세요');return;}
+  aTempName=name;aTempQ=q;aTempSchool=school;
+  if(!aEditId)aTempAnswers=new Array(q).fill('');
+  aStep='answers';render();
+}
+
+function renderAAnswers(){
+  const filled=aTempAnswers.filter(x=>x==='T'||x==='F').length;
+  const sl=schools.get();
+  const schoolOpts=sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
+  let rows='';
+  for(let i=0;i<aTempQ;i++){
+    const a=aTempAnswers[i]||'';
+    rows+=`<tr><td class="c0">${i+1}</td>
       <td class="c1"><button class="tfb ${a==='T'?'t-on':''}" onclick="setAns(${i},'T')">T</button></td>
-      <td><button class="tfb ${a==='F'?'f-on':''}" onclick="setAns(${i},'F')">F</button></td>
-    </tr>`;
+      <td><button class="tfb ${a==='F'?'f-on':''}" onclick="setAns(${i},'F')">F</button></td></tr>`;
   }
   W(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <button class="btn btn-gray" onclick="aStep='list';aEditId='';render()">← 뒤로</button>
       <div>
         <div style="font-size:15px;font-weight:700;">${aTempName}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.5);" id="fillCnt">${filled}/${aTempQ} 등록됨</div>
+        <div style="font-size:12px;color:rgba(28,28,30,0.5);" id="fillCnt">${filled}/${aTempQ} 등록됨 · ${aTempSchool}</div>
       </div>
     </div>
+    ${aEditId?`<div class="card" style="padding:14px 18px;">
+      <div class="lbl">학교 변경</div>
+      <div class="sel-wrap" style="margin:0;">
+        <select class="sel" id="editSchool" onchange="aTempSchool=this.value;document.getElementById('fillCnt').textContent='${filled}/${aTempQ} 등록됨 · '+this.value">${schoolOpts}</select>
+      </div>
+    </div>`:''}
     <div class="card">
       <div class="sec-title">정답 체크</div>
       <table class="tbl">
@@ -275,79 +471,66 @@ function renderAAnswers() {
     </div>`);
 }
 
-function setAns(i, v) {
-  aTempAnswers[i] = v;
-  const tbody = document.getElementById('ansBody');
-  if (!tbody) { render(); return; }
-  const row  = tbody.querySelectorAll('tr')[i];
-  if (!row) return;
-  const btns = row.querySelectorAll('.tfb');
-  btns[0].className = 'tfb ' + (v==='T' ? 't-on' : '');
-  btns[1].className = 'tfb ' + (v==='F' ? 'f-on' : '');
-  const fc = document.getElementById('fillCnt');
-  if (fc) fc.textContent = `${aTempAnswers.filter(x=>x==='T'||x==='F').length}/${aTempQ} 등록됨`;
+function setAns(i,v){
+  aTempAnswers[i]=v;
+  const tb=document.getElementById('ansBody');if(!tb){render();return;}
+  const row=tb.querySelectorAll('tr')[i];if(!row)return;
+  const bt=row.querySelectorAll('.tfb');
+  bt[0].className='tfb '+(v==='T'?'t-on':'');
+  bt[1].className='tfb '+(v==='F'?'f-on':'');
+  const fc=document.getElementById('fillCnt');
+  if(fc)fc.textContent=`${aTempAnswers.filter(x=>x==='T'||x==='F').length}/${aTempQ} 등록됨 · ${aTempSchool}`;
 }
 
-async function doSave() {
-  const filled = aTempAnswers.filter(x => x==='T'||x==='F').length;
-  if (filled < aTempQ) { toast(`${aTempQ}문항 모두 체크해주세요 (${filled}/${aTempQ})`); return; }
+async function doSave(){
+  const filled=aTempAnswers.filter(x=>x==='T'||x==='F').length;
+  if(filled<aTempQ){toast(`${aTempQ}문항 모두 체크해주세요 (${filled}/${aTempQ})`);return;}
   W('<div class="loading">💾 저장 중...</div>');
-  const id   = aEditId || 'exam_' + Date.now();
-  const exam = { id, name: aTempName, questions: aTempQ, answers: aTempAnswers.slice(0, aTempQ), createdAt: Date.now() };
-  const res  = await db.saveExam(exam);
-  if (!res.ok) {
-    const err = await res.text();
-    toast('저장 실패: ' + err); renderAList(); return;
-  }
+  const id=aEditId||'exam_'+Date.now();
+  const res=await db.saveExam({id,name:aTempName,questions:aTempQ,answers:aTempAnswers.slice(0,aTempQ),createdAt:Date.now(),school:aTempSchool,order_index:0});
+  if(!res.ok){toast('저장 실패: '+await res.text());renderAList();return;}
   toast('시험이 저장됐어요 ✅');
-  aEditId = ''; aTempName = ''; aTempQ = 10; aTempAnswers = [];
+  aEditId='';aTempName='';aTempQ=10;aTempAnswers=[];
   goADetail(id);
 }
 
-function goADetail(id) { aDetailId=id; aDetailTab='results'; aStep='detail'; render(); }
+function goADetail(id){aDetailId=id;aDetailTab='results';aStep='detail';render();}
 
-async function renderADetail() {
+async function renderADetail(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams   = await db.getExams();
-  const e       = exams.find(x => x.id === aDetailId);
-  if (!e) { aStep='list'; render(); return; }
-  const results = await db.getResults(aDetailId);
-  const avg     = results.length ? Math.round(results.reduce((s,r)=>s+r.score,0)/results.length*100/e.questions) : null;
-  const sLink   = location.href.replace(location.hash, '');
+  const exams=await db.getExams();
+  const e=exams.find(x=>x.id===aDetailId);
+  if(!e){aStep='list';render();return;}
+  const results=await db.getResults(aDetailId);
+  const avg=results.length?Math.round(results.reduce((s,r)=>s+r.score,0)/results.length*100/e.questions):null;
+  const sLink=location.href.replace(location.hash,'');
+  window._curExam=e;
 
-  let tabH = '';
-  if (aDetailTab === 'results') {
-    if (!results.length) {
-      tabH = `<div class="empty"><div style="font-size:40px;margin-bottom:12px;">🕐</div><div>아직 제출한 학생이 없어요</div></div>`;
-    } else {
-      tabH = `<div class="card" style="padding:0;overflow:hidden;">` +
-        results.map(r => {
-          const pct = Math.round(r.score/r.total*100);
-          const cls = pct>=80?'sp-hi':pct>=60?'sp-md':'sp-lo';
-          return `<div class="res-row" onclick="goAStudent('${aDetailId}','${encodeURIComponent(r.student_name)}')">
+  let tabH='';
+  if(aDetailTab==='results'){
+    tabH=results.length
+      ?`<div class="card" style="padding:0;overflow:hidden;">${results.map(r=>{
+          const pct=Math.round(r.score/r.total*100),cls=pct>=80?'sp-hi':pct>=60?'sp-md':'sp-lo';
+          return`<div class="res-row" onclick="goAStudent('${aDetailId}','${encodeURIComponent(r.student_name)}')">
             <div class="res-av">${r.student_name.slice(0,4)}</div>
             <div style="flex:1;font-size:13px;font-weight:600;">${r.student_name}</div>
             <div style="font-size:11px;color:rgba(28,28,30,0.5);margin-right:4px;">${r.score}/${r.total}</div>
             <div class="score-pill ${cls}">${pct}점</div>
             <div style="color:rgba(28,28,30,0.3);margin-left:4px;font-size:18px;">›</div>
           </div>`;
-        }).join('') + `</div>`;
-    }
+        }).join('')}</div>`
+      :`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">🕐</div><div>아직 제출한 학생이 없어요</div></div>`;
   } else {
-    let rows = '';
-    for (let i = 0; i < e.questions; i++) {
-      const a = e.answers[i];
-      rows += `<tr>
-        <td class="c0">${i+1}</td>
+    let rows='';
+    for(let i=0;i<e.questions;i++){
+      const a=e.answers[i];
+      rows+=`<tr><td class="c0">${i+1}</td>
         <td class="c1"><button class="tfb ${a==='T'?'t-on':''}" disabled>${a==='T'?'✓ T':'T'}</button></td>
-        <td><button class="tfb ${a==='F'?'f-on':''}" disabled>${a==='F'?'✓ F':'F'}</button></td>
-      </tr>`;
+        <td><button class="tfb ${a==='F'?'f-on':''}" disabled>${a==='F'?'✓ F':'F'}</button></td></tr>`;
     }
-    tabH = `<div class="card">
-      <table class="tbl">
-        <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+    tabH=`<div class="card"><table class="tbl">
+      <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>
+      <tbody>${rows}</tbody></table>
       <button class="btn btn-gray" style="width:100%;margin-top:12px;" onclick="doEditExam()">정답 수정</button>
     </div>`;
   }
@@ -356,51 +539,42 @@ async function renderADetail() {
       <button class="btn btn-gray" onclick="aStep='list';render()">← 목록</button>
       <div style="flex:1;">
         <div style="font-size:16px;font-weight:700;">${e.name}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">${e.questions}문항${avg!==null?` · 평균 <b style="color:#2f7af5">${avg}점</b>`:''}</div>
+        <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">🏫 ${e.school||'기본'} · ${e.questions}문항${avg!==null?` · 평균 <b style="color:#2f7af5">${avg}점</b>`:''}</div>
       </div>
     </div>
-
     <div class="card">
       <div class="sec-title">학생 링크 공유</div>
-      <div style="font-size:13px;color:rgba(28,28,30,0.55);margin-bottom:8px;line-height:1.6;">아래 링크를 학생들에게 공유하세요</div>
+      <div style="font-size:13px;color:rgba(28,28,30,0.55);margin-bottom:8px;line-height:1.6;">아래 링크를 학생들에게 공유하세요 (링크 하나로 모든 학교 학생이 사용해요)</div>
       <div class="link-box">
         <div style="flex:1;font-size:11px;color:#2f7af5;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${sLink}</div>
         <div style="font-size:11px;font-weight:700;color:#2f7af5;cursor:pointer;flex-shrink:0;" onclick="copyLink('${sLink}')">복사</div>
       </div>
-      <div style="font-size:11px;color:rgba(28,28,30,0.35);text-align:center;">⚠️ #admin-chaesunbe 링크는 학생에게 공유하지 마세요</div>
+      <div style="font-size:11px;color:rgba(28,28,30,0.35);text-align:center;">⚠️ #admin 링크는 학생에게 공유하지 마세요</div>
     </div>
-
     <div class="tabs">
       <div class="tab ${aDetailTab==='results'?'tab-on':''}" onclick="aDetailTab='results';renderADetail()">제출 결과 (${results.length}명)</div>
       <div class="tab ${aDetailTab==='answers'?'tab-on':''}" onclick="aDetailTab='answers';renderADetail()">정답 보기</div>
-    </div>
-    ${tabH}`);
-
-  // 전역에 현재 시험 데이터 보관 (수정/삭제용)
-  window._curExam = e;
+    </div>${tabH}`);
 }
 
-function goAStudent(eid, enc) { aDetailId=eid; aDetailStudent=enc; aStep='studet'; render(); }
+function goAStudent(eid,enc){aDetailId=eid;aDetailStudent=enc;aStep='studet';render();}
 
-async function renderAStudentDetail() {
+async function renderAStudentDetail(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams   = await db.getExams();
-  const e       = exams.find(x => x.id === aDetailId);
-  const name    = decodeURIComponent(aDetailStudent);
-  const results = await db.getResults(aDetailId);
-  const r       = results.find(x => x.student_name === name);
-  if (!e || !r) { aStep='detail'; render(); return; }
-  const pct = Math.round(r.score/r.total*100);
-  const col = pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
-  let rows = '';
-  for (let i = 0; i < e.questions; i++) {
-    const cor=e.answers[i], giv=r.answers[i], ok=cor===giv;
-    rows += `<tr>
-      <td class="c0">${i+1}</td>
+  const exams=await db.getExams();
+  const e=exams.find(x=>x.id===aDetailId);
+  const name=decodeURIComponent(aDetailStudent);
+  const results=await db.getResults(aDetailId);
+  const r=results.find(x=>x.student_name===name);
+  if(!e||!r){aStep='detail';render();return;}
+  const pct=Math.round(r.score/r.total*100),col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
+  let rows='';
+  for(let i=0;i<e.questions;i++){
+    const cor=e.answers[i],giv=r.answers[i],ok=cor===giv;
+    rows+=`<tr><td class="c0">${i+1}</td>
       <td class="c1"><button class="tfb ${giv==='T'?(ok?'ok':'no'):''}" disabled>${giv==='T'?(ok?'✓ T':'✗ T'):'T'}</button></td>
       <td><button class="tfb ${giv==='F'?(ok?'ok':'no'):''}" disabled>${giv==='F'?(ok?'✓ F':'✗ F'):'F'}</button></td>
-      <td style="text-align:center;font-size:15px;">${ok?'✅':'❌'}</td>
-    </tr>`;
+      <td style="text-align:center;font-size:15px;">${ok?'✅':'❌'}</td></tr>`;
   }
   W(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
       <button class="btn btn-gray" onclick="aStep='detail';render()">← 뒤로</button>
@@ -412,67 +586,91 @@ async function renderAStudentDetail() {
       <div class="score-sub">${r.score} / ${r.total} 정답 · ${name}</div>
       <div class="bar-bg"><div class="bar-fg" style="width:${pct}%;background:${col};"></div></div>
     </div>
-    <div class="card">
-      <table class="tbl">
-        <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th><th>결과</th></tr></thead>
-        <tbody>${rows}</tbody>
-      </table>
+    <div class="card"><table class="tbl">
+      <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th><th>결과</th></tr></thead>
+      <tbody>${rows}</tbody></table>
     </div>`);
 }
 
-function doEditExam() {
-  const e = window._curExam;
-  if (!e) return;
-  aEditId=e.id; aTempName=e.name; aTempQ=e.questions; aTempAnswers=e.answers.slice();
-  aStep='answers'; render();
+function doEditExam(){
+  const e=window._curExam;if(!e)return;
+  aEditId=e.id;aTempName=e.name;aTempQ=e.questions;aTempAnswers=e.answers.slice();aTempSchool=e.school||'기본';
+  aStep='answers';render();
 }
-
-async function quickEdit(id) {
+async function quickEdit(id){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams = await db.getExams();
-  const e = exams.find(x => x.id === id);
-  if (!e) { renderAList(); return; }
-  window._curExam = e;
-  aEditId=e.id; aTempName=e.name; aTempQ=e.questions; aTempAnswers=e.answers.slice();
-  aStep='answers'; render();
+  const exams=await db.getExams();
+  const e=exams.find(x=>x.id===id);if(!e){renderAList();return;}
+  window._curExam=e;
+  aEditId=e.id;aTempName=e.name;aTempQ=e.questions;aTempAnswers=e.answers.slice();aTempSchool=e.school||'기본';
+  aStep='answers';render();
 }
-
-async function quickDelete(id, name) {
-  if (!confirm(`"${name}" 시험을 삭제할까요?\n제출된 결과도 함께 삭제됩니다.`)) return;
+async function quickDel(id,name){
+  if(!confirm(`"${name}" 시험을 삭제할까요?\n제출된 결과도 함께 삭제됩니다.`))return;
   W('<div class="loading">🗑️ 삭제 중...</div>');
-  await db.deleteExam(id);
-  toast('삭제됐어요');
-  aStep='list'; render();
-}
-
-async function doDelExam() {
-  if (!confirm('삭제할까요? 결과도 함께 삭제됩니다.')) return;
-  W('<div class="loading">🗑️ 삭제 중...</div>');
-  await db.deleteExam(aDetailId);
-  aStep='list'; render(); toast('삭제됐어요');
+  await db.delExam(id);toast('삭제됐어요');aStep='list';render();
 }
 
 // ══════════════════════════════
-// STUDENT
+//  STUDENT
 // ══════════════════════════════
-function renderStudent() {
-  if      (sStep==='list')   renderSList();
-  else if (sStep==='name')   renderSName();
-  else if (sStep==='exam')   renderSExam();
-  else if (sStep==='result') renderSResult();
+function renderStudent(){
+  if(sStep==='entry') renderSEntry();
+  else if(sStep==='list')   renderSList();
+  else if(sStep==='exam')   renderSExam();
+  else if(sStep==='result') renderSResult();
 }
 
-async function renderSList() {
+// ── 진입: 이름 + 학교 선택 ──
+async function renderSEntry(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams = await db.getExams();
-  let h = '';
-  if (!exams.length) {
-    h = `<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>진행 중인 시험이 없어요<br><span style="font-size:12px;">선생님이 시험을 만들면 여기에 나타나요</span></div></div>`;
+  const exams=await db.getExams();
+  // DB 학교 + localStorage 학교 합치기
+  const dbS=[...new Set(exams.map(e=>e.school||'기본'))];
+  const allS=[...new Set([...schools.get(),...dbS])].sort();
+  const opts=allS.map(s=>`<option value="${s}" ${s===sSchool?'selected':''}>${s}</option>`).join('');
+  W(`<div style="padding:36px 0 20px;">
+    <div style="text-align:center;margin-bottom:28px;">
+      <div style="font-size:40px;margin-bottom:12px;">✏️</div>
+      <div style="font-size:22px;font-weight:700;margin-bottom:6px;">T/F 시험</div>
+      <div style="font-size:14px;color:rgba(28,28,30,0.55);line-height:1.6;">이름과 학교를 선택하고 시작하세요</div>
+    </div>
+    <div class="lbl">이름</div>
+    <input class="name-inp" id="sNm" placeholder="이름 입력" maxlength="10" value="${sName}" onkeydown="if(event.key==='Enter')document.getElementById('sSch').focus()" style="margin-bottom:12px;">
+    <div class="lbl">학교</div>
+    <div class="sel-wrap" style="margin-bottom:20px;">
+      <select class="sel" id="sSch">${opts}</select>
+    </div>
+    <button class="btn btn-green btn-full" style="margin-top:0;" onclick="doSEntry()">시험 목록 보기 →</button>
+  </div>`);
+  setTimeout(()=>{const el=document.getElementById('sNm');if(el)el.focus();},80);
+}
+
+async function doSEntry(){
+  const nm=document.getElementById('sNm')?.value.trim();
+  const sch=document.getElementById('sSch')?.value;
+  if(!nm){toast('이름을 입력해주세요');return;}
+  if(!sch){toast('학교를 선택해주세요');return;}
+  sName=nm;sSchool=sch;sStep='list';render();
+}
+
+// ── 시험 목록 (학교 필터) ──
+async function renderSList(){
+  W('<div class="loading">⏳ 불러오는 중...</div>');
+  const exams=await db.getBySchool(sSchool);
+  let h=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
+    <button class="btn btn-gray" onclick="sStep='entry';render()">← 뒤로</button>
+    <div>
+      <div style="font-size:15px;font-weight:700;">🏫 ${sSchool}</div>
+      <div style="font-size:12px;color:rgba(28,28,30,0.5);">${sName}님, 시험을 선택하세요</div>
+    </div>
+  </div>`;
+  if(!exams.length){
+    h+=`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>진행 중인 시험이 없어요<br><span style="font-size:12px;">선생님이 시험을 만들면 여기에 나타나요</span></div></div>`;
   } else {
-    h += `<div class="sec-title">시험 선택</div>`;
-    h += exams.map(e => `<div class="exam-item" onclick="goSName('${e.id}')">
+    h+=exams.map(e=>`<div class="exam-item" onclick="goSExam('${e.id}')">
       <div class="e-icon e-icon-s">✏️</div>
-      <div style="flex:1">
+      <div style="flex:1;">
         <div style="font-size:14px;font-weight:700;">${e.name}</div>
         <div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">${e.questions}문항</div>
       </div>
@@ -482,141 +680,141 @@ async function renderSList() {
   W(h);
 }
 
-async function goSName(id) {
+async function goSExam(id){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams = await db.getExams();
-  sExamData   = exams.find(x => x.id === id);
-  sExamId = id; sName = ''; sAnswers = new Array(sExamData.questions).fill('');
-  sStep = 'name'; render();
+  const exams=await db.getExams();
+  sExamData=exams.find(x=>x.id===id);
+  sExamId=id;sAnswers=new Array(sExamData.questions).fill('');sFixMode=false;
+  sStep='exam';render();
 }
 
-function renderSName() {
-  const e = sExamData;
-  W(`<div class="name-screen">
-    <div style="font-size:36px;margin-bottom:14px;">✏️</div>
-    <div style="font-size:20px;font-weight:700;margin-bottom:6px;">${e.name}</div>
-    <div style="font-size:13px;color:rgba(28,28,30,0.55);margin-bottom:28px;line-height:1.6;">${e.questions}문항<br>이름을 입력하고 시작하세요</div>
-    <input class="name-inp" id="sNm" placeholder="이름 입력" maxlength="10" onkeydown="if(event.key==='Enter')doStart()">
-    <button class="btn btn-green btn-full" onclick="doStart()">시험 시작 →</button>
-  </div>`);
-  setTimeout(() => { const el=document.getElementById('sNm'); if(el) el.focus(); }, 80);
-}
+// ── 시험 응시 ──
+function renderSExam(){
+  const e=sExamData;
+  // 수정 모드: 틀린 문항만 렌더
+  const prev=window._prevResult;
+  const wrongIdxs=sFixMode&&prev ? e.answers.map((a,i)=>a!==prev.answers[i]?i:-1).filter(i=>i>=0) : null;
+  const total=sFixMode&&wrongIdxs ? wrongIdxs.length : e.questions;
+  const filled=sFixMode&&wrongIdxs ? wrongIdxs.filter(i=>sAnswers[i]).length : sAnswers.filter(a=>a).length;
 
-function doStart() {
-  const el = document.getElementById('sNm');
-  const n  = el ? el.value.trim() : '';
-  if (!n) { toast('이름을 입력해주세요'); return; }
-  sName = n; sStep = 'exam'; render();
-}
-
-function renderSExam() {
-  const e      = sExamData;
-  const filled = sAnswers.filter(a=>a).length;
-  let rows = '';
-  for (let i = 0; i < e.questions; i++) {
-    const a = sAnswers[i] || '';
-    rows += `<tr>
-      <td class="c0">${i+1}</td>
+  let rows='';
+  const idxList=wrongIdxs||[...Array(e.questions).keys()];
+  idxList.forEach(i=>{
+    const a=sAnswers[i]||'';
+    rows+=`<tr><td class="c0">${i+1}</td>
       <td class="c1"><button class="tfb ${a==='T'?'t-on':''}" onclick="pickS(${i},'T')">T</button></td>
-      <td><button class="tfb ${a==='F'?'f-on':''}" onclick="pickS(${i},'F')">F</button></td>
-    </tr>`;
-  }
-  W(`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-      <div>
-        <div style="font-size:15px;font-weight:700;">${e.name}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;" id="sFill">✏️ ${sName} · ${filled}/${e.questions} 체크</div>
-      </div>
-    </div>
-    <div class="card">
-      <table class="tbl">
-        <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>
-        <tbody id="sBody">${rows}</tbody>
-      </table>
-    </div>
-    <button class="btn btn-green btn-full" onclick="doSubmit()">제출하기 →</button>
-    <div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;margin-top:10px;">모든 문항을 체크한 후 제출하세요</div>`);
-}
-
-function pickS(i, v) {
-  sAnswers[i] = v;
-  const tbody = document.getElementById('sBody');
-  if (!tbody) { render(); return; }
-  const row  = tbody.querySelectorAll('tr')[i];
-  if (!row) return;
-  const btns = row.querySelectorAll('.tfb');
-  btns[0].className = 'tfb ' + (v==='T' ? 't-on' : '');
-  btns[1].className = 'tfb ' + (v==='F' ? 'f-on' : '');
-  const fc = document.getElementById('sFill');
-  if (fc) fc.textContent = `✏️ ${sName} · ${sAnswers.filter(a=>a).length}/${sExamData.questions} 체크`;
-}
-
-async function doSubmit() {
-  const e      = sExamData;
-  const filled = sAnswers.filter(a=>a).length;
-  if (filled < e.questions) { toast(`${e.questions-filled}문항이 남았어요`); return; }
-  let score = 0;
-  for (let i = 0; i < e.questions; i++) if (sAnswers[i]===e.answers[i]) score++;
-  W('<div class="loading">📤 제출 중...</div>');
-  const res = await db.saveResult(sExamId, sName, {
-    answers: sAnswers.slice(), score, total: e.questions, submittedAt: Date.now()
+      <td><button class="tfb ${a==='F'?'f-on':''}" onclick="pickS(${i},'F')">F</button></td></tr>`;
   });
-  if (!res.ok) { toast('제출 실패, 다시 시도해주세요'); sStep='exam'; render(); return; }
-  sStep = 'result'; render();
+
+  const banner=sFixMode?`<div class="fix-banner">✏️ 틀린 ${total}문항만 다시 선택하세요</div>`:'';
+
+  W(`${banner}<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
+    <div>
+      <div style="font-size:15px;font-weight:700;">${e.name}</div>
+      <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;" id="sFill">✏️ ${sName} · ${filled}/${total} 체크</div>
+    </div>
+  </div>
+  <div class="card"><table class="tbl">
+    <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>
+    <tbody id="sBody">${rows}</tbody>
+  </table></div>
+  <button class="btn btn-green btn-full" onclick="doSubmit()">${sFixMode?'수정 제출 →':'제출하기 →'}</button>
+  <div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;margin-top:10px;">모든 문항을 체크한 후 제출하세요</div>`);
 }
 
-async function renderSResult() {
+function pickS(i,v){
+  sAnswers[i]=v;
+  // DOM 업데이트
+  const tb=document.getElementById('sBody');if(!tb){render();return;}
+  tb.querySelectorAll('tr').forEach(row=>{
+    const nc=row.querySelector('.c0');if(!nc)return;
+    if(parseInt(nc.textContent)-1!==i)return;
+    const bt=row.querySelectorAll('.tfb');
+    bt[0].className='tfb '+(v==='T'?'t-on':'');
+    bt[1].className='tfb '+(v==='F'?'f-on':'');
+  });
+  // 카운터 업데이트
+  const prev=window._prevResult;
+  const wrongIdxs=sFixMode&&prev?sExamData.answers.map((a,idx)=>a!==prev.answers[idx]?idx:-1).filter(x=>x>=0):null;
+  const total=sFixMode&&wrongIdxs?wrongIdxs.length:sExamData.questions;
+  const filled=sFixMode&&wrongIdxs?wrongIdxs.filter(x=>sAnswers[x]).length:sAnswers.filter(a=>a).length;
+  const fc=document.getElementById('sFill');
+  if(fc)fc.textContent=`✏️ ${sName} · ${filled}/${total} 체크`;
+}
+
+async function doSubmit(){
+  const e=sExamData;
+  const prev=window._prevResult;
+  const wrongIdxs=sFixMode&&prev?e.answers.map((a,i)=>a!==prev.answers[i]?i:-1).filter(i=>i>=0):null;
+
+  if(sFixMode&&wrongIdxs){
+    const unch=wrongIdxs.filter(i=>!sAnswers[i]);
+    if(unch.length){toast(`${unch.length}문항이 남았어요`);return;}
+  } else {
+    const filled=sAnswers.filter(a=>a).length;
+    if(filled<e.questions){toast(`${e.questions-filled}문항이 남았어요`);return;}
+  }
+
+  let score=0;
+  for(let i=0;i<e.questions;i++)if(sAnswers[i]===e.answers[i])score++;
+  W('<div class="loading">📤 제출 중...</div>');
+  const res=await db.saveResult(sExamId,sName,{answers:sAnswers.slice(),score,total:e.questions,submittedAt:Date.now()});
+  if(!res.ok){toast('제출 실패, 다시 시도해주세요');sStep='exam';render();return;}
+  sFixMode=false;sStep='result';render();
+}
+
+// ── 결과 ──
+async function renderSResult(){
   W('<div class="loading">⏳ 결과 불러오는 중...</div>');
-  const results = await db.getResults(sExamId);
-  const r       = results.find(x => x.student_name === sName);
-  const e       = sExamData;
-  if (!r) { sStep='list'; render(); return; }
-  const pct    = Math.round(r.score/r.total*100);
-  const wrong  = r.total - r.score;
-  const col    = pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
-  const msg    = pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
-  const retry  = wrong > 0;
+  const results=await db.getResults(sExamId);
+  const r=results.find(x=>x.student_name===sName);
+  const e=sExamData;
+  if(!r){sStep='list';render();return;}
+  window._prevResult=r;
+
+  const pct=Math.round(r.score/r.total*100),wrong=r.total-r.score;
+  const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
+  const msg=pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
+
+  // 틀린 문항 목록
+  let wrongRows='';
+  if(wrong>0){
+    for(let i=0;i<e.questions;i++){
+      if(r.answers[i]===e.answers[i])continue;
+      wrongRows+=`<tr><td class="c0" style="color:#d93025;">${i+1}</td>
+        <td class="c1"><button class="tfb ${r.answers[i]==='T'?'no':''}" disabled>${r.answers[i]==='T'?'✗ T':'T'}</button></td>
+        <td><button class="tfb ${r.answers[i]==='F'?'no':''}" disabled>${r.answers[i]==='F'?'✗ F':'F'}</button></td>
+        <td style="text-align:center;font-size:15px;">❌</td></tr>`;
+    }
+  }
 
   W(`<div class="score-box">
       <div style="font-size:26px;margin-bottom:8px;">${msg}</div>
       <div class="score-num" style="color:${col}">${r.score} / ${r.total}</div>
-      <div class="score-sub">${sName} · ${wrong > 0 ? `<span style="color:#d93025;font-weight:600;">${wrong}개 틀림</span>` : '전부 정답! 🎯'}</div>
+      <div class="score-sub">${sName} · ${wrong>0?`<span style="color:#d93025;font-weight:600;">${wrong}개 틀림</span>`:'전부 정답! 🎯'}</div>
       <div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:${pct}%;background:${col};"></div></div>
     </div>
-    ${retry ? `
-    <div class="card" style="text-align:center;padding:20px;">
-      <div style="font-size:15px;font-weight:600;color:#1c1c1e;margin-bottom:6px;">다시 도전해볼까요?</div>
-      <div style="font-size:13px;color:rgba(28,28,30,0.55);margin-bottom:14px;">틀린 문제를 다시 풀어서 100점에 도전하세요!</div>
-      <button class="btn btn-green btn-full" style="margin-top:0;" onclick="retryExam()">다시 풀기 →</button>
-    </div>` : `
-    <div class="card" style="text-align:center;padding:24px;">
+    ${wrong>0?`
+    <div class="card" style="padding:0;overflow:hidden;">
+      <div style="padding:12px 16px 8px;font-size:11px;font-weight:700;color:rgba(28,28,30,0.4);letter-spacing:0.5px;">틀린 문항</div>
+      <table class="tbl"><thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th><th>결과</th></tr></thead>
+      <tbody>${wrongRows}</tbody></table>
+    </div>
+    <button class="btn btn-orange btn-full" onclick="goFix()">✏️ 틀린 문항만 수정하기</button>
+    `:`<div class="card" style="text-align:center;padding:24px;">
       <div style="font-size:36px;margin-bottom:10px;">🎯</div>
       <div style="font-size:16px;font-weight:700;color:#1a9e45;">전부 맞았어요!</div>
     </div>`}
     <button class="btn btn-gray btn-full" style="margin-top:8px;" onclick="sStep='list';render()">다른 시험 보기</button>`);
 }
 
-function retryExam() {
-  sAnswers = new Array(sExamData.questions).fill('');
-  sStep = 'exam';
-  render();
+function goFix(){
+  const e=sExamData,prev=window._prevResult;
+  sAnswers=prev.answers.slice();
+  for(let i=0;i<e.questions;i++)if(prev.answers[i]!==e.answers[i])sAnswers[i]='';
+  sFixMode=true;sStep='exam';render();
 }
 
-// ── UTILS ──
-function W(html) { document.getElementById('wrap').innerHTML = html; }
-function toast(msg) {
-  const t = document.getElementById('toast');
-  t.textContent = msg; t.className = 'toast t-show';
-  setTimeout(() => t.className = 'toast', 2400);
-}
-function copyLink(url) {
-  navigator.clipboard.writeText(url).catch(() => {
-    const t=document.createElement('textarea'); t.value=url;
-    document.body.appendChild(t); t.select(); document.execCommand('copy'); document.body.removeChild(t);
-  });
-  toast('링크 복사됐어요! 📎');
-}
-
-// ── START ──
 render();
 </script>
 
