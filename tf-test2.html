@@ -80,11 +80,11 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .e-icon-a { background: linear-gradient(135deg,#2f7af5,#6b3ff0); }
 .e-icon-s { background: linear-gradient(135deg,#1a9e45,#158a3a); }
 
-/* 순서 버튼 */
-.ord-btns { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
-.ord-btn { width: 26px; height: 22px; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 6px; background: #f2f2f7; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(28,28,30,0.5); }
-.ord-btn:hover { background: #e5e5ea; }
-.ord-btn:disabled { opacity: 0.2; cursor: default; }
+/* 드래그 핸들 */
+.drag-handle { display: flex; align-items: center; justify-content: center; width: 24px; flex-shrink: 0; cursor: grab; color: rgba(28,28,30,0.25); font-size: 16px; padding: 4px 0; user-select: none; touch-action: none; }
+.drag-handle:active { cursor: grabbing; }
+.exam-item.dragging { opacity: 0.4; background: #f2f2f7; box-shadow: none; }
+.exam-item.drag-over { border-color: #2f7af5; background: rgba(47,122,245,0.05); transform: scale(1.01); }
 
 .res-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; }
 .res-row:last-child { border-bottom: none; }
@@ -170,8 +170,9 @@ pill.textContent = IS_ADMIN?'선생님 🔑':'학생 ✏️';
 pill.className   = 'pill '+(IS_ADMIN?'pill-admin':'pill-student');
 
 // STATE
-let aStep='list', aDetailId='', aDetailStudent='', aDetailTab='results';
+let aStep='list', aTab='create', aDetailId='', aDetailStudent='', aDetailTab='results';
 let aTempName='', aTempQ=10, aTempAnswers=[], aEditId='', aTempSchool='기본';
+let aFilterSchool='전체';
 let sStep='entry', sExamId='', sExamData=null, sName='', sSchool='', sAnswers=[], sFixMode=false;
 
 function render(){ IS_ADMIN?renderAdmin():renderStudent(); }
@@ -190,67 +191,113 @@ function renderAdmin(){
   else if(aStep==='schools') renderASchools();
 }
 
+function aTabBar(){
+  return `<div style="display:flex;background:#e5e5ea;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;">
+    <button style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;
+      background:${aTab==='create'?'white':'transparent'};
+      color:${aTab==='create'?'#1c1c1e':'rgba(28,28,30,0.5)'};
+      box-shadow:${aTab==='create'?'0 1px 4px rgba(0,0,0,0.1)':'none'};"
+      onclick="aTab='create';renderAList()">➕ 새 시험 만들기</button>
+    <button style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;
+      background:${aTab==='view'?'white':'transparent'};
+      color:${aTab==='view'?'#1c1c1e':'rgba(28,28,30,0.5)'};
+      box-shadow:${aTab==='view'?'0 1px 4px rgba(0,0,0,0.1)':'none'};"
+      onclick="aTab='view';renderAList()">🏫 학교별 시험 보기</button>
+  </div>`;
+}
+
 async function renderAList(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
   const exams = await db.getExams();
   const sl    = schools.get();
+  const opts  = sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
 
+  // ── 새 시험 만들기 탭 ──
+  if(aTab==='create'){
+    W(aTabBar()+`<div class="card">
+      <div class="sec-title">새 시험 만들기</div>
+      <div class="lbl">학교</div>
+      <div class="sel-wrap"><select class="sel" id="aSchool" onchange="aTempSchool=this.value">${opts}</select></div>
+      <div class="lbl">시험 이름</div>
+      <input class="inp" id="aName" placeholder="예) 3월 4주차 Test / Unit 5" value="${aTempName}">
+      <div class="lbl">문항 수</div>
+      <input class="inp inp-sm" id="aQ" type="number" min="1" max="60" value="${aTempQ}">
+      <button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button>
+    </div>`);
+    return;
+  }
+
+  // ── 학교별 시험 보기 탭 ──
   // 학교별 그룹핑
   const grouped={};
   sl.forEach(s=>grouped[s]=[]);
   exams.forEach(e=>{ const s=e.school||'기본'; if(!grouped[s])grouped[s]=[]; grouped[s].push(e); });
 
-  const opts = sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
+  // 학교 필터 칩
+  const allS=[...new Set([...sl,...Object.keys(grouped)])];
+  const filterChips=['전체',...allS].map(s=>`
+    <button onclick="aFilterSchool='${s}';renderAList()" style="
+      padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;
+      background:${aFilterSchool===s?'#2f7af5':'white'};
+      color:${aFilterSchool===s?'white':'rgba(28,28,30,0.55)'};
+      border-color:${aFilterSchool===s?'#2f7af5':'rgba(0,0,0,0.1)'};
+    ">${s}</button>`).join('');
 
-  let h=`<div class="card">
-    <div class="sec-title">새 시험 만들기</div>
-    <div class="lbl">학교</div>
-    <div class="sel-wrap"><select class="sel" id="aSchool" onchange="aTempSchool=this.value">${opts}</select></div>
-    <div class="lbl">시험 이름</div>
-    <input class="inp" id="aName" placeholder="예) 3월 4주차 Test / Unit 5" value="${aTempName}">
-    <div class="lbl">문항 수</div>
-    <input class="inp inp-sm" id="aQ" type="number" min="1" max="60" value="${aTempQ}">
-    <button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button>
-  </div>
-  <div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
+  let h = aTabBar();
+  h += `<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">${filterChips}</div>`;
+  h += `<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
     <button class="btn btn-gray" onclick="aStep='schools';render()">🏫 학교 관리</button>
   </div>`;
 
-  const allS=[...new Set([...sl,...Object.keys(grouped)])];
+  // 필터 적용
+  const showSchools = aFilterSchool==='전체' ? allS : [aFilterSchool];
   let hasAny=false;
-  allS.forEach(school=>{
-    const list=grouped[school]||[];
+
+  showSchools.forEach(school=>{
+    const list=(grouped[school]||[]);
     if(!list.length)return;
     hasAny=true;
     const fid='f_'+school.replace(/\W/g,'_');
-    h+=`<div class="school-folder">
-      <div class="school-header" onclick="toggleF('${fid}')">
-        <span class="school-icon">🏫</span>
-        <span class="school-name">${school}</span>
-        <span class="school-count">${list.length}개</span>
-        <span class="school-arrow open" id="ar_${fid}">›</span>
-      </div>
-      <div class="school-exams open" id="${fid}">
-        ${list.map((e,i)=>`<div class="exam-item">
-          <div class="ord-btns">
-            <button class="ord-btn" onclick="moveE('${e.id}','${school}',${i},-1,event)" ${i===0?'disabled':''}>▲</button>
-            <button class="ord-btn" onclick="moveE('${e.id}','${school}',${i},1,event)"  ${i===list.length-1?'disabled':''}>▼</button>
-          </div>
-          <div class="e-icon e-icon-a" onclick="goADetail('${e.id}')" style="cursor:pointer;">📝</div>
-          <div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail('${e.id}')">
-            <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
-            <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">${e.questions}문항</div>
-          </div>
-          <div style="display:flex;gap:5px;flex-shrink:0;">
-            <button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit('${e.id}')">✏️</button>
-            <button class="btn btn-red"  style="padding:6px 10px;" onclick="quickDel('${e.id}','${e.name.replace(/'/g,"\\'")}')">🗑️</button>
-          </div>
-        </div>`).join('')}
-      </div>
-    </div>`;
+    // 전체 보기일 때만 폴더로 묶기, 특정 학교 선택시 바로 리스트
+    if(aFilterSchool==='전체'){
+      h+=`<div class="school-folder">
+        <div class="school-header" onclick="toggleF('${fid}')">
+          <span class="school-icon">🏫</span>
+          <span class="school-name">${school}</span>
+          <span class="school-count">${list.length}개</span>
+          <span class="school-arrow open" id="ar_${fid}">›</span>
+        </div>
+        <div class="school-exams open" id="${fid}">
+          ${examListHTML(list,school)}
+        </div>
+      </div>`;
+    } else {
+      h += examListHTML(list, school);
+    }
   });
-  if(!hasAny) h+=`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>아직 만든 시험이 없어요</div></div>`;
+
+  if(!hasAny) h+=`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>시험이 없어요</div></div>`;
   W(h);
+}
+
+function examListHTML(list, school){
+  const containerId = 'drag_'+school.replace(/\W/g,'_');
+  // setTimeout으로 DOM 렌더 후 드래그 초기화
+  setTimeout(()=>initDrag(containerId, school), 50);
+  return `<div id="${containerId}">` +
+    list.map(e=>`<div class="exam-item" data-id="${e.id}" data-school="${school}">
+      <div class="drag-handle" title="드래그해서 순서 변경">⠿</div>
+      <div class="e-icon e-icon-a" onclick="goADetail('${e.id}')" style="cursor:pointer;">📝</div>
+      <div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail('${e.id}')">
+        <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
+        <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">${e.questions}문항${aFilterSchool==='전체'?'':` · 🏫 ${e.school||'기본'}`}</div>
+      </div>
+      <div style="display:flex;gap:5px;flex-shrink:0;">
+        <button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit('${e.id}')">✏️</button>
+        <button class="btn btn-red"  style="padding:6px 10px;" onclick="quickDel('${e.id}','${e.name.replace(/'/g,"\\'")}')">🗑️</button>
+      </div>
+    </div>`).join('') +
+  `</div>`;
 }
 
 function toggleF(id){
@@ -260,23 +307,97 @@ function toggleF(id){
   if(ar)ar.classList.toggle('open');
 }
 
-async function moveE(id,school,idx,dir,ev){
-  ev.stopPropagation();
-  const exams=await db.getExams();
-  const list=exams.filter(x=>(x.school||'기본')===school).sort((a,b)=>(a.order_index||0)-(b.order_index||0));
-  const tgt=idx+dir;
-  if(tgt<0||tgt>=list.length)return;
-  const a=list[idx],b=list[tgt];
-  await db.patchOrder(a.id, b.order_index??tgt);
-  await db.patchOrder(b.id, a.order_index??idx);
-  renderAList();
+// ── 드래그앤드롭 ──
+let _dragEl=null, _dragSchool='';
+
+function initDrag(containerId, school){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const items = container.querySelectorAll('.exam-item');
+
+  items.forEach(item=>{
+    const handle = item.querySelector('.drag-handle');
+    if(!handle) return;
+
+    // ── 데스크탑 (mouse) ──
+    handle.addEventListener('mousedown', ev=>{
+      ev.preventDefault();
+      startDrag(item, school, ev.clientY);
+    });
+
+    // ── 모바일 (touch) ──
+    handle.addEventListener('touchstart', ev=>{
+      ev.preventDefault();
+      startDrag(item, school, ev.touches[0].clientY);
+    }, {passive:false});
+  });
+}
+
+function startDrag(item, school, startY){
+  _dragEl = item;
+  _dragSchool = school;
+  item.classList.add('dragging');
+
+  const container = item.parentElement;
+  const items = ()=>[...container.querySelectorAll('.exam-item:not(.dragging)')];
+  let lastOver = null;
+
+  function onMove(clientY){
+    // 현재 Y 위치와 가장 가까운 아이템 찾기
+    const closest = items().reduce((acc, el)=>{
+      const box = el.getBoundingClientRect();
+      const mid = box.top + box.height/2;
+      const dist = Math.abs(clientY - mid);
+      return dist < acc.dist ? {el, dist, below: clientY > mid} : acc;
+    }, {el:null, dist:Infinity, below:false});
+
+    if(closest.el && closest.el !== lastOver){
+      lastOver = closest.el;
+      items().forEach(el=>el.classList.remove('drag-over'));
+      closest.el.classList.add('drag-over');
+      // 시각적으로 위치 이동
+      if(closest.below){
+        container.insertBefore(_dragEl, closest.el.nextSibling);
+      } else {
+        container.insertBefore(_dragEl, closest.el);
+      }
+    }
+  }
+
+  async function endDrag(){
+    if(!_dragEl) return;
+    _dragEl.classList.remove('dragging');
+    container.querySelectorAll('.exam-item').forEach(el=>el.classList.remove('drag-over'));
+
+    // 새 순서로 DB 업데이트
+    const newOrder = [...container.querySelectorAll('.exam-item')].map(el=>el.dataset.id);
+    await Promise.all(newOrder.map((id,i)=>db.patchOrder(id,i)));
+    toast('순서가 저장됐어요 ✅');
+    _dragEl=null; _dragSchool='';
+
+    // 이벤트 제거
+    document.removeEventListener('mousemove', onMouseMove);
+    document.removeEventListener('mouseup', onMouseUp);
+    document.removeEventListener('touchmove', onTouchMove);
+    document.removeEventListener('touchend', onTouchEnd);
+  }
+
+  const onMouseMove = ev => onMove(ev.clientY);
+  const onMouseUp   = ()  => endDrag();
+  const onTouchMove = ev => { ev.preventDefault(); onMove(ev.touches[0].clientY); };
+  const onTouchEnd  = ()  => endDrag();
+
+  document.addEventListener('mousemove', onMouseMove);
+  document.addEventListener('mouseup',   onMouseUp);
+  document.addEventListener('touchmove', onTouchMove, {passive:false});
+  document.addEventListener('touchend',  onTouchEnd);
 }
 
 function renderASchools(){
   const sl=schools.get();
   const tags=sl.map(s=>`<span class="school-tag">${s}${s==='기본'?'':` <span class="stag-del" onclick="doDelSchool('${s}')">×</span>`}</span>`).join('');
   W(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <button class="btn btn-gray" onclick="aStep='list';render()">← 뒤로</button>
+      <button class="btn btn-gray" onclick="aStep='list';aTab='view';render()">← 뒤로</button>
       <div style="font-size:15px;font-weight:700;">🏫 학교 관리</div>
     </div>
     <div class="card">
@@ -318,6 +439,8 @@ function goACreate(){
 
 function renderAAnswers(){
   const filled=aTempAnswers.filter(x=>x==='T'||x==='F').length;
+  const sl=schools.get();
+  const schoolOpts=sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
   let rows='';
   for(let i=0;i<aTempQ;i++){
     const a=aTempAnswers[i]||'';
@@ -332,6 +455,12 @@ function renderAAnswers(){
         <div style="font-size:12px;color:rgba(28,28,30,0.5);" id="fillCnt">${filled}/${aTempQ} 등록됨 · ${aTempSchool}</div>
       </div>
     </div>
+    ${aEditId?`<div class="card" style="padding:14px 18px;">
+      <div class="lbl">학교 변경</div>
+      <div class="sel-wrap" style="margin:0;">
+        <select class="sel" id="editSchool" onchange="aTempSchool=this.value;document.getElementById('fillCnt').textContent='${filled}/${aTempQ} 등록됨 · '+this.value">${schoolOpts}</select>
+      </div>
+    </div>`:''}
     <div class="card">
       <div class="sec-title">정답 체크</div>
       <table class="tbl">
