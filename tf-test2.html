@@ -80,12 +80,15 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .e-icon-a { background: linear-gradient(135deg,#2f7af5,#6b3ff0); }
 .e-icon-s { background: linear-gradient(135deg,#1a9e45,#158a3a); }
 
-/* 드래그 핸들 */
-.drag-handle { display: flex; align-items: center; justify-content: center; width: 24px; flex-shrink: 0; cursor: grab; color: rgba(28,28,30,0.25); font-size: 18px; padding: 4px 0; user-select: none; }
-.exam-item[draggable=true] { cursor: default; }
-.exam-item.drag-over-top    { border-top: 2.5px solid #2f7af5 !important; }
-.exam-item.drag-over-bottom { border-bottom: 2.5px solid #2f7af5 !important; }
-.exam-item.dragging { opacity: 0.35; }
+/* 순서 버튼 */
+.ord-btns { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+.ord-btn { width: 26px; height: 22px; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 6px; background: #f2f2f7; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(28,28,30,0.5); }
+.ord-btn:hover { background: #e5e5ea; }
+.ord-btn:disabled { opacity: 0.2; cursor: default; }
+
+/* 완료된 시험 */
+.exam-done { opacity: 0.45; pointer-events: none; }
+.exam-done .e-icon-s { background: #c7c7cc !important; }
 
 .res-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; }
 .res-row:last-child { border-bottom: none; }
@@ -291,17 +294,18 @@ async function renderAList(){
 }
 
 function examListHTML(list, school){
-  const containerId = 'drag_'+school.replace(/\W/g,'_');
-  setTimeout(()=>initDrag(containerId), 50);
-  let html = '<div id="'+containerId+'">';
-  list.forEach(function(e){
+  let html = '';
+  list.forEach(function(e, i){
     const safeName = e.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    const schoolLabel = aFilterSchool==='전체' ? '' : ' · 🏫 '+(e.school||'기본');
-    html += '<div class="exam-item" draggable="false" data-id="'+e.id+'">';
-    html += '<div class="drag-handle">⠿</div>';
+    html += '<div class="exam-item" data-id="'+e.id+'">';
+    html += '<div class="ord-btns">';
+    html += '<button class="ord-btn" '+(i===0?'disabled':'')+' onclick="moveE(\''+e.id+'\',\''+school+'\','+i+',-1,event)">▲</button>';
+    html += '<button class="ord-btn" '+(i===list.length-1?'disabled':'')+' onclick="moveE(\''+e.id+'\',\''+school+'\','+i+',1,event)">▼</button>';
+    html += '</div>';
     html += '<div class="e-icon e-icon-a" onclick="goADetail(\''+e.id+'\')" style="cursor:pointer;">📝</div>';
     html += '<div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail(\''+e.id+'\')">';
     html += '<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.name+'</div>';
+    const schoolLabel = aFilterSchool==='전체' ? '' : ' · 🏫 '+(e.school||'기본');
     html += '<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">'+e.questions+'문항'+schoolLabel+'</div>';
     html += '</div>';
     html += '<div style="display:flex;gap:5px;flex-shrink:0;">';
@@ -310,7 +314,6 @@ function examListHTML(list, school){
     html += '</div>';
     html += '</div>';
   });
-  html += '</div>';
   return html;
 }
 
@@ -321,71 +324,16 @@ function toggleF(id){
   if(ar)ar.classList.toggle('open');
 }
 
-// ── 드래그앤드롭 (HTML5 draggable) ──
-function initDrag(containerId){
-  const container = document.getElementById(containerId);
-  if(!container) return;
-  let dragSrc = null;
-
-  function clearMarks(){
-    container.querySelectorAll('.exam-item').forEach(el=>{
-      el.classList.remove('dragging','drag-over-top','drag-over-bottom');
-    });
-  }
-
-  container.querySelectorAll('.exam-item').forEach(item=>{
-    const handle = item.querySelector('.drag-handle');
-
-    // 핸들 mousedown → draggable 활성화
-    handle.addEventListener('mousedown', ()=>{ item.setAttribute('draggable','true'); });
-    handle.addEventListener('touchstart', ()=>{ item.setAttribute('draggable','true'); }, {passive:true});
-    document.addEventListener('mouseup',  ()=>{ container.querySelectorAll('.exam-item').forEach(el=>el.setAttribute('draggable','false')); }, {once:false});
-
-    item.addEventListener('dragstart', ev=>{
-      dragSrc = item;
-      setTimeout(()=>item.classList.add('dragging'), 0);
-      ev.dataTransfer.effectAllowed = 'move';
-    });
-
-    item.addEventListener('dragend', ()=>{
-      clearMarks();
-      dragSrc = null;
-    });
-
-    item.addEventListener('dragover', ev=>{
-      ev.preventDefault();
-      if(!dragSrc || dragSrc === item) return;
-      clearMarks();
-      dragSrc.classList.add('dragging');
-      const rect = item.getBoundingClientRect();
-      if(ev.clientY < rect.top + rect.height/2){
-        item.classList.add('drag-over-top');
-      } else {
-        item.classList.add('drag-over-bottom');
-      }
-    });
-
-    item.addEventListener('dragleave', ()=>{
-      item.classList.remove('drag-over-top','drag-over-bottom');
-    });
-
-    item.addEventListener('drop', async ev=>{
-      ev.preventDefault();
-      if(!dragSrc || dragSrc === item) return;
-      const rect = item.getBoundingClientRect();
-      if(ev.clientY < rect.top + rect.height/2){
-        container.insertBefore(dragSrc, item);
-      } else {
-        container.insertBefore(dragSrc, item.nextSibling);
-      }
-      clearMarks();
-      dragSrc.setAttribute('draggable','false');
-      // DB 저장
-      const order = [...container.querySelectorAll('.exam-item')].map(el=>el.dataset.id);
-      await Promise.all(order.map((id,i)=>db.patchOrder(id,i)));
-      toast('순서가 저장됐어요 ✅');
-    });
-  });
+async function moveE(id, school, idx, dir, ev){
+  ev.stopPropagation();
+  const exams = await db.getExams();
+  const list = exams.filter(x=>(x.school||'기본')===school).sort((a,b)=>(a.order_index||0)-(b.order_index||0));
+  const tgt = idx+dir;
+  if(tgt<0||tgt>=list.length) return;
+  const a=list[idx], b=list[tgt];
+  await db.patchOrder(a.id, b.order_index??tgt);
+  await db.patchOrder(b.id, a.order_index??idx);
+  renderAList();
 }
 
 function renderASchools(){
@@ -659,24 +607,50 @@ async function doSEntry(){
 async function renderSList(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
   const exams=await db.getBySchool(sSchool);
-  let h=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-    <button class="btn btn-gray" onclick="sStep='entry';render()">← 뒤로</button>
-    <div>
-      <div style="font-size:15px;font-weight:700;">🏫 ${sSchool}</div>
-      <div style="font-size:12px;color:rgba(28,28,30,0.5);">${sName}님, 시험을 선택하세요</div>
-    </div>
-  </div>`;
+
+  // 이 학생의 100점 완료 시험 목록 가져오기
+  let doneIds = new Set();
+  try {
+    const myResults = await api.get('results?student_name=eq.'+encodeURIComponent(sName)+'&score=eq.total');
+    // score=total 필터가 안되면 전체 조회 후 필터
+    const allResults = await api.get('results?student_name=eq.'+encodeURIComponent(sName));
+    if(Array.isArray(allResults)){
+      allResults.forEach(r=>{ if(r.score===r.total) doneIds.add(r.exam_id); });
+    }
+  } catch(e){}
+
+  let h = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="sStep=\'entry\';render()">← 뒤로</button>'
+    +'<div>'
+    +'<div style="font-size:15px;font-weight:700;">🏫 '+sSchool+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);">'+sName+'님, 시험을 선택하세요</div>'
+    +'</div></div>';
+
   if(!exams.length){
-    h+=`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>진행 중인 시험이 없어요<br><span style="font-size:12px;">선생님이 시험을 만들면 여기에 나타나요</span></div></div>`;
+    h+='<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>진행 중인 시험이 없어요<br><span style="font-size:12px;">선생님이 시험을 만들면 여기에 나타나요</span></div></div>';
   } else {
-    h+=exams.map(e=>`<div class="exam-item" onclick="goSExam('${e.id}')">
-      <div class="e-icon e-icon-s">✏️</div>
-      <div style="flex:1;">
-        <div style="font-size:14px;font-weight:700;">${e.name}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">${e.questions}문항</div>
-      </div>
-      <div style="color:rgba(28,28,30,0.3);font-size:20px;">›</div>
-    </div>`).join('');
+    exams.forEach(e=>{
+      const done = doneIds.has(e.id);
+      if(done){
+        h += '<div class="exam-item" style="opacity:0.45;background:#f2f2f7;">'
+          +'<div class="e-icon" style="background:#c7c7cc;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">✓</div>'
+          +'<div style="flex:1;">'
+          +'<div style="font-size:14px;font-weight:700;color:rgba(28,28,30,0.45);">'+e.name+'</div>'
+          +'<div style="font-size:12px;color:rgba(28,28,30,0.35);margin-top:2px;">'+e.questions+'문항</div>'
+          +'</div>'
+          +'<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:#e5e5ea;color:rgba(28,28,30,0.4);">완료 ✓</span>'
+          +'</div>';
+      } else {
+        h += '<div class="exam-item" onclick="goSExam(\''+e.id+'\')">'
+          +'<div class="e-icon e-icon-s">✏️</div>'
+          +'<div style="flex:1;">'
+          +'<div style="font-size:14px;font-weight:700;">'+e.name+'</div>'
+          +'<div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">'+e.questions+'문항</div>'
+          +'</div>'
+          +'<div style="color:rgba(28,28,30,0.3);font-size:20px;">›</div>'
+          +'</div>';
+      }
+    });
   }
   W(h);
 }
