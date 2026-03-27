@@ -776,36 +776,17 @@ async function renderSResult(){
   const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
   const msg=pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
 
-  // 틀린 문항 목록
-  let wrongRows='';
-  if(wrong>0){
-    for(let i=0;i<e.questions;i++){
-      if(r.answers[i]===e.answers[i])continue;
-      wrongRows+=`<tr><td class="c0" style="color:#d93025;">${i+1}</td>
-        <td class="c1"><button class="tfb ${r.answers[i]==='T'?'no':''}" disabled>${r.answers[i]==='T'?'✗ T':'T'}</button></td>
-        <td><button class="tfb ${r.answers[i]==='F'?'no':''}" disabled>${r.answers[i]==='F'?'✗ F':'F'}</button></td>
-        <td style="text-align:center;font-size:15px;">❌</td></tr>`;
-    }
-  }
-
   W(`<div class="score-box">
       <div style="font-size:26px;margin-bottom:8px;">${msg}</div>
       <div class="score-num" style="color:${col}">${r.score} / ${r.total}</div>
       <div class="score-sub">${sName} · ${wrong>0?`<span style="color:#d93025;font-weight:600;">${wrong}개 틀림</span>`:'전부 정답! 🎯'}</div>
       <div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:${pct}%;background:${col};"></div></div>
     </div>
-    ${wrong>0?`
-    <div class="card" style="padding:0;overflow:hidden;">
-      <div style="padding:12px 16px 8px;font-size:11px;font-weight:700;color:rgba(28,28,30,0.4);letter-spacing:0.5px;">틀린 문항</div>
-      <table class="tbl"><thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th><th>결과</th></tr></thead>
-      <tbody>${wrongRows}</tbody></table>
-    </div>
-    <button class="btn btn-orange btn-full" onclick="goFix()">✏️ 틀린 문항만 수정하기</button>
-    `:`<div class="card" style="text-align:center;padding:24px;">
-      <div style="font-size:36px;margin-bottom:10px;">🎯</div>
-      <div style="font-size:16px;font-weight:700;color:#1a9e45;">전부 맞았어요!</div>
-    </div>`}
-    <button class="btn btn-gray btn-full" style="margin-top:8px;" onclick="sStep='list';render()">다른 시험 보기</button>`);
+    <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
+      ${wrong>0?`<button class="btn btn-orange btn-full" style="margin:0;" onclick="goFix()">✏️ 틀린 ${wrong}문항만 다시 풀기</button>`:''}
+      <button class="btn btn-gray btn-full" style="margin:0;" onclick="sStep='list';render()">✓ 완료</button>
+    </div>`);
+}
 }
 
 function goFix(){
