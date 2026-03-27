@@ -193,24 +193,31 @@ function renderAdmin(){
 }
 
 function aTabBar(){
-  return `<div style="display:flex;background:#e5e5ea;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;">
-    <button style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;
-      background:${aTab==='create'?'white':'transparent'};
-      color:${aTab==='create'?'#1c1c1e':'rgba(28,28,30,0.5)'};
-      box-shadow:${aTab==='create'?'0 1px 4px rgba(0,0,0,0.1)':'none'};"
-      onclick="aTab='create';renderAList()">➕ 새 시험 만들기</button>
-    <button style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;
-      background:${aTab==='view'?'white':'transparent'};
-      color:${aTab==='view'?'#1c1c1e':'rgba(28,28,30,0.5)'};
-      box-shadow:${aTab==='view'?'0 1px 4px rgba(0,0,0,0.1)':'none'};"
-      onclick="aTab='view';renderAList()">🏫 학교별 시험 보기</button>
-  </div>`;
+  const cActive = aTab==='create';
+  const vActive = aTab==='view';
+  return '<div style="display:flex;background:#e5e5ea;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;">'
+    + '<button data-tab="create" onclick="aTab=this.dataset.tab;renderAList()" style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;'
+    + 'background:' + (cActive?'white':'transparent') + ';'
+    + 'color:' + (cActive?'#1c1c1e':'rgba(28,28,30,0.5)') + ';'
+    + 'box-shadow:' + (cActive?'0 1px 4px rgba(0,0,0,0.1)':'none') + ';">➕ 새 시험 만들기</button>'
+    + '<button data-tab="view" onclick="aTab=this.dataset.tab;renderAList()" style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;'
+    + 'background:' + (vActive?'white':'transparent') + ';'
+    + 'color:' + (vActive?'#1c1c1e':'rgba(28,28,30,0.5)') + ';'
+    + 'box-shadow:' + (vActive?'0 1px 4px rgba(0,0,0,0.1)':'none') + ';">🏫 학교별 시험 보기</button>'
+    + '</div>';
 }
 
 async function renderAList(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams = await db.getExams();
-  const sl    = schools.get();
+  let exams=[];
+  try {
+    exams = await db.getExams();
+    if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams));
+  } catch(e) {
+    W(`<div class="empty"><div style="font-size:32px;margin-bottom:12px;">⚠️</div><div style="font-size:13px;color:#d93025;">데이터 로드 실패<br>${e.message}</div></div>`);
+    return;
+  }
+  const sl = schools.get();
   const opts  = sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
 
   // ── 새 시험 만들기 탭 ──
@@ -236,13 +243,15 @@ async function renderAList(){
 
   // 학교 필터 칩
   const allS=[...new Set([...sl,...Object.keys(grouped)])];
-  const filterChips=['전체',...allS].map(s=>`
-    <button onclick="aFilterSchool='${s}';renderAList()" style="
-      padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;
-      background:${aFilterSchool===s?'#2f7af5':'white'};
-      color:${aFilterSchool===s?'white':'rgba(28,28,30,0.55)'};
-      border-color:${aFilterSchool===s?'#2f7af5':'rgba(0,0,0,0.1)'};
-    ">${s}</button>`).join('');
+  const filterChips=['전체',...allS].map(s=>{
+    const isActive = aFilterSchool===s;
+    return '<button data-school="'+s+'" onclick="aFilterSchool=this.dataset.school;renderAList()" style="'
+      +'padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;'
+      +'background:'+(isActive?'#2f7af5':'white')+';'
+      +'color:'+(isActive?'white':'rgba(28,28,30,0.55)')+';'
+      +'border-color:'+(isActive?'#2f7af5':'rgba(0,0,0,0.1)')+';">'
+      +s+'</button>';
+  }).join('');
 
   let h = aTabBar();
   h += `<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">${filterChips}</div>`;
@@ -284,21 +293,25 @@ async function renderAList(){
 function examListHTML(list, school){
   const containerId = 'drag_'+school.replace(/\W/g,'_');
   setTimeout(()=>initDrag(containerId), 50);
-  return `<div id="${containerId}">` +
-    list.map(e=>`
-    <div class="exam-item" draggable="false" data-id="${e.id}">
-      <div class="drag-handle">⠿</div>
-      <div class="e-icon e-icon-a" onclick="goADetail('${e.id}')" style="cursor:pointer;">📝</div>
-      <div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail('${e.id}')">
-        <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">${e.questions}문항${aFilterSchool==='전체'?'':` · 🏫 ${e.school||'기본'}`}</div>
-      </div>
-      <div style="display:flex;gap:5px;flex-shrink:0;">
-        <button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit('${e.id}')">✏️</button>
-        <button class="btn btn-red"  style="padding:6px 10px;" onclick="quickDel('${e.id}','${e.name.replace(/'/g,"\\'")}')">🗑️</button>
-      </div>
-    </div>`).join('') +
-  `</div>`;
+  let html = '<div id="'+containerId+'">';
+  list.forEach(function(e){
+    const safeName = e.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const schoolLabel = aFilterSchool==='전체' ? '' : ' · 🏫 '+(e.school||'기본');
+    html += '<div class="exam-item" draggable="false" data-id="'+e.id+'">';
+    html += '<div class="drag-handle">⠿</div>';
+    html += '<div class="e-icon e-icon-a" onclick="goADetail(\''+e.id+'\')" style="cursor:pointer;">📝</div>';
+    html += '<div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail(\''+e.id+'\')">';
+    html += '<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.name+'</div>';
+    html += '<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">'+e.questions+'문항'+schoolLabel+'</div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:5px;flex-shrink:0;">';
+    html += '<button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit(\''+e.id+'\')">✏️</button>';
+    html += '<button class="btn btn-red" style="padding:6px 10px;" onclick="quickDel(\''+e.id+'\',\''+safeName+'\')">🗑️</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  html += '</div>';
+  return html;
 }
 
 function toggleF(id){
@@ -606,8 +619,14 @@ function renderStudent(){
 // ── 진입: 이름 + 학교 선택 ──
 async function renderSEntry(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams=await db.getExams();
-  // DB 학교 + localStorage 학교 합치기
+  let exams=[];
+  try {
+    exams = await db.getExams();
+    if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams));
+  } catch(e) {
+    W(`<div class="empty"><div style="font-size:32px;margin-bottom:12px;">⚠️</div><div style="font-size:13px;color:#d93025;">데이터 로드 실패<br>${e.message}</div></div>`);
+    return;
+  }
   const dbS=[...new Set(exams.map(e=>e.school||'기본'))];
   const allS=[...new Set([...schools.get(),...dbS])].sort();
   const opts=allS.map(s=>`<option value="${s}" ${s===sSchool?'selected':''}>${s}</option>`).join('');
@@ -758,17 +777,19 @@ async function renderSResult(){
   const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
   const msg=pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
 
-  W(`<div class="score-box">
-      <div style="font-size:26px;margin-bottom:8px;">${msg}</div>
-      <div class="score-num" style="color:${col}">${r.score} / ${r.total}</div>
-      <div class="score-sub">${sName} · ${wrong>0?`<span style="color:#d93025;font-weight:600;">${wrong}개 틀림</span>`:'전부 정답! 🎯'}</div>
-      <div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:${pct}%;background:${col};"></div></div>
-    </div>
-    <div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">
-      ${wrong>0?`<button class="btn btn-orange btn-full" style="margin:0;" onclick="goFix()">✏️ 틀린 ${wrong}문항만 다시 풀기</button>`:''}
-      <button class="btn btn-gray btn-full" style="margin:0;" onclick="sStep='list';render()">✓ 완료</button>
-    </div>`);
-}
+  const wrongText = wrong>0 ? '<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>' : '전부 정답! 🎯';
+  const fixBtn = wrong>0 ? '<button class="btn btn-orange btn-full" style="margin:0;" onclick="goFix()">✏️ 틀린 '+wrong+'문항만 다시 풀기</button>' : '';
+
+  W('<div class="score-box">'
+    +'<div style="font-size:26px;margin-bottom:8px;">'+msg+'</div>'
+    +'<div class="score-num" style="color:'+col+'">'+r.score+' / '+r.total+'</div>'
+    +'<div class="score-sub">'+sName+' · '+wrongText+'</div>'
+    +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div>'
+    +'</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'
+    +fixBtn
+    +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="sStep=\'list\';render()">✓ 완료</button>'
+    +'</div>');
 }
 
 function goFix(){
