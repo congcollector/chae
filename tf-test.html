@@ -80,11 +80,15 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .e-icon-a { background: linear-gradient(135deg,#2f7af5,#6b3ff0); }
 .e-icon-s { background: linear-gradient(135deg,#1a9e45,#158a3a); }
 
-/* 드래그 핸들 */
-.drag-handle { display: flex; align-items: center; justify-content: center; width: 24px; flex-shrink: 0; cursor: grab; color: rgba(28,28,30,0.25); font-size: 16px; padding: 4px 0; user-select: none; touch-action: none; }
-.drag-handle:active { cursor: grabbing; }
-.exam-item.dragging { opacity: 0.4; background: #f2f2f7; box-shadow: none; }
-.exam-item.drag-over { border-color: #2f7af5; background: rgba(47,122,245,0.05); transform: scale(1.01); }
+/* 순서 버튼 */
+.ord-btns { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
+.ord-btn { width: 26px; height: 22px; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 6px; background: #f2f2f7; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(28,28,30,0.5); }
+.ord-btn:hover { background: #e5e5ea; }
+.ord-btn:disabled { opacity: 0.2; cursor: default; }
+
+/* 완료된 시험 */
+.exam-done { opacity: 0.45; pointer-events: none; }
+.exam-done .e-icon-s { background: #c7c7cc !important; }
 
 .res-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; }
 .res-row:last-child { border-bottom: none; }
@@ -192,24 +196,31 @@ function renderAdmin(){
 }
 
 function aTabBar(){
-  return `<div style="display:flex;background:#e5e5ea;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;">
-    <button style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;
-      background:${aTab==='create'?'white':'transparent'};
-      color:${aTab==='create'?'#1c1c1e':'rgba(28,28,30,0.5)'};
-      box-shadow:${aTab==='create'?'0 1px 4px rgba(0,0,0,0.1)':'none'};"
-      onclick="aTab='create';renderAList()">➕ 새 시험 만들기</button>
-    <button style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;transition:all 0.15s;
-      background:${aTab==='view'?'white':'transparent'};
-      color:${aTab==='view'?'#1c1c1e':'rgba(28,28,30,0.5)'};
-      box-shadow:${aTab==='view'?'0 1px 4px rgba(0,0,0,0.1)':'none'};"
-      onclick="aTab='view';renderAList()">🏫 학교별 시험 보기</button>
-  </div>`;
+  const cActive = aTab==='create';
+  const vActive = aTab==='view';
+  return '<div style="display:flex;background:#e5e5ea;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;">'
+    + '<button data-tab="create" onclick="aTab=this.dataset.tab;renderAList()" style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;'
+    + 'background:' + (cActive?'white':'transparent') + ';'
+    + 'color:' + (cActive?'#1c1c1e':'rgba(28,28,30,0.5)') + ';'
+    + 'box-shadow:' + (cActive?'0 1px 4px rgba(0,0,0,0.1)':'none') + ';">➕ 새 시험 만들기</button>'
+    + '<button data-tab="view" onclick="aTab=this.dataset.tab;renderAList()" style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;'
+    + 'background:' + (vActive?'white':'transparent') + ';'
+    + 'color:' + (vActive?'#1c1c1e':'rgba(28,28,30,0.5)') + ';'
+    + 'box-shadow:' + (vActive?'0 1px 4px rgba(0,0,0,0.1)':'none') + ';">🏫 학교별 시험 보기</button>'
+    + '</div>';
 }
 
 async function renderAList(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams = await db.getExams();
-  const sl    = schools.get();
+  let exams=[];
+  try {
+    exams = await db.getExams();
+    if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams));
+  } catch(e) {
+    W(`<div class="empty"><div style="font-size:32px;margin-bottom:12px;">⚠️</div><div style="font-size:13px;color:#d93025;">데이터 로드 실패<br>${e.message}</div></div>`);
+    return;
+  }
+  const sl = schools.get();
   const opts  = sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
 
   // ── 새 시험 만들기 탭 ──
@@ -235,13 +246,15 @@ async function renderAList(){
 
   // 학교 필터 칩
   const allS=[...new Set([...sl,...Object.keys(grouped)])];
-  const filterChips=['전체',...allS].map(s=>`
-    <button onclick="aFilterSchool='${s}';renderAList()" style="
-      padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;
-      background:${aFilterSchool===s?'#2f7af5':'white'};
-      color:${aFilterSchool===s?'white':'rgba(28,28,30,0.55)'};
-      border-color:${aFilterSchool===s?'#2f7af5':'rgba(0,0,0,0.1)'};
-    ">${s}</button>`).join('');
+  const filterChips=['전체',...allS].map(s=>{
+    const isActive = aFilterSchool===s;
+    return '<button data-school="'+s+'" onclick="aFilterSchool=this.dataset.school;renderAList()" style="'
+      +'padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;'
+      +'background:'+(isActive?'#2f7af5':'white')+';'
+      +'color:'+(isActive?'white':'rgba(28,28,30,0.55)')+';'
+      +'border-color:'+(isActive?'#2f7af5':'rgba(0,0,0,0.1)')+';">'
+      +s+'</button>';
+  }).join('');
 
   let h = aTabBar();
   h += `<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">${filterChips}</div>`;
@@ -281,23 +294,27 @@ async function renderAList(){
 }
 
 function examListHTML(list, school){
-  const containerId = 'drag_'+school.replace(/\W/g,'_');
-  // setTimeout으로 DOM 렌더 후 드래그 초기화
-  setTimeout(()=>initDrag(containerId, school), 50);
-  return `<div id="${containerId}">` +
-    list.map(e=>`<div class="exam-item" data-id="${e.id}" data-school="${school}">
-      <div class="drag-handle" title="드래그해서 순서 변경">⠿</div>
-      <div class="e-icon e-icon-a" onclick="goADetail('${e.id}')" style="cursor:pointer;">📝</div>
-      <div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail('${e.id}')">
-        <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">${e.questions}문항${aFilterSchool==='전체'?'':` · 🏫 ${e.school||'기본'}`}</div>
-      </div>
-      <div style="display:flex;gap:5px;flex-shrink:0;">
-        <button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit('${e.id}')">✏️</button>
-        <button class="btn btn-red"  style="padding:6px 10px;" onclick="quickDel('${e.id}','${e.name.replace(/'/g,"\\'")}')">🗑️</button>
-      </div>
-    </div>`).join('') +
-  `</div>`;
+  let html = '';
+  list.forEach(function(e, i){
+    const safeName = e.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    html += '<div class="exam-item" data-id="'+e.id+'">';
+    html += '<div class="ord-btns">';
+    html += '<button class="ord-btn" '+(i===0?'disabled':'')+' onclick="moveE(\''+e.id+'\',\''+school+'\','+i+',-1,event)">▲</button>';
+    html += '<button class="ord-btn" '+(i===list.length-1?'disabled':'')+' onclick="moveE(\''+e.id+'\',\''+school+'\','+i+',1,event)">▼</button>';
+    html += '</div>';
+    html += '<div class="e-icon e-icon-a" onclick="goADetail(\''+e.id+'\')" style="cursor:pointer;">📝</div>';
+    html += '<div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail(\''+e.id+'\')">';
+    html += '<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.name+'</div>';
+    const schoolLabel = aFilterSchool==='전체' ? '' : ' · 🏫 '+(e.school||'기본');
+    html += '<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">'+e.questions+'문항'+schoolLabel+'</div>';
+    html += '</div>';
+    html += '<div style="display:flex;gap:5px;flex-shrink:0;">';
+    html += '<button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit(\''+e.id+'\')">✏️</button>';
+    html += '<button class="btn btn-red" style="padding:6px 10px;" onclick="quickDel(\''+e.id+'\',\''+safeName+'\')">🗑️</button>';
+    html += '</div>';
+    html += '</div>';
+  });
+  return html;
 }
 
 function toggleF(id){
@@ -307,90 +324,16 @@ function toggleF(id){
   if(ar)ar.classList.toggle('open');
 }
 
-// ── 드래그앤드롭 ──
-let _dragEl=null, _dragSchool='';
-
-function initDrag(containerId, school){
-  const container = document.getElementById(containerId);
-  if(!container) return;
-  const items = container.querySelectorAll('.exam-item');
-
-  items.forEach(item=>{
-    const handle = item.querySelector('.drag-handle');
-    if(!handle) return;
-
-    // ── 데스크탑 (mouse) ──
-    handle.addEventListener('mousedown', ev=>{
-      ev.preventDefault();
-      startDrag(item, school, ev.clientY);
-    });
-
-    // ── 모바일 (touch) ──
-    handle.addEventListener('touchstart', ev=>{
-      ev.preventDefault();
-      startDrag(item, school, ev.touches[0].clientY);
-    }, {passive:false});
-  });
-}
-
-function startDrag(item, school, startY){
-  _dragEl = item;
-  _dragSchool = school;
-  item.classList.add('dragging');
-
-  const container = item.parentElement;
-  const items = ()=>[...container.querySelectorAll('.exam-item:not(.dragging)')];
-  let lastOver = null;
-
-  function onMove(clientY){
-    // 현재 Y 위치와 가장 가까운 아이템 찾기
-    const closest = items().reduce((acc, el)=>{
-      const box = el.getBoundingClientRect();
-      const mid = box.top + box.height/2;
-      const dist = Math.abs(clientY - mid);
-      return dist < acc.dist ? {el, dist, below: clientY > mid} : acc;
-    }, {el:null, dist:Infinity, below:false});
-
-    if(closest.el && closest.el !== lastOver){
-      lastOver = closest.el;
-      items().forEach(el=>el.classList.remove('drag-over'));
-      closest.el.classList.add('drag-over');
-      // 시각적으로 위치 이동
-      if(closest.below){
-        container.insertBefore(_dragEl, closest.el.nextSibling);
-      } else {
-        container.insertBefore(_dragEl, closest.el);
-      }
-    }
-  }
-
-  async function endDrag(){
-    if(!_dragEl) return;
-    _dragEl.classList.remove('dragging');
-    container.querySelectorAll('.exam-item').forEach(el=>el.classList.remove('drag-over'));
-
-    // 새 순서로 DB 업데이트
-    const newOrder = [...container.querySelectorAll('.exam-item')].map(el=>el.dataset.id);
-    await Promise.all(newOrder.map((id,i)=>db.patchOrder(id,i)));
-    toast('순서가 저장됐어요 ✅');
-    _dragEl=null; _dragSchool='';
-
-    // 이벤트 제거
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-    document.removeEventListener('touchmove', onTouchMove);
-    document.removeEventListener('touchend', onTouchEnd);
-  }
-
-  const onMouseMove = ev => onMove(ev.clientY);
-  const onMouseUp   = ()  => endDrag();
-  const onTouchMove = ev => { ev.preventDefault(); onMove(ev.touches[0].clientY); };
-  const onTouchEnd  = ()  => endDrag();
-
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup',   onMouseUp);
-  document.addEventListener('touchmove', onTouchMove, {passive:false});
-  document.addEventListener('touchend',  onTouchEnd);
+async function moveE(id, school, idx, dir, ev){
+  ev.stopPropagation();
+  const exams = await db.getExams();
+  const list = exams.filter(x=>(x.school||'기본')===school).sort((a,b)=>(a.order_index||0)-(b.order_index||0));
+  const tgt = idx+dir;
+  if(tgt<0||tgt>=list.length) return;
+  const a=list[idx], b=list[tgt];
+  await db.patchOrder(a.id, b.order_index??tgt);
+  await db.patchOrder(b.id, a.order_index??idx);
+  renderAList();
 }
 
 function renderASchools(){
@@ -624,8 +567,14 @@ function renderStudent(){
 // ── 진입: 이름 + 학교 선택 ──
 async function renderSEntry(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams=await db.getExams();
-  // DB 학교 + localStorage 학교 합치기
+  let exams=[];
+  try {
+    exams = await db.getExams();
+    if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams));
+  } catch(e) {
+    W(`<div class="empty"><div style="font-size:32px;margin-bottom:12px;">⚠️</div><div style="font-size:13px;color:#d93025;">데이터 로드 실패<br>${e.message}</div></div>`);
+    return;
+  }
   const dbS=[...new Set(exams.map(e=>e.school||'기본'))];
   const allS=[...new Set([...schools.get(),...dbS])].sort();
   const opts=allS.map(s=>`<option value="${s}" ${s===sSchool?'selected':''}>${s}</option>`).join('');
@@ -658,24 +607,50 @@ async function doSEntry(){
 async function renderSList(){
   W('<div class="loading">⏳ 불러오는 중...</div>');
   const exams=await db.getBySchool(sSchool);
-  let h=`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-    <button class="btn btn-gray" onclick="sStep='entry';render()">← 뒤로</button>
-    <div>
-      <div style="font-size:15px;font-weight:700;">🏫 ${sSchool}</div>
-      <div style="font-size:12px;color:rgba(28,28,30,0.5);">${sName}님, 시험을 선택하세요</div>
-    </div>
-  </div>`;
+
+  // 이 학생의 100점 완료 시험 목록 가져오기
+  let doneIds = new Set();
+  try {
+    const myResults = await api.get('results?student_name=eq.'+encodeURIComponent(sName)+'&score=eq.total');
+    // score=total 필터가 안되면 전체 조회 후 필터
+    const allResults = await api.get('results?student_name=eq.'+encodeURIComponent(sName));
+    if(Array.isArray(allResults)){
+      allResults.forEach(r=>{ if(r.score===r.total) doneIds.add(r.exam_id); });
+    }
+  } catch(e){}
+
+  let h = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="sStep=\'entry\';render()">← 뒤로</button>'
+    +'<div>'
+    +'<div style="font-size:15px;font-weight:700;">🏫 '+sSchool+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);">'+sName+'님, 시험을 선택하세요</div>'
+    +'</div></div>';
+
   if(!exams.length){
-    h+=`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>진행 중인 시험이 없어요<br><span style="font-size:12px;">선생님이 시험을 만들면 여기에 나타나요</span></div></div>`;
+    h+='<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>진행 중인 시험이 없어요<br><span style="font-size:12px;">선생님이 시험을 만들면 여기에 나타나요</span></div></div>';
   } else {
-    h+=exams.map(e=>`<div class="exam-item" onclick="goSExam('${e.id}')">
-      <div class="e-icon e-icon-s">✏️</div>
-      <div style="flex:1;">
-        <div style="font-size:14px;font-weight:700;">${e.name}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">${e.questions}문항</div>
-      </div>
-      <div style="color:rgba(28,28,30,0.3);font-size:20px;">›</div>
-    </div>`).join('');
+    exams.forEach(e=>{
+      const done = doneIds.has(e.id);
+      if(done){
+        h += '<div class="exam-item" style="opacity:0.45;background:#f2f2f7;">'
+          +'<div class="e-icon" style="background:#c7c7cc;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">✓</div>'
+          +'<div style="flex:1;">'
+          +'<div style="font-size:14px;font-weight:700;color:rgba(28,28,30,0.45);">'+e.name+'</div>'
+          +'<div style="font-size:12px;color:rgba(28,28,30,0.35);margin-top:2px;">'+e.questions+'문항</div>'
+          +'</div>'
+          +'<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:#e5e5ea;color:rgba(28,28,30,0.4);">완료 ✓</span>'
+          +'</div>';
+      } else {
+        h += '<div class="exam-item" onclick="goSExam(\''+e.id+'\')">'
+          +'<div class="e-icon e-icon-s">✏️</div>'
+          +'<div style="flex:1;">'
+          +'<div style="font-size:14px;font-weight:700;">'+e.name+'</div>'
+          +'<div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">'+e.questions+'문항</div>'
+          +'</div>'
+          +'<div style="color:rgba(28,28,30,0.3);font-size:20px;">›</div>'
+          +'</div>';
+      }
+    });
   }
   W(h);
 }
@@ -776,36 +751,19 @@ async function renderSResult(){
   const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
   const msg=pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
 
-  // 틀린 문항 목록
-  let wrongRows='';
-  if(wrong>0){
-    for(let i=0;i<e.questions;i++){
-      if(r.answers[i]===e.answers[i])continue;
-      wrongRows+=`<tr><td class="c0" style="color:#d93025;">${i+1}</td>
-        <td class="c1"><button class="tfb ${r.answers[i]==='T'?'no':''}" disabled>${r.answers[i]==='T'?'✗ T':'T'}</button></td>
-        <td><button class="tfb ${r.answers[i]==='F'?'no':''}" disabled>${r.answers[i]==='F'?'✗ F':'F'}</button></td>
-        <td style="text-align:center;font-size:15px;">❌</td></tr>`;
-    }
-  }
+  const wrongText = wrong>0 ? '<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>' : '전부 정답! 🎯';
+  const fixBtn = wrong>0 ? '<button class="btn btn-orange btn-full" style="margin:0;" onclick="goFix()">✏️ 틀린 '+wrong+'문항만 다시 풀기</button>' : '';
 
-  W(`<div class="score-box">
-      <div style="font-size:26px;margin-bottom:8px;">${msg}</div>
-      <div class="score-num" style="color:${col}">${r.score} / ${r.total}</div>
-      <div class="score-sub">${sName} · ${wrong>0?`<span style="color:#d93025;font-weight:600;">${wrong}개 틀림</span>`:'전부 정답! 🎯'}</div>
-      <div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:${pct}%;background:${col};"></div></div>
-    </div>
-    ${wrong>0?`
-    <div class="card" style="padding:0;overflow:hidden;">
-      <div style="padding:12px 16px 8px;font-size:11px;font-weight:700;color:rgba(28,28,30,0.4);letter-spacing:0.5px;">틀린 문항</div>
-      <table class="tbl"><thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th><th>결과</th></tr></thead>
-      <tbody>${wrongRows}</tbody></table>
-    </div>
-    <button class="btn btn-orange btn-full" onclick="goFix()">✏️ 틀린 문항만 수정하기</button>
-    `:`<div class="card" style="text-align:center;padding:24px;">
-      <div style="font-size:36px;margin-bottom:10px;">🎯</div>
-      <div style="font-size:16px;font-weight:700;color:#1a9e45;">전부 맞았어요!</div>
-    </div>`}
-    <button class="btn btn-gray btn-full" style="margin-top:8px;" onclick="sStep='list';render()">다른 시험 보기</button>`);
+  W('<div class="score-box">'
+    +'<div style="font-size:26px;margin-bottom:8px;">'+msg+'</div>'
+    +'<div class="score-num" style="color:'+col+'">'+r.score+' / '+r.total+'</div>'
+    +'<div class="score-sub">'+sName+' · '+wrongText+'</div>'
+    +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div>'
+    +'</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'
+    +fixBtn
+    +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="sStep=\'list\';render()">✓ 완료</button>'
+    +'</div>');
 }
 
 function goFix(){
