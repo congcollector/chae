@@ -81,10 +81,11 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .e-icon-s { background: linear-gradient(135deg,#1a9e45,#158a3a); }
 
 /* 드래그 핸들 */
-.drag-handle { display: flex; align-items: center; justify-content: center; width: 24px; flex-shrink: 0; cursor: grab; color: rgba(28,28,30,0.25); font-size: 16px; padding: 4px 0; user-select: none; touch-action: none; }
-.drag-handle:active { cursor: grabbing; }
-.exam-item.dragging { opacity: 0.4; background: #f2f2f7; box-shadow: none; }
-.exam-item.drag-over { border-color: #2f7af5; background: rgba(47,122,245,0.05); transform: scale(1.01); }
+.drag-handle { display: flex; align-items: center; justify-content: center; width: 24px; flex-shrink: 0; cursor: grab; color: rgba(28,28,30,0.25); font-size: 18px; padding: 4px 0; user-select: none; }
+.exam-item[draggable=true] { cursor: default; }
+.exam-item.drag-over-top    { border-top: 2.5px solid #2f7af5 !important; }
+.exam-item.drag-over-bottom { border-bottom: 2.5px solid #2f7af5 !important; }
+.exam-item.dragging { opacity: 0.35; }
 
 .res-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; }
 .res-row:last-child { border-bottom: none; }
@@ -282,11 +283,11 @@ async function renderAList(){
 
 function examListHTML(list, school){
   const containerId = 'drag_'+school.replace(/\W/g,'_');
-  // setTimeout으로 DOM 렌더 후 드래그 초기화
-  setTimeout(()=>initDrag(containerId, school), 50);
+  setTimeout(()=>initDrag(containerId), 50);
   return `<div id="${containerId}">` +
-    list.map(e=>`<div class="exam-item" data-id="${e.id}" data-school="${school}">
-      <div class="drag-handle" title="드래그해서 순서 변경">⠿</div>
+    list.map(e=>`
+    <div class="exam-item" draggable="false" data-id="${e.id}">
+      <div class="drag-handle">⠿</div>
       <div class="e-icon e-icon-a" onclick="goADetail('${e.id}')" style="cursor:pointer;">📝</div>
       <div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail('${e.id}')">
         <div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">${e.name}</div>
@@ -307,90 +308,71 @@ function toggleF(id){
   if(ar)ar.classList.toggle('open');
 }
 
-// ── 드래그앤드롭 ──
-let _dragEl=null, _dragSchool='';
-
-function initDrag(containerId, school){
+// ── 드래그앤드롭 (HTML5 draggable) ──
+function initDrag(containerId){
   const container = document.getElementById(containerId);
   if(!container) return;
-  const items = container.querySelectorAll('.exam-item');
+  let dragSrc = null;
 
-  items.forEach(item=>{
+  function clearMarks(){
+    container.querySelectorAll('.exam-item').forEach(el=>{
+      el.classList.remove('dragging','drag-over-top','drag-over-bottom');
+    });
+  }
+
+  container.querySelectorAll('.exam-item').forEach(item=>{
     const handle = item.querySelector('.drag-handle');
-    if(!handle) return;
 
-    // ── 데스크탑 (mouse) ──
-    handle.addEventListener('mousedown', ev=>{
-      ev.preventDefault();
-      startDrag(item, school, ev.clientY);
+    // 핸들 mousedown → draggable 활성화
+    handle.addEventListener('mousedown', ()=>{ item.setAttribute('draggable','true'); });
+    handle.addEventListener('touchstart', ()=>{ item.setAttribute('draggable','true'); }, {passive:true});
+    document.addEventListener('mouseup',  ()=>{ container.querySelectorAll('.exam-item').forEach(el=>el.setAttribute('draggable','false')); }, {once:false});
+
+    item.addEventListener('dragstart', ev=>{
+      dragSrc = item;
+      setTimeout(()=>item.classList.add('dragging'), 0);
+      ev.dataTransfer.effectAllowed = 'move';
     });
 
-    // ── 모바일 (touch) ──
-    handle.addEventListener('touchstart', ev=>{
+    item.addEventListener('dragend', ()=>{
+      clearMarks();
+      dragSrc = null;
+    });
+
+    item.addEventListener('dragover', ev=>{
       ev.preventDefault();
-      startDrag(item, school, ev.touches[0].clientY);
-    }, {passive:false});
-  });
-}
-
-function startDrag(item, school, startY){
-  _dragEl = item;
-  _dragSchool = school;
-  item.classList.add('dragging');
-
-  const container = item.parentElement;
-  const items = ()=>[...container.querySelectorAll('.exam-item:not(.dragging)')];
-  let lastOver = null;
-
-  function onMove(clientY){
-    // 현재 Y 위치와 가장 가까운 아이템 찾기
-    const closest = items().reduce((acc, el)=>{
-      const box = el.getBoundingClientRect();
-      const mid = box.top + box.height/2;
-      const dist = Math.abs(clientY - mid);
-      return dist < acc.dist ? {el, dist, below: clientY > mid} : acc;
-    }, {el:null, dist:Infinity, below:false});
-
-    if(closest.el && closest.el !== lastOver){
-      lastOver = closest.el;
-      items().forEach(el=>el.classList.remove('drag-over'));
-      closest.el.classList.add('drag-over');
-      // 시각적으로 위치 이동
-      if(closest.below){
-        container.insertBefore(_dragEl, closest.el.nextSibling);
+      if(!dragSrc || dragSrc === item) return;
+      clearMarks();
+      dragSrc.classList.add('dragging');
+      const rect = item.getBoundingClientRect();
+      if(ev.clientY < rect.top + rect.height/2){
+        item.classList.add('drag-over-top');
       } else {
-        container.insertBefore(_dragEl, closest.el);
+        item.classList.add('drag-over-bottom');
       }
-    }
-  }
+    });
 
-  async function endDrag(){
-    if(!_dragEl) return;
-    _dragEl.classList.remove('dragging');
-    container.querySelectorAll('.exam-item').forEach(el=>el.classList.remove('drag-over'));
+    item.addEventListener('dragleave', ()=>{
+      item.classList.remove('drag-over-top','drag-over-bottom');
+    });
 
-    // 새 순서로 DB 업데이트
-    const newOrder = [...container.querySelectorAll('.exam-item')].map(el=>el.dataset.id);
-    await Promise.all(newOrder.map((id,i)=>db.patchOrder(id,i)));
-    toast('순서가 저장됐어요 ✅');
-    _dragEl=null; _dragSchool='';
-
-    // 이벤트 제거
-    document.removeEventListener('mousemove', onMouseMove);
-    document.removeEventListener('mouseup', onMouseUp);
-    document.removeEventListener('touchmove', onTouchMove);
-    document.removeEventListener('touchend', onTouchEnd);
-  }
-
-  const onMouseMove = ev => onMove(ev.clientY);
-  const onMouseUp   = ()  => endDrag();
-  const onTouchMove = ev => { ev.preventDefault(); onMove(ev.touches[0].clientY); };
-  const onTouchEnd  = ()  => endDrag();
-
-  document.addEventListener('mousemove', onMouseMove);
-  document.addEventListener('mouseup',   onMouseUp);
-  document.addEventListener('touchmove', onTouchMove, {passive:false});
-  document.addEventListener('touchend',  onTouchEnd);
+    item.addEventListener('drop', async ev=>{
+      ev.preventDefault();
+      if(!dragSrc || dragSrc === item) return;
+      const rect = item.getBoundingClientRect();
+      if(ev.clientY < rect.top + rect.height/2){
+        container.insertBefore(dragSrc, item);
+      } else {
+        container.insertBefore(dragSrc, item.nextSibling);
+      }
+      clearMarks();
+      dragSrc.setAttribute('draggable','false');
+      // DB 저장
+      const order = [...container.querySelectorAll('.exam-item')].map(el=>el.dataset.id);
+      await Promise.all(order.map((id,i)=>db.patchOrder(id,i)));
+      toast('순서가 저장됐어요 ✅');
+    });
+  });
 }
 
 function renderASchools(){
