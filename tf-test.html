@@ -666,40 +666,39 @@ async function goSExam(id){
 // ── 시험 응시 ──
 function renderSExam(){
   const e=sExamData;
-  // 수정 모드: 틀린 문항만 렌더
-  const prev=window._prevResult;
-  const wrongIdxs=sFixMode&&prev ? e.answers.map((a,i)=>a!==prev.answers[i]?i:-1).filter(i=>i>=0) : null;
-  const total=sFixMode&&wrongIdxs ? wrongIdxs.length : e.questions;
-  const filled=sFixMode&&wrongIdxs ? wrongIdxs.filter(i=>sAnswers[i]).length : sAnswers.filter(a=>a).length;
+  const filled=sAnswers.filter(a=>a).length;
 
   let rows='';
-  const idxList=wrongIdxs||[...Array(e.questions).keys()];
-  idxList.forEach(i=>{
+  for(let i=0;i<e.questions;i++){
     const a=sAnswers[i]||'';
-    rows+=`<tr><td class="c0">${i+1}</td>
-      <td class="c1"><button class="tfb ${a==='T'?'t-on':''}" onclick="pickS(${i},'T')">T</button></td>
-      <td><button class="tfb ${a==='F'?'f-on':''}" onclick="pickS(${i},'F')">F</button></td></tr>`;
-  });
+    rows+='<tr>'
+      +'<td class="c0">'+(i+1)+'</td>'
+      +'<td class="c1"><button class="tfb '+(a==='T'?'t-on':'')+'" onclick="pickS('+i+',\'T\')">T</button></td>'
+      +'<td><button class="tfb '+(a==='F'?'f-on':'')+'" onclick="pickS('+i+',\'F\')">F</button></td>'
+      +'</tr>';
+  }
 
-  const banner=sFixMode?`<div class="fix-banner">✏️ 틀린 ${total}문항만 다시 선택하세요</div>`:'';
+  const retryBanner = sFixMode
+    ? '<div class="fix-banner">🔄 이전 답안이 그대로 있어요. 수정하고 싶은 문항을 바꿔서 다시 제출하세요!</div>'
+    : '';
 
-  W(`${banner}<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">
-    <div>
-      <div style="font-size:15px;font-weight:700;">${e.name}</div>
-      <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;" id="sFill">✏️ ${sName} · ${filled}/${total} 체크</div>
-    </div>
-  </div>
-  <div class="card"><table class="tbl">
-    <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>
-    <tbody id="sBody">${rows}</tbody>
-  </table></div>
-  <button class="btn btn-green btn-full" onclick="doSubmit()">${sFixMode?'수정 제출 →':'제출하기 →'}</button>
-  <div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;margin-top:10px;">모든 문항을 체크한 후 제출하세요</div>`);
+  W(retryBanner
+    +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'
+    +'<div>'
+    +'<div style="font-size:15px;font-weight:700;">'+e.name+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;" id="sFill">✏️ '+sName+' · '+filled+'/'+e.questions+' 체크</div>'
+    +'</div>'
+    +'</div>'
+    +'<div class="card"><table class="tbl">'
+    +'<thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>'
+    +'<tbody id="sBody">'+rows+'</tbody>'
+    +'</table></div>'
+    +'<button class="btn btn-green btn-full" onclick="doSubmit()">'+(sFixMode?'다시 제출하기 →':'제출하기 →')+'</button>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;margin-top:10px;">모든 문항을 체크한 후 제출하세요</div>');
 }
 
 function pickS(i,v){
   sAnswers[i]=v;
-  // DOM 업데이트
   const tb=document.getElementById('sBody');if(!tb){render();return;}
   tb.querySelectorAll('tr').forEach(row=>{
     const nc=row.querySelector('.c0');if(!nc)return;
@@ -708,27 +707,14 @@ function pickS(i,v){
     bt[0].className='tfb '+(v==='T'?'t-on':'');
     bt[1].className='tfb '+(v==='F'?'f-on':'');
   });
-  // 카운터 업데이트
-  const prev=window._prevResult;
-  const wrongIdxs=sFixMode&&prev?sExamData.answers.map((a,idx)=>a!==prev.answers[idx]?idx:-1).filter(x=>x>=0):null;
-  const total=sFixMode&&wrongIdxs?wrongIdxs.length:sExamData.questions;
-  const filled=sFixMode&&wrongIdxs?wrongIdxs.filter(x=>sAnswers[x]).length:sAnswers.filter(a=>a).length;
   const fc=document.getElementById('sFill');
-  if(fc)fc.textContent=`✏️ ${sName} · ${filled}/${total} 체크`;
+  if(fc)fc.textContent='✏️ '+sName+' · '+sAnswers.filter(a=>a).length+'/'+sExamData.questions+' 체크';
 }
 
 async function doSubmit(){
   const e=sExamData;
-  const prev=window._prevResult;
-  const wrongIdxs=sFixMode&&prev?e.answers.map((a,i)=>a!==prev.answers[i]?i:-1).filter(i=>i>=0):null;
-
-  if(sFixMode&&wrongIdxs){
-    const unch=wrongIdxs.filter(i=>!sAnswers[i]);
-    if(unch.length){toast(`${unch.length}문항이 남았어요`);return;}
-  } else {
-    const filled=sAnswers.filter(a=>a).length;
-    if(filled<e.questions){toast(`${e.questions-filled}문항이 남았어요`);return;}
-  }
+  const filled=sAnswers.filter(a=>a).length;
+  if(filled<e.questions){toast(e.questions-filled+'문항이 남았어요');return;}
 
   let score=0;
   for(let i=0;i<e.questions;i++)if(sAnswers[i]===e.answers[i])score++;
@@ -752,7 +738,7 @@ async function renderSResult(){
   const msg=pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
 
   const wrongText = wrong>0 ? '<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>' : '전부 정답! 🎯';
-  const fixBtn = wrong>0 ? '<button class="btn btn-orange btn-full" style="margin:0;" onclick="goFix()">✏️ 틀린 '+wrong+'문항만 다시 풀기</button>' : '';
+  const retryBtn = wrong>0 ? '<button class="btn btn-orange btn-full" style="margin:0;" onclick="goRetry()">🔄 다시 풀기</button>' : '';
 
   W('<div class="score-box">'
     +'<div style="font-size:26px;margin-bottom:8px;">'+msg+'</div>'
@@ -761,16 +747,17 @@ async function renderSResult(){
     +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div>'
     +'</div>'
     +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'
-    +fixBtn
+    +retryBtn
     +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="sStep=\'list\';render()">✓ 완료</button>'
     +'</div>');
 }
 
-function goFix(){
-  const e=sExamData,prev=window._prevResult;
-  sAnswers=prev.answers.slice();
-  for(let i=0;i<e.questions;i++)if(prev.answers[i]!==e.answers[i])sAnswers[i]='';
-  sFixMode=true;sStep='exam';render();
+function goRetry(){
+  // 이전 답안 그대로 유지, 학생이 자유롭게 수정 가능
+  sAnswers = window._prevResult.answers.slice();
+  sFixMode = true;
+  sStep = 'exam';
+  render();
 }
 
 render();
