@@ -249,7 +249,9 @@ const schools = {
 const ADMIN_PIN = '0213';
 
 // ── 모드 관리 ──
-let IS_ADMIN = sessionStorage.getItem('ch_admin')==='1';
+// 항상 학생 모드로 시작 (탭 닫고 재접속 시 초기화)
+sessionStorage.removeItem('ch_admin');
+let IS_ADMIN = false;
 
 function setMode(mode){
   IS_ADMIN = mode==='admin';
