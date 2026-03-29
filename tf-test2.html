@@ -37,26 +37,30 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 /* ── 하단 탭바 ── */
 .bottom-tab-bar {
 position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-background: rgba(242,242,247,0.97); backdrop-filter: blur(20px);
+background: white;
 border-top: 1px solid rgba(0,0,0,0.1);
-display: flex; height: 58px;
-padding-bottom: env(safe-area-inset-bottom,0px);
+display: flex;
+padding: 6px 0;
+padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
 }
 .btab {
 flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-gap: 3px; border: none; background: transparent; cursor: pointer;
-font-family: inherit; transition: opacity 0.15s;
+gap: 3px; border: none; cursor: pointer; font-family: inherit;
+background: transparent;
+padding: 8px 4px;
+transition: opacity 0.15s;
+min-width: 0;
+border-top: 2.5px solid transparent;
 }
 .btab:active { opacity: 0.6; }
-.btab-ico  { font-size: 20px; line-height: 1; }
-.btab-lbl  { font-size: 10px; font-weight: 600; color: rgba(28,28,30,0.4); letter-spacing: 0.2px; }
+.btab-ico  { font-size: clamp(18px, 4vw, 22px); line-height: 1; }
+.btab-lbl  { font-size: clamp(9px, 2vw, 11px); font-weight: 700; color: rgba(28,28,30,0.35); letter-spacing: 0.1px; white-space: nowrap; }
+.btab.active { border-top-color: #2f7af5; }
 .btab.active .btab-lbl { color: #2f7af5; }
-.btab.active .btab-ico  { filter: none; }
-.btab-indicator { width: 4px; height: 4px; border-radius: 50%; background: #2f7af5; opacity: 0; margin-top: 1px; }
-.btab.active .btab-indicator { opacity: 1; }
+.btab-indicator { display: none; }
 
 /* ── 컨텐츠 래퍼 ── */
-.wrap { max-width: 480px; margin: 0 auto; padding: 20px 16px 80px; }
+.wrap { max-width: 480px; margin: 0 auto; padding: 20px 16px calc(80px + env(safe-area-inset-bottom, 0px)); }
 
 /* ── 공통 컴포넌트 ── */
 .card { background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); padding: 18px; margin-bottom: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
@@ -152,6 +156,11 @@ font-family: inherit; transition: opacity 0.15s;
 .sp-md { background: rgba(196,96,10,0.1);  color: #c4600a; }
 .sp-lo { background: rgba(217,48,37,0.1);  color: #d93025; }
 .badge-done { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: #e5e5ea; color: rgba(28,28,30,0.4); }
+
+/* 출제방식 버튼 */
+.type-btn { flex: 1; padding: 11px 6px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 13px; font-weight: 700; font-family: inherit; cursor: pointer; text-align: center; transition: all 0.15s; color: rgba(28,28,30,0.35); }
+.type-btn.on { border-color: #2f7af5; background: rgba(47,122,245,0.1); color: #2f7af5; }
+.type-btn:active { transform: scale(0.97); }
 .rtable { width: 100%; border-collapse: collapse; font-size: 13px; }
 .rtable th { padding: 8px 12px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(28,28,30,0.4); border-bottom: 1.5px solid rgba(0,0,0,0.08); }
 .rtable td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); }
@@ -947,9 +956,9 @@ function renderWACreate(){
     +'<div class="lbl">시험 이름</div><input class="inp" id="waName2" placeholder="예) 4월 1주차 단어시험" value="'+waTempName+'">'
     +'<div class="lbl">출제 방식</div>'
     +'<div style="display:flex;gap:8px;margin-bottom:10px;">'
-    +'<button class="type-btn'+(waTempType==='ko_to_en'?' on':'')+'" onclick="waTempType=\'ko_to_en\';updateWTypeBtns()">한 → 영</button>'
-    +'<button class="type-btn'+(waTempType==='en_to_ko'?' on':'')+'" onclick="waTempType=\'en_to_ko\';updateWTypeBtns()">영 → 한</button>'
-    +'<button class="type-btn'+(waTempType==='mix'?' on':'')+'" onclick="waTempType=\'mix\';updateWTypeBtns()">섞어서</button>'
+    +'<button class="type-btn'+(waTempType==='ko_to_en'?' on':'')+'" data-type="ko_to_en" onclick="waTempType=\'ko_to_en\';updateWTypeBtns()">한 → 영</button>'
+    +'<button class="type-btn'+(waTempType==='en_to_ko'?' on':'')+'" data-type="en_to_ko" onclick="waTempType=\'en_to_ko\';updateWTypeBtns()">영 → 한</button>'
+    +'<button class="type-btn'+(waTempType==='mix'?' on':'')+'" data-type="mix" onclick="waTempType=\'mix\';updateWTypeBtns()">섞어서</button>'
     +'</div></div>'
     +'<div class="card"><div class="sec-title">단어 목록</div>'
     +'<div id="wPairsContainer">'+pairsHTML+'</div>'
@@ -983,12 +992,7 @@ function wAddPair(ko,en){ waTempWords.push({ko:ko||'',en:en||''}); renderWACreat
 function wRemovePair(i){ waTempWords.splice(i,1); renderWACreate(); }
 function updateWTypeBtns(){
   document.querySelectorAll('.type-btn').forEach(function(btn){
-    const t=btn.textContent.trim();
-    btn.classList.toggle('on',
-      (t==='한 → 영'&&waTempType==='ko_to_en')||
-      (t==='영 → 한'&&waTempType==='en_to_ko')||
-      (t==='섞어서'&&waTempType==='mix')
-    );
+    btn.classList.toggle('on', btn.dataset.type===waTempType);
   });
 }
 function handleWAImg(ev){ const f=ev.target.files[0]; if(f)processWAImg(f); }
@@ -1080,9 +1084,9 @@ async function renderWADetail(){
     // 출제방식 탭
     tabH='<div style="padding:4px 0;">'
       +'<div style="display:flex;gap:8px;">'
-      +'<button class="type-btn'+(examType==='ko_to_en'?' on':'')+'" onclick="changeWExamType(\''+e.id+'\',\'ko_to_en\')">한 → 영</button>'
-      +'<button class="type-btn'+(examType==='en_to_ko'?' on':'')+'" onclick="changeWExamType(\''+e.id+'\',\'en_to_ko\')">영 → 한</button>'
-      +'<button class="type-btn'+(examType==='mix'?' on':'')+'" onclick="changeWExamType(\''+e.id+'\',\'mix\')">섞어서</button>'
+      +'<button class="type-btn'+(examType==='ko_to_en'?' on':'')+'" data-type="ko_to_en" onclick="changeWExamType(\''+e.id+'\',\'ko_to_en\',this)">한 → 영</button>'
+      +'<button class="type-btn'+(examType==='en_to_ko'?' on':'')+'" data-type="en_to_ko" onclick="changeWExamType(\''+e.id+'\',\'en_to_ko\',this)">영 → 한</button>'
+      +'<button class="type-btn'+(examType==='mix'?' on':'')+'" data-type="mix" onclick="changeWExamType(\''+e.id+'\',\'mix\',this)">섞어서</button>'
       +'</div></div>';
   }
 
@@ -1101,10 +1105,15 @@ async function renderWADetail(){
     +detailTabs+'<div class="card" style="padding:'+(waDetailTab==='type'?'16px':'0')+';overflow:hidden;">'+tabH+'</div>');
 }
 
-async function changeWExamType(id,type){
+async function changeWExamType(id,type,btn){
+  // 즉시 시각 반영
+  if(btn){
+    btn.closest('div').querySelectorAll('.type-btn').forEach(function(b){b.classList.remove('on');});
+    btn.classList.add('on');
+  }
   const res=await wDB.patchType(id,type);
-  if(res&&res.ok){toast('출제방식이 변경됐어요 ✅');renderWADetail();}
-  else{toast('변경 실패');}
+  if(res&&res.ok) toast('출제방식이 변경됐어요 ✅');
+  else toast('변경 실패');
 }
 
 function renderWASchools(){
