@@ -385,8 +385,9 @@ function aTabBar(){
 async function renderAList(){
   W('<div class="loading"><div class="spinner"></div></div>');
   let exams=[];
-  try{ exams=await tfDB.getExams(); if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams)); }
-  catch(e){ W('<div class="empty">⚠️ 로드 실패<br><small>'+e.message+'</small></div>'); return; }
+  let raw;
+  try{ raw=await wDB.getExams(); exams=raw; if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams)); }
+  catch(e){ W('<div class="empty">⚠️ 로드 실패<br><small style="color:#d93025;word-break:break-all;">'+JSON.stringify(raw)+'</small></div>'); return; }
   const sl=schools.get();
   const opts=sl.map(s=>'<option value="'+s+'"'+(s===aTempSchool?' selected':'')+'>'+s+'</option>').join('');
 
