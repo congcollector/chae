@@ -1191,7 +1191,7 @@ async function renderWSList(){
   let doneIds=new Set();
   try{
     const allR=await api.get('word_results?student_name=eq.'+encodeURIComponent(wsName));
-    if(Array.isArray(allR)) allR.forEach(r=>{if(r.score===r.total)doneIds.add(r.exam_id);});
+    if(Array.isArray(allR)) allR.forEach(r=>{if(parseInt(r.score)===parseInt(r.total)&&r.total>0)doneIds.add(r.exam_id);});
   }catch(e){}
 
   let h='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
