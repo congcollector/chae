@@ -1228,7 +1228,7 @@ async function startWSGrading(){
     const wrongWords=results.filter(r=>!r.ok).map(r=>({ko:r.ko,en:r.correct_en,written:r.written}));
     await wDB.saveResult(wsExamId,wsName,{score,total:results.length,wrongWords,allResults:results});
     wsStep='result';render();
-  }catch(e){ toast('채점 실패: '+e.message); wsStep='upload';render(); }
+  }catch(e){ toast('채점 실패: '+e.message+' / '+JSON.stringify(e)); wsStep='upload';render(); }
 }
 
 function renderWSResult(){
