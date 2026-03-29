@@ -1010,7 +1010,7 @@ async function saveWExam(){
   W('<div class="loading">💾 저장 중...</div>');
   const id=waEditId||'wexam_'+Date.now();
   const res=await wDB.saveExam({id,name,words,school,order_index:0,createdAt:Date.now()});
-  if(!res.ok){toast('저장 실패');renderWACreate();return;}
+  if(!res.ok){const err=await res.text();toast('저장 실패: '+err);renderWACreate();return;}
   toast('✅ 저장됐어요!');
   waEditId='';waTempName='';waTempSchool='기본';waTempWords=[];waTempImgB64='';
   waStep='detail';waDetailId=id;render();
