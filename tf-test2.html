@@ -1296,22 +1296,26 @@ function renderWSResult(){
   const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
   const msg=pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
   const wrongText=wrong>0?'<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>':'전부 정답! 🎯';
-  let rowsHTML='';
-  results.forEach(r=>{
-    const question=r.dir==='ko_to_en'?r.ko:r.en;
-    rowsHTML+='<div class="result-row '+(r.ok?'ok':'ng')+'">'
-      +'<span class="result-ico">'+(r.ok?'✓':'✗')+'</span>'
-      +'<span class="result-ko">'+question+'</span>'
-      +'<span class="result-en">'+r.correct+'</span>'
-      +(r.ok?'':'<span class="result-written">내 답: '+(r.written||'(빈칸)')+'</span>')
-      +'</div>';
-  });
+
+  // 틀린 문항만 표시, 정답은 숨김
+  let wrongHTML='';
+  if(wrong>0){
+    results.filter(r=>!r.ok).forEach(r=>{
+      const question=r.dir==='ko_to_en'?r.ko:r.en;
+      wrongHTML+='<div class="result-row ng">'
+        +'<span class="result-ico">✗</span>'
+        +'<span class="result-ko">'+question+'</span>'
+        +'<span class="result-written">내 답: '+(r.written||'(빈칸)')+'</span>'
+        +'</div>';
+    });
+  }
+
   const retryBtn=wrong>0?'<button class="btn btn-orange btn-full" style="margin:0;" onclick="goWSRetry()">🔄 틀린 단어 재시험</button>':'';
   W('<div class="score-box"><div style="font-size:26px;margin-bottom:8px;">'+msg+'</div>'
     +'<div class="score-num" style="color:'+col+'">'+score+' / '+total+'</div>'
     +'<div class="score-sub">'+wsName+' · '+wrongText+'</div>'
     +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div></div>'
-    +'<div class="card" style="padding:0;overflow:hidden;">'+rowsHTML+'</div>'
+    +(wrong>0?'<div class="card" style="padding:0;overflow:hidden;">'+wrongHTML+'</div>':'')
     +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'+retryBtn
     +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="wsStep=\'list\';render()">✓ 완료</button></div>');
 }
@@ -1334,7 +1338,6 @@ function renderWSRetry(){
     +'<div class="retry-card">'
     +'<div style="font-size:12px;color:rgba(28,28,30,0.4);margin-bottom:10px;">'+(wsRetryIdx+1)+' / '+wsRetryWords.length+'</div>'
     +'<div class="retry-ko">'+question+'</div>'
-    +'<div class="retry-hint">= ?</div>'
     +'<input class="inp inp-lg" id="wsRetryInp" placeholder="'+placeholder+'" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key===\'Enter\')submitWSRetry()">'
     +'<button class="btn btn-green btn-full" style="margin-top:0;" onclick="submitWSRetry()">확인 →</button></div>'
     +'<div class="bar-bg" style="margin-top:8px;"><div class="bar-fg" style="width:'+Math.round(wsRetryIdx/wsRetryWords.length*100)+'%;background:#2f7af5;"></div></div>');
@@ -1363,7 +1366,7 @@ function wsLevenshtein(a,b){
   return dp[m][n];
 }
 
-function renderWSRetryResult(){
+async function renderWSRetryResult(){
   const score=wsRetryAnswers.filter(r=>r.ok).length;
   const total=wsRetryAnswers.length;
   const wrong=total-score;
@@ -1371,23 +1374,35 @@ function renderWSRetryResult(){
   const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
   const msg=pct===100?'🎉 모두 맞았어요!':pct>=70?'👍 잘했어요!':'💪 조금 더 연습해요!';
   const wrongText=wrong>0?'<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>':'전부 정답! 🎯';
-  let rowsHTML='';
-  wsRetryAnswers.forEach(r=>{
-    const question=r.dir==='ko_to_en'?r.ko:r.en;
-    rowsHTML+='<div class="result-row '+(r.ok?'ok':'ng')+'">'
-      +'<span class="result-ico">'+(r.ok?'✓':'✗')+'</span>'
-      +'<span class="result-ko">'+question+'</span>'
-      +'<span class="result-en">'+r.correct+'</span>'
-      +(r.ok?'':'<span class="result-written">내 답: '+(r.written||'(빈칸)')+'</span>')
-      +'</div>';
-  });
-  const stillWrong=wsRetryAnswers.filter(r=>!r.ok);
-  const againBtn=stillWrong.length?'<button class="btn btn-orange btn-full" style="margin:0;" onclick="goWSRetryAgain()">🔄 다시 한번 더</button>':'';
+
+  // 100점이면 DB에 만점 저장 → 완료 표시 반영
+  if(pct===100){
+    try{
+      const origResults=wsGradeResult?wsGradeResult.results:[];
+      const origTotal=origResults.length;
+      await wDB.saveResult(wsExamId,wsName,{score:origTotal,total:origTotal,wrongWords:[],allResults:origResults});
+    }catch(e){}
+  }
+
+  // 틀린 문항만 표시, 정답 숨김
+  let wrongHTML='';
+  if(wrong>0){
+    wsRetryAnswers.filter(r=>!r.ok).forEach(r=>{
+      const question=r.dir==='ko_to_en'?r.ko:r.en;
+      wrongHTML+='<div class="result-row ng">'
+        +'<span class="result-ico">✗</span>'
+        +'<span class="result-ko">'+question+'</span>'
+        +'<span class="result-written">내 답: '+(r.written||'(빈칸)')+'</span>'
+        +'</div>';
+    });
+  }
+
+  const againBtn=wrong>0?'<button class="btn btn-orange btn-full" style="margin:0;" onclick="goWSRetryAgain()">🔄 다시 한번 더</button>':'';
   W('<div class="score-box"><div style="font-size:22px;margin-bottom:8px;">'+msg+'</div>'
     +'<div class="score-num" style="color:'+col+'">'+score+' / '+total+'</div>'
     +'<div class="score-sub">재시험 결과 · '+wrongText+'</div>'
     +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div></div>'
-    +'<div class="card" style="padding:0;overflow:hidden;">'+rowsHTML+'</div>'
+    +(wrong>0?'<div class="card" style="padding:0;overflow:hidden;">'+wrongHTML+'</div>':'')
     +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'+againBtn
     +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="wsStep=\'list\';render()">✓ 완료</button></div>');
 }
@@ -1395,6 +1410,15 @@ function goWSRetryAgain(){
   wsRetryWords=wsRetryAnswers.filter(r=>!r.ok).map(r=>({ko:r.ko,en:r.en,dir:r.dir,correct:r.correct}));
   wsRetryIdx=0;wsRetryAnswers=[];wsStep='retry';render();
 }
+
+// ── 시험 중 화면 이탈 감지 ──
+document.addEventListener('visibilitychange', function(){
+  if(document.hidden) return;
+  // 화면으로 돌아왔을 때, 단어시험 진행 중이면 경고
+  if(wsStep==='exam'){
+    toast('⚠️ 화면 이탈이 감지됐어요!');
+  }
+});
 
 // ── 시작 ──
 render();
