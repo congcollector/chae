@@ -4,43 +4,85 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>CHAESUNBE · T/F 시험</title>
+<title>CHAESUNBE · English Academy</title>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
 html, body { min-height: 100%; background: #f2f2f7; }
 body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-serif; color: #1c1c1e; -webkit-font-smoothing: antialiased; }
 
-.hdr { background: rgba(242,242,247,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.08); padding: 13px 18px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
-.hdr-logo { font-size: 9px; letter-spacing: 2px; color: #2f7af5; text-transform: uppercase; font-weight: 600; opacity: 0.8; }
-.hdr-title { font-size: 16px; font-weight: 700; letter-spacing: -0.3px; }
+/* ── 헤더 ── */
+.hdr { background: rgba(242,242,247,0.95); backdrop-filter: blur(20px); border-bottom: 1px solid rgba(0,0,0,0.08); padding: 10px 18px 8px; display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; z-index: 50; }
+.hdr-left { display: flex; flex-direction: column; }
+.hdr-logo  { font-size: 8px; letter-spacing: 2.5px; color: #2f7af5; text-transform: uppercase; font-weight: 700; opacity: 0.75; }
+.hdr-title { font-size: 15px; font-weight: 700; letter-spacing: -0.3px; margin-top: 1px; }
 .pill { font-size: 11px; font-weight: 700; padding: 5px 13px; border-radius: 20px; }
-.pill-admin   { background: linear-gradient(135deg, #2f7af5, #6b3ff0); color: white; }
-.pill-student { background: linear-gradient(135deg, #1a9e45, #158a3a); color: white; }
+.pill-admin   { background: linear-gradient(135deg,#2f7af5,#6b3ff0); color: white; }
+.pill-student { background: linear-gradient(135deg,#1a9e45,#158a3a); color: white; }
 
+/* ── 모드 토글 ── */
+.mode-toggle { display: flex; background: rgba(0,0,0,0.07); border-radius: 20px; padding: 3px; gap: 2px; }
+.mtab { padding: 5px 12px; border: none; border-radius: 16px; font-size: 11px; font-weight: 700; font-family: inherit; cursor: pointer; background: transparent; color: rgba(28,28,30,0.45); transition: all 0.18s; }
+.mtab.on { background: white; color: #1c1c1e; box-shadow: 0 1px 4px rgba(0,0,0,0.12); }
+
+/* ── PIN 모달 ── */
+.modal-bg { position: fixed; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; display: flex; align-items: center; justify-content: center; padding: 20px; }
+.modal-box { background: white; border-radius: 20px; padding: 28px 24px; width: 100%; max-width: 320px; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.modal-title { font-size: 17px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+.modal-sub { font-size: 13px; color: rgba(28,28,30,0.5); text-align: center; margin-bottom: 20px; line-height: 1.5; }
+.pin-input { width: 100%; padding: 14px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 22px; font-family: inherit; color: #1c1c1e; outline: none; text-align: center; letter-spacing: 6px; margin-bottom: 12px; transition: border-color 0.2s; -webkit-appearance: none; }
+.pin-input:focus { border-color: #2f7af5; background: white; }
+.pin-input.err { border-color: #d93025; animation: shake 0.3s ease; }
+@keyframes shake { 0%,100%{transform:translateX(0)} 25%{transform:translateX(-6px)} 75%{transform:translateX(6px)} }
+
+/* ── 하단 탭바 ── */
+.bottom-tab-bar {
+position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
+background: rgba(242,242,247,0.97); backdrop-filter: blur(20px);
+border-top: 1px solid rgba(0,0,0,0.1);
+display: flex; height: 58px;
+padding-bottom: env(safe-area-inset-bottom,0px);
+}
+.btab {
+flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+gap: 3px; border: none; background: transparent; cursor: pointer;
+font-family: inherit; transition: opacity 0.15s;
+}
+.btab:active { opacity: 0.6; }
+.btab-ico  { font-size: 20px; line-height: 1; }
+.btab-lbl  { font-size: 10px; font-weight: 600; color: rgba(28,28,30,0.4); letter-spacing: 0.2px; }
+.btab.active .btab-lbl { color: #2f7af5; }
+.btab.active .btab-ico  { filter: none; }
+.btab-indicator { width: 4px; height: 4px; border-radius: 50%; background: #2f7af5; opacity: 0; margin-top: 1px; }
+.btab.active .btab-indicator { opacity: 1; }
+
+/* ── 컨텐츠 래퍼 ── */
 .wrap { max-width: 480px; margin: 0 auto; padding: 20px 16px 80px; }
 
+/* ── 공통 컴포넌트 ── */
 .card { background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); padding: 18px; margin-bottom: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); }
 .sec-title { font-size: 11px; font-weight: 700; color: rgba(28,28,30,0.4); letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px; display: flex; align-items: center; gap: 7px; }
 .sec-title::after { content: ‘’; flex: 1; height: 1px; background: rgba(0,0,0,0.08); }
-
 .lbl { font-size: 12px; font-weight: 600; color: rgba(28,28,30,0.55); margin-bottom: 5px; }
 .inp { width: 100%; padding: 11px 13px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 14px; font-family: inherit; color: #1c1c1e; outline: none; margin-bottom: 10px; transition: border-color 0.2s, background 0.2s; -webkit-appearance: none; }
 .inp:focus { border-color: #2f7af5; background: #fff; }
 .inp-sm { width: 90px; text-align: center; }
+.inp-lg { font-size: 22px; text-align: center; padding: 14px; letter-spacing: 1px; }
 .sel-wrap { position: relative; margin-bottom: 10px; }
 .sel-wrap::after { content: ‘▾’; position: absolute; right: 13px; top: 50%; transform: translateY(-50%); font-size: 12px; color: rgba(28,28,30,0.4); pointer-events: none; }
-.sel { width: 100%; padding: 11px 36px 11px 13px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 14px; font-family: inherit; color: #1c1c1e; outline: none; -webkit-appearance: none; appearance: none; cursor: pointer; transition: border-color 0.2s; }
+.sel { width: 100%; padding: 11px 36px 11px 13px; border-radius: 12px; border: 1.5px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 14px; font-family: inherit; color: #1c1c1e; outline: none; -webkit-appearance: none; cursor: pointer; transition: border-color 0.2s; }
 .sel:focus { border-color: #2f7af5; background: #fff; }
-
 .btn { padding: 13px 18px; border-radius: 12px; border: none; font-size: 14px; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; transition: opacity 0.15s, transform 0.1s; }
 .btn:active { opacity: 0.75; transform: scale(0.97); }
 .btn-full { width: 100%; margin-top: 6px; display: block; }
-.btn-blue   { background: linear-gradient(135deg, #2f7af5, #6b3ff0); color: white; box-shadow: 0 2px 12px rgba(47,122,245,0.25); }
-.btn-green  { background: linear-gradient(135deg, #1a9e45, #158a3a); color: white; box-shadow: 0 2px 12px rgba(26,158,69,0.2); }
+.btn-blue   { background: linear-gradient(135deg,#2f7af5,#6b3ff0); color: white; box-shadow: 0 2px 12px rgba(47,122,245,0.25); }
+.btn-green  { background: linear-gradient(135deg,#1a9e45,#158a3a); color: white; box-shadow: 0 2px 12px rgba(26,158,69,0.2); }
 .btn-gray   { padding: 7px 13px; font-size: 12px; border-radius: 9px; background: #f2f2f7; border: 1.5px solid rgba(0,0,0,0.1); color: rgba(28,28,30,0.55); }
 .btn-red    { padding: 7px 13px; font-size: 12px; border-radius: 9px; background: rgba(217,48,37,0.1); border: 1.5px solid rgba(217,48,37,0.2); color: #d93025; }
 .btn-orange { background: rgba(255,149,0,0.12); border: 1.5px solid rgba(255,149,0,0.3); color: #c4600a; font-size: 14px; font-weight: 700; padding: 12px 18px; border-radius: 12px; }
+.name-inp { width: 100%; padding: 13px 14px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 16px; font-family: inherit; color: #1c1c1e; outline: none; text-align: left; transition: border-color 0.2s, background 0.2s; -webkit-appearance: none; }
+.name-inp:focus { border-color: #2f7af5; background: #fff; }
 
+/* ── T/F 전용 ── */
 .tbl { width: 100%; border-collapse: collapse; }
 .tbl th { padding: 9px 6px; text-align: center; font-size: 11px; font-weight: 700; color: rgba(28,28,30,0.5); background: #f2f2f7; border-bottom: 1.5px solid rgba(0,0,0,0.08); }
 .tbl th.c0 { width: 42px; border-right: 1px solid rgba(0,0,0,0.08); }
@@ -49,47 +91,59 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .tbl td.c0 { font-size: 12px; font-weight: 700; color: rgba(28,28,30,0.35); border-right: 1px solid rgba(0,0,0,0.06); }
 .tbl td.c1 { border-right: 1px solid rgba(0,0,0,0.06); }
 .tbl tr:last-child td { border-bottom: none; }
-
 .tfb { width: 100%; padding: 9px 4px; border-radius: 9px; border: 1.5px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 13px; font-weight: 700; cursor: pointer; color: rgba(28,28,30,0.5); font-family: inherit; transition: all 0.12s; }
 .tfb:active { transform: scale(0.9); }
 .t-on { background: #e8f5f0; border-color: #1a9e45; color: #1a9e45; }
 .f-on { background: #fdf0ee; border-color: #d93025; color: #d93025; }
 .ok   { background: #e8f5f0; border-color: #1a9e45; color: #1a9e45; }
 .no   { background: rgba(100,100,100,0.08); border-color: rgba(100,100,100,0.2); color: rgba(100,100,100,0.5); text-decoration: line-through; }
+.fix-banner { background: rgba(255,149,0,0.1); border: 1.5px solid rgba(255,149,0,0.3); border-radius: 12px; padding: 11px 14px; margin-bottom: 12px; font-size: 13px; color: #c4600a; font-weight: 600; }
 
+/* ── 단어시험 전용 ── */
+.upload-area { border: 2px dashed rgba(0,0,0,0.15); border-radius: 14px; padding: 36px 20px; text-align: center; cursor: pointer; background: #f9f9fb; transition: all 0.2s; }
+.upload-area:hover, .upload-area.drag { border-color: #2f7af5; background: rgba(47,122,245,0.04); }
+.upload-area input { display: none; }
+.upload-ico   { font-size: 32px; margin-bottom: 10px; }
+.upload-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
+.upload-sub   { font-size: 12px; color: rgba(28,28,30,0.45); }
+.img-preview  { position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: #f2f2f7; border: 1px solid rgba(0,0,0,0.08); }
+.img-preview img { width: 100%; max-height: 300px; object-fit: contain; display: block; }
+.img-del { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.55); border: none; color: white; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+.word-pair { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.word-pair input { margin: 0; flex: 1; }
+.word-pair-num { font-size: 11px; color: rgba(28,28,30,0.35); min-width: 18px; text-align: right; }
+.word-pair-del { background: none; border: none; color: rgba(28,28,30,0.3); cursor: pointer; font-size: 18px; padding: 4px; border-radius: 6px; flex-shrink: 0; }
+.word-pair-del:hover { color: #d93025; }
+.result-row { display: flex; align-items: center; gap: 10px; padding: 10px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); font-size: 13px; }
+.result-row:last-child { border-bottom: none; }
+.result-row.ok { background: rgba(26,158,69,0.05); }
+.result-row.ng { background: rgba(217,48,37,0.05); }
+.result-ico { font-size: 14px; flex-shrink: 0; }
+.result-ko  { font-weight: 600; flex: 1; }
+.result-en  { font-size: 12px; color: rgba(28,28,30,0.5); }
+.result-written { font-size: 12px; color: #d93025; }
+.retry-card { background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); padding: 28px 20px; margin-bottom: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); text-align: center; }
+.retry-ko { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
+.retry-hint { font-size: 13px; color: rgba(28,28,30,0.45); margin-bottom: 20px; }
+.ai-banner { background: rgba(47,122,245,0.07); border: 1.5px solid rgba(47,122,245,0.2); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; text-align: center; }
+
+/* ── 공통 리스트/결과 ── */
 .score-box { text-align: center; padding: 28px 20px; background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 1px 8px rgba(0,0,0,0.06); margin-bottom: 12px; }
 .score-num { font-size: 56px; font-weight: 700; line-height: 1; margin-bottom: 5px; }
 .score-sub { font-size: 14px; color: rgba(28,28,30,0.55); margin-bottom: 16px; }
 .bar-bg { background: #f2f2f7; border-radius: 20px; height: 8px; overflow: hidden; }
 .bar-fg { height: 100%; border-radius: 20px; transition: width 0.7s cubic-bezier(0.34,1.56,0.64,1); }
-
-/* 학교 폴더 */
-.school-folder { margin-bottom: 14px; }
-.school-header { display: flex; align-items: center; gap: 8px; padding: 11px 14px; background: white; border-radius: 12px; border: 1px solid rgba(0,0,0,0.08); margin-bottom: 6px; cursor: pointer; box-shadow: 0 1px 6px rgba(0,0,0,0.05); user-select: none; }
-.school-icon { font-size: 18px; }
-.school-name { font-size: 14px; font-weight: 700; flex: 1; }
-.school-count { font-size: 12px; color: rgba(28,28,30,0.45); }
-.school-arrow { font-size: 14px; color: rgba(28,28,30,0.3); transition: transform 0.2s; display: inline-block; }
-.school-arrow.open { transform: rotate(90deg); }
-.school-exams { padding-left: 10px; display: none; }
-.school-exams.open { display: block; }
-
 .exam-item { display: flex; align-items: center; gap: 10px; padding: 12px 14px; background: white; border: 1px solid rgba(0,0,0,0.08); border-radius: 12px; margin-bottom: 7px; box-shadow: 0 1px 6px rgba(0,0,0,0.05); transition: transform 0.12s; }
-.exam-item:active { transform: scale(0.98); }
+.exam-item.clickable { cursor: pointer; }
+.exam-item.clickable:active { transform: scale(0.98); }
 .e-icon { width: 38px; height: 38px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 17px; flex-shrink: 0; }
-.e-icon-a { background: linear-gradient(135deg,#2f7af5,#6b3ff0); }
-.e-icon-s { background: linear-gradient(135deg,#1a9e45,#158a3a); }
-
-/* 순서 버튼 */
+.e-icon-a    { background: linear-gradient(135deg,#2f7af5,#6b3ff0); }
+.e-icon-s    { background: linear-gradient(135deg,#1a9e45,#158a3a); }
+.e-icon-done { background: #c7c7cc; }
 .ord-btns { display: flex; flex-direction: column; gap: 3px; flex-shrink: 0; }
 .ord-btn { width: 26px; height: 22px; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 6px; background: #f2f2f7; font-size: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; color: rgba(28,28,30,0.5); }
 .ord-btn:hover { background: #e5e5ea; }
 .ord-btn:disabled { opacity: 0.2; cursor: default; }
-
-/* 완료된 시험 */
-.exam-done { opacity: 0.45; pointer-events: none; }
-.exam-done .e-icon-s { background: #c7c7cc !important; }
-
 .res-row { display: flex; align-items: center; gap: 10px; padding: 11px 14px; border-bottom: 1px solid rgba(0,0,0,0.06); cursor: pointer; }
 .res-row:last-child { border-bottom: none; }
 .res-av { width: 36px; height: 36px; border-radius: 10px; background: #f2f2f7; display: flex; align-items: center; justify-content: center; font-size: 11px; font-weight: 700; color: rgba(28,28,30,0.5); flex-shrink: 0; text-align: center; line-height: 1.2; word-break: keep-all; padding: 0 2px; }
@@ -97,56 +151,178 @@ body { font-family: 'Apple SD Gothic Neo', 'Noto Sans KR', -apple-system, sans-s
 .sp-hi { background: rgba(26,158,69,0.1);  color: #1a9e45; }
 .sp-md { background: rgba(196,96,10,0.1);  color: #c4600a; }
 .sp-lo { background: rgba(217,48,37,0.1);  color: #d93025; }
-
-.name-inp { width: 100%; padding: 13px 14px; border-radius: 12px; border: 2px solid rgba(0,0,0,0.1); background: #f2f2f7; font-size: 16px; font-family: inherit; color: #1c1c1e; outline: none; text-align: left; transition: border-color 0.2s, background 0.2s; -webkit-appearance: none; }
-.name-inp:focus { border-color: #2f7af5; background: #fff; }
-
+.badge-done { font-size: 11px; font-weight: 700; padding: 3px 10px; border-radius: 20px; background: #e5e5ea; color: rgba(28,28,30,0.4); }
+.rtable { width: 100%; border-collapse: collapse; font-size: 13px; }
+.rtable th { padding: 8px 12px; text-align: left; font-size: 10px; font-weight: 700; letter-spacing: 0.5px; text-transform: uppercase; color: rgba(28,28,30,0.4); border-bottom: 1.5px solid rgba(0,0,0,0.08); }
+.rtable td { padding: 10px 12px; border-bottom: 1px solid rgba(0,0,0,0.06); }
+.rtable tr:last-child td { border-bottom: none; }
+.rtable tbody tr:hover td { background: #f9f9fb; }
 .tabs { display: flex; border-bottom: 1px solid rgba(0,0,0,0.08); margin-bottom: 14px; }
 .tab { flex: 1; padding: 10px 0; text-align: center; font-size: 12px; font-weight: 600; color: rgba(28,28,30,0.35); cursor: pointer; border-bottom: 2px solid transparent; }
 .tab-on { color: #2f7af5; border-bottom-color: #2f7af5; }
-
-.toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: rgba(28,28,30,0.96); color: white; padding: 11px 22px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
-.t-show { opacity: 1; }
-
-.empty { text-align: center; padding: 50px 20px; color: rgba(28,28,30,0.45); }
-.loading { text-align: center; padding: 60px 20px; color: rgba(28,28,30,0.45); font-size: 14px; }
-.link-box { background: #f2f2f7; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 10px 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
-
-/* 학교 태그 */
+.atabs { display: flex; background: #e5e5ea; border-radius: 12px; padding: 3px; gap: 2px; margin-bottom: 16px; }
+.atab { flex: 1; padding: 8px; border: none; border-radius: 9px; font-size: 12px; font-weight: 700; font-family: inherit; cursor: pointer; transition: all 0.15s; background: transparent; color: rgba(28,28,30,0.5); }
+.atab.on { background: white; color: #1c1c1e; box-shadow: 0 1px 4px rgba(0,0,0,0.1); }
 .school-tag { display: inline-flex; align-items: center; gap: 5px; padding: 5px 10px; border-radius: 20px; background: rgba(47,122,245,0.1); border: 1.5px solid rgba(47,122,245,0.2); font-size: 12px; font-weight: 600; color: #2f7af5; margin: 3px; }
 .stag-del { cursor: pointer; font-size: 14px; color: rgba(47,122,245,0.4); }
 .stag-del:hover { color: #d93025; }
-
-/* 수정 배너 */
-.fix-banner { background: rgba(255,149,0,0.1); border: 1.5px solid rgba(255,149,0,0.3); border-radius: 12px; padding: 11px 14px; margin-bottom: 12px; font-size: 13px; color: #c4600a; font-weight: 600; }
+.link-box { background: #f2f2f7; border: 1.5px solid rgba(0,0,0,0.1); border-radius: 12px; padding: 10px 13px; display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.spinner { width: 36px; height: 36px; border: 3px solid rgba(0,0,0,0.08); border-top-color: #2f7af5; border-radius: 50%; animation: spin 0.75s linear infinite; margin: 0 auto 12px; }
+.loading { text-align: center; padding: 60px 20px; color: rgba(28,28,30,0.45); font-size: 14px; }
+.empty   { text-align: center; padding: 50px 20px; color: rgba(28,28,30,0.45); }
+.toast   { position: fixed; bottom: 72px; left: 50%; transform: translateX(-50%); background: rgba(28,28,30,0.96); color: white; padding: 11px 22px; border-radius: 20px; font-size: 13px; font-weight: 600; z-index: 400; opacity: 0; transition: opacity 0.2s; pointer-events: none; white-space: nowrap; box-shadow: 0 4px 20px rgba(0,0,0,0.2); }
+.t-show { opacity: 1; }
 </style>
 
 </head>
 <body>
 
+<!-- 헤더 -->
+
 <div class="hdr">
-  <div>
-    <div class="hdr-logo">Chaesunbe Academy</div>
+  <div class="hdr-left">
+    <div class="hdr-logo">English Academy</div>
     <div class="hdr-title">CHAESUNBE</div>
   </div>
-  <div class="pill" id="modePill"></div>
+  <div class="mode-toggle">
+    <button class="mtab on" id="mtab-student" onclick="setMode('student')">학생 ✏️</button>
+    <button class="mtab"    id="mtab-admin"   onclick="tryAdmin()">선생님 🔑</button>
+  </div>
 </div>
 
-<div class="wrap" id="wrap"><div class="loading">⏳ 불러오는 중...</div></div>
+<!-- 콘텐츠 -->
+
+<div class="wrap" id="wrap"><div class="loading"><div class="spinner"></div></div></div>
+
+<!-- 하단 탭바 -->
+
+<div class="bottom-tab-bar">
+  <button class="btab active" id="btab-tf" onclick="switchTab('tf')">
+    <span class="btab-ico">✏️</span>
+    <span class="btab-lbl">T/F 시험</span>
+    <span class="btab-indicator"></span>
+  </button>
+  <button class="btab" id="btab-word" onclick="switchTab('word')">
+    <span class="btab-ico">🔤</span>
+    <span class="btab-lbl">단어시험</span>
+    <span class="btab-indicator"></span>
+  </button>
+</div>
+
 <div class="toast" id="toast"></div>
 
 <script>
-const SUPA_URL = 'https://pithlzhuqezeesprcbze.supabase.co';
-const SUPA_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpdGhsemh1cWV6ZWVzcHJjYnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMDc1NjgsImV4cCI6MjA4OTU4MzU2OH0.GFBnUKHQ_B_GQEQIy9nBWr38gnok_b__fAyTX7v7tNQ';
-const H = { 'apikey':SUPA_KEY, 'Authorization':'Bearer '+SUPA_KEY, 'Content-Type':'application/json' };
+// ══════════════════════════════════════════════
+//  공통 설정
+// ══════════════════════════════════════════════
+const SUPA_URL  = 'https://pithlzhuqezeesprcbze.supabase.co';
+const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpdGhsemh1cWV6ZWVzcHJjYnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMDc1NjgsImV4cCI6MjA4OTU4MzU2OH0.GFBnUKHQ_B_GQEQIy9nBWr38gnok_b__fAyTX7v7tNQ';
+const CLAUDE_KEY = 'YOUR_CLAUDE_API_KEY';
+
+const H = {'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
 const api = {
   get:   p     => fetch(SUPA_URL+'/rest/v1/'+p,{headers:H}).then(r=>r.json()),
-  post:  (p,b,pref) => fetch(SUPA_URL+'/rest/v1/'+p,{method:'POST',  headers:{...H,'Prefer':pref||'return=representation'},body:JSON.stringify(b)}),
-  patch: (p,b) => fetch(SUPA_URL+'/rest/v1/'+p,{method:'PATCH', headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(b)}),
+  post:  (p,b,pref) => fetch(SUPA_URL+'/rest/v1/'+p,{method:'POST',headers:{...H,'Prefer':pref||'return=representation'},body:JSON.stringify(b)}),
+  patch: (p,b) => fetch(SUPA_URL+'/rest/v1/'+p,{method:'PATCH',headers:{...H,'Prefer':'return=representation'},body:JSON.stringify(b)}),
   del:   p     => fetch(SUPA_URL+'/rest/v1/'+p,{method:'DELETE',headers:H})
 };
 
-const db = {
+// 학교 목록 (기존 cs_schools 키 그대로 유지 — T/F 데이터 호환)
+const schools = {
+  get: ()    => { try{ return JSON.parse(localStorage.getItem('cs_schools')||'["기본"]'); }catch{ return['기본']; } },
+  set: (arr) => localStorage.setItem('cs_schools',JSON.stringify(arr)),
+  add: (s)   => { const a=schools.get(); if(!a.includes(s)){a.push(s);schools.set(a);} },
+  del: (s)   => schools.set(schools.get().filter(x=>x!==s))
+};
+
+// ── PIN 설정 (변경하려면 이 값만 수정) ──
+const ADMIN_PIN = '1234';
+
+// ── 모드 관리 ──
+let IS_ADMIN = sessionStorage.getItem('ch_admin')==='1';
+
+function setMode(mode){
+  IS_ADMIN = mode==='admin';
+  sessionStorage.setItem('ch_admin', IS_ADMIN?'1':'0');
+  document.getElementById('mtab-student').classList.toggle('on', !IS_ADMIN);
+  document.getElementById('mtab-admin').classList.toggle('on', IS_ADMIN);
+  render();
+}
+
+function tryAdmin(){
+  // 이미 어드민이면 학생으로 전환
+  if(IS_ADMIN){ setMode('student'); return; }
+  // PIN 모달 표시
+  showPinModal();
+}
+
+function showPinModal(){
+  // 기존 모달 제거
+  const existing = document.getElementById('pinModal');
+  if(existing) existing.remove();
+
+  const modal = document.createElement('div');
+  modal.id = 'pinModal';
+  modal.className = 'modal-bg';
+  modal.innerHTML = '<div class="modal-box">'
+    +'<div class="modal-title">🔑 선생님 확인</div>'
+    +'<div class="modal-sub">PIN 번호를 입력하세요</div>'
+    +'<input class="pin-input" id="pinInp" type="password" inputmode="numeric" maxlength="6" placeholder="••••" onkeydown="if(event.key===\'Enter\')checkPin()">'
+    +'<button class="btn btn-blue btn-full" style="margin-top:0;" onclick="checkPin()">확인</button>'
+    +'<button class="btn btn-gray btn-full" style="margin-top:8px;" onclick="closePinModal()">취소</button>'
+    +'</div>';
+
+  // 배경 클릭 시 닫기
+  modal.addEventListener('click', function(e){ if(e.target===modal)closePinModal(); });
+  document.body.appendChild(modal);
+  setTimeout(()=>{ const el=document.getElementById('pinInp'); if(el)el.focus(); }, 80);
+}
+
+function checkPin(){
+  const inp = document.getElementById('pinInp');
+  const val = inp ? inp.value : '';
+  if(val === ADMIN_PIN){
+    closePinModal();
+    setMode('admin');
+  } else {
+    if(inp){
+      inp.classList.add('err');
+      inp.value='';
+      setTimeout(()=>inp.classList.remove('err'), 400);
+      inp.focus();
+    }
+    toast('PIN이 틀렸어요');
+  }
+}
+
+function closePinModal(){
+  const modal = document.getElementById('pinModal');
+  if(modal) modal.remove();
+}
+
+// 초기 모드 버튼 상태 반영
+document.getElementById('mtab-student').classList.toggle('on', !IS_ADMIN);
+document.getElementById('mtab-admin').classList.toggle('on', IS_ADMIN);
+
+function W(h){ document.getElementById('wrap').innerHTML=h; }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast t-show'; setTimeout(()=>t.className='toast',2400); }
+function copyLink(url){ navigator.clipboard.writeText(url).catch(()=>{ const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t); }); toast('링크 복사됐어요! 📎'); }
+
+// ── 탭 전환 ──
+let currentTab = 'tf';
+function switchTab(tab){
+  currentTab = tab;
+  document.querySelectorAll('.btab').forEach(b=>b.classList.remove('active'));
+  document.getElementById('btab-'+tab).classList.add('active');
+  render();
+}
+function render(){ IS_ADMIN ? renderAdmin() : renderStudent(); }
+
+// ══════════════════════════════════════════════
+//  T/F 시험 — DB
+// ══════════════════════════════════════════════
+const tfDB = {
   getExams:    ()  => api.get('exams?order=school.asc,order_index.asc,created_at.desc'),
   getBySchool: (s) => api.get('exams?school=eq.'+encodeURIComponent(s)+'&order=order_index.asc,created_at.desc'),
   saveExam:    (e) => api.post('exams',{id:e.id,name:e.name,questions:e.questions,answers:e.answers,created_at:e.createdAt,school:e.school||'기본',order_index:e.order_index||0},'resolution=merge-duplicates,return=representation'),
@@ -159,35 +335,38 @@ const db = {
   }
 };
 
-// 학교 목록 (localStorage)
-const schools = {
-  get: ()    => { try{ return JSON.parse(localStorage.getItem('cs_schools')||'["기본"]'); }catch{ return['기본']; }},
-  set: (arr) => localStorage.setItem('cs_schools',JSON.stringify(arr)),
-  add: (s)   => { const a=schools.get(); if(!a.includes(s)){a.push(s);schools.set(a);} },
-  del: (s)   => schools.set(schools.get().filter(x=>x!==s))
+// ══════════════════════════════════════════════
+//  단어시험 — DB
+// ══════════════════════════════════════════════
+const wDB = {
+  getExams:    ()  => api.get('word_exams?order=school.asc,order_index.asc,created_at.desc'),
+  getBySchool: (s) => api.get('word_exams?school=eq.'+encodeURIComponent(s)+'&order=order_index.asc,created_at.desc'),
+  saveExam:    (e) => api.post('word_exams',{id:e.id,name:e.name,words:e.words,school:e.school||'기본',order_index:e.order_index||0,created_at:e.createdAt},'resolution=merge-duplicates,return=representation'),
+  patchOrder:  (id,oi) => api.patch('word_exams?id=eq.'+id,{order_index:oi}),
+  delExam:     async id => { await api.del('word_exams?id=eq.'+id); await api.del('word_results?exam_id=eq.'+id); },
+  getResults:  id  => api.get('word_results?exam_id=eq.'+id+'&order=score.desc'),
+  saveResult:  async (eid,name,d) => {
+    await api.del('word_results?exam_id=eq.'+eid+'&student_name=eq.'+encodeURIComponent(name));
+    return api.post('word_results',{exam_id:eid,student_name:name,score:d.score,total:d.total,wrong_words:d.wrongWords,all_results:d.allResults,submitted_at:Date.now()});
+  }
 };
 
-// 모드
-const IS_ADMIN = location.hash==='#admin-chaesunbe';
-const pill = document.getElementById('modePill');
-pill.textContent = IS_ADMIN?'선생님 🔑':'학생 ✏️';
-pill.className   = 'pill '+(IS_ADMIN?'pill-admin':'pill-student');
+// ══════════════════════════════════════════════
+//  어드민 라우터
+// ══════════════════════════════════════════════
+function renderAdmin(){
+  if(currentTab==='tf')   renderTFAdmin();
+  else                    renderWAdmin();
+}
 
-// STATE
+// ══════════════════════════════════════════════
+//  T/F — 어드민
+// ══════════════════════════════════════════════
 let aStep='list', aTab='create', aDetailId='', aDetailStudent='', aDetailTab='results';
 let aTempName='', aTempQ=10, aTempAnswers=[], aEditId='', aTempSchool='기본';
 let aFilterSchool='전체';
-let sStep='entry', sExamId='', sExamData=null, sName='', sSchool='', sAnswers=[], sFixMode=false;
 
-function render(){ IS_ADMIN?renderAdmin():renderStudent(); }
-function W(h){ document.getElementById('wrap').innerHTML=h; }
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.className='toast t-show'; setTimeout(()=>t.className='toast',2400); }
-function copyLink(url){ navigator.clipboard.writeText(url).catch(()=>{ const t=document.createElement('textarea');t.value=url;document.body.appendChild(t);t.select();document.execCommand('copy');document.body.removeChild(t); }); toast('링크 복사됐어요! 📎'); }
-
-// ══════════════════════════════
-//  ADMIN
-// ══════════════════════════════
-function renderAdmin(){
+function renderTFAdmin(){
   if(aStep==='list')    renderAList();
   else if(aStep==='answers') renderAAnswers();
   else if(aStep==='detail')  renderADetail();
@@ -196,178 +375,117 @@ function renderAdmin(){
 }
 
 function aTabBar(){
-  const cActive = aTab==='create';
-  const vActive = aTab==='view';
-  return '<div style="display:flex;background:#e5e5ea;border-radius:12px;padding:3px;gap:2px;margin-bottom:16px;">'
-    + '<button data-tab="create" onclick="aTab=this.dataset.tab;renderAList()" style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;'
-    + 'background:' + (cActive?'white':'transparent') + ';'
-    + 'color:' + (cActive?'#1c1c1e':'rgba(28,28,30,0.5)') + ';'
-    + 'box-shadow:' + (cActive?'0 1px 4px rgba(0,0,0,0.1)':'none') + ';">➕ 새 시험 만들기</button>'
-    + '<button data-tab="view" onclick="aTab=this.dataset.tab;renderAList()" style="flex:1;padding:8px;border:none;border-radius:9px;font-size:13px;font-weight:700;font-family:inherit;cursor:pointer;'
-    + 'background:' + (vActive?'white':'transparent') + ';'
-    + 'color:' + (vActive?'#1c1c1e':'rgba(28,28,30,0.5)') + ';'
-    + 'box-shadow:' + (vActive?'0 1px 4px rgba(0,0,0,0.1)':'none') + ';">🏫 학교별 시험 보기</button>'
-    + '</div>';
+  const cA=aTab==='create', vA=aTab==='view';
+  return '<div class="atabs">'
+    +'<button data-tab="create" class="atab'+(cA?' on':'')+'" onclick="aTab=this.dataset.tab;renderAList()">➕ 새 시험 만들기</button>'
+    +'<button data-tab="view"   class="atab'+(vA?' on':'')+'" onclick="aTab=this.dataset.tab;renderAList()">🏫 학교별 시험 보기</button>'
+    +'</div>';
 }
 
 async function renderAList(){
-  W('<div class="loading">⏳ 불러오는 중...</div>');
+  W('<div class="loading"><div class="spinner"></div></div>');
   let exams=[];
-  try {
-    exams = await db.getExams();
-    if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams));
-  } catch(e) {
-    W(`<div class="empty"><div style="font-size:32px;margin-bottom:12px;">⚠️</div><div style="font-size:13px;color:#d93025;">데이터 로드 실패<br>${e.message}</div></div>`);
-    return;
-  }
-  const sl = schools.get();
-  const opts  = sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
+  try{ exams=await tfDB.getExams(); if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams)); }
+  catch(e){ W('<div class="empty">⚠️ 로드 실패<br><small>'+e.message+'</small></div>'); return; }
+  const sl=schools.get();
+  const opts=sl.map(s=>'<option value="'+s+'"'+(s===aTempSchool?' selected':'')+'>'+s+'</option>').join('');
 
-  // ── 새 시험 만들기 탭 ──
   if(aTab==='create'){
-    W(aTabBar()+`<div class="card">
-      <div class="sec-title">새 시험 만들기</div>
-      <div class="lbl">학교</div>
-      <div class="sel-wrap"><select class="sel" id="aSchool" onchange="aTempSchool=this.value">${opts}</select></div>
-      <div class="lbl">시험 이름</div>
-      <input class="inp" id="aName" placeholder="예) 3월 4주차 Test / Unit 5" value="${aTempName}">
-      <div class="lbl">문항 수</div>
-      <input class="inp inp-sm" id="aQ" type="number" min="1" max="60" value="${aTempQ}">
-      <button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button>
-    </div>`);
+    W(aTabBar()+'<div class="card"><div class="sec-title">새 시험 만들기</div>'
+      +'<div class="lbl">학교</div><div class="sel-wrap"><select class="sel" id="aSchool" onchange="aTempSchool=this.value">'+opts+'</select></div>'
+      +'<div class="lbl">시험 이름</div><input class="inp" id="aName" placeholder="예) 3월 4주차 Test" value="'+aTempName+'">'
+      +'<div class="lbl">문항 수</div><input class="inp inp-sm" id="aQ" type="number" min="1" max="60" value="'+aTempQ+'">'
+      +'<button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button></div>');
     return;
   }
 
-  // ── 학교별 시험 보기 탭 ──
-  // 학교별 그룹핑
   const grouped={};
   sl.forEach(s=>grouped[s]=[]);
   exams.forEach(e=>{ const s=e.school||'기본'; if(!grouped[s])grouped[s]=[]; grouped[s].push(e); });
-
-  // 학교 필터 칩
   const allS=[...new Set([...sl,...Object.keys(grouped)])];
   const filterChips=['전체',...allS].map(s=>{
-    const isActive = aFilterSchool===s;
-    return '<button data-school="'+s+'" onclick="aFilterSchool=this.dataset.school;renderAList()" style="'
-      +'padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;'
-      +'background:'+(isActive?'#2f7af5':'white')+';'
-      +'color:'+(isActive?'white':'rgba(28,28,30,0.55)')+';'
-      +'border-color:'+(isActive?'#2f7af5':'rgba(0,0,0,0.1)')+';">'
-      +s+'</button>';
+    const on=aFilterSchool===s;
+    return '<button data-school="'+s+'" onclick="aFilterSchool=this.dataset.school;renderAList()" style="padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;background:'+(on?'#2f7af5':'white')+';color:'+(on?'white':'rgba(28,28,30,0.55)')+';border-color:'+(on?'#2f7af5':'rgba(0,0,0,0.1)')+';">'+s+'</button>';
   }).join('');
 
-  let h = aTabBar();
-  h += `<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">${filterChips}</div>`;
-  h += `<div style="display:flex;justify-content:flex-end;margin-bottom:10px;">
-    <button class="btn btn-gray" onclick="aStep='schools';render()">🏫 학교 관리</button>
-  </div>`;
+  let h=aTabBar()
+    +'<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">'+filterChips+'</div>'
+    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button class="btn btn-gray" onclick="aStep=\'schools\';render()">🏫 학교 관리</button></div>';
 
-  // 필터 적용
-  const showSchools = aFilterSchool==='전체' ? allS : [aFilterSchool];
+  const showS=aFilterSchool==='전체'?allS:[aFilterSchool];
   let hasAny=false;
-
-  showSchools.forEach(school=>{
-    const list=(grouped[school]||[]);
-    if(!list.length)return;
-    hasAny=true;
+  showS.forEach(school=>{
+    const list=grouped[school]||[];
+    if(!list.length)return; hasAny=true;
     const fid='f_'+school.replace(/\W/g,'_');
-    // 전체 보기일 때만 폴더로 묶기, 특정 학교 선택시 바로 리스트
     if(aFilterSchool==='전체'){
-      h+=`<div class="school-folder">
-        <div class="school-header" onclick="toggleF('${fid}')">
-          <span class="school-icon">🏫</span>
-          <span class="school-name">${school}</span>
-          <span class="school-count">${list.length}개</span>
-          <span class="school-arrow open" id="ar_${fid}">›</span>
-        </div>
-        <div class="school-exams open" id="${fid}">
-          ${examListHTML(list,school)}
-        </div>
-      </div>`;
-    } else {
-      h += examListHTML(list, school);
-    }
+      h+='<div style="margin-bottom:14px;">'
+        +'<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:white;border-radius:12px;border:1px solid rgba(0,0,0,0.08);margin-bottom:6px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,0.05);" onclick="toggleF(\''+fid+'\')">'
+        +'<span style="font-size:18px;">🏫</span><span style="font-size:14px;font-weight:700;flex:1;">'+school+'</span>'
+        +'<span style="font-size:12px;color:rgba(28,28,30,0.45);">'+list.length+'개</span>'
+        +'<span class="school-arrow open" id="ar_'+fid+'">›</span></div>'
+        +'<div class="school-exams open" id="'+fid+'" style="padding-left:10px;">'+tfExamListHTML(list,school)+'</div></div>';
+    } else { h+=tfExamListHTML(list,school); }
   });
-
-  if(!hasAny) h+=`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>시험이 없어요</div></div>`;
+  if(!hasAny) h+='<div class="empty"><div style="font-size:36px;margin-bottom:12px;">📋</div>시험이 없어요</div>';
   W(h);
 }
 
-function examListHTML(list, school){
-  let html = '';
-  list.forEach(function(e, i){
-    const safeName = e.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
-    html += '<div class="exam-item" data-id="'+e.id+'">';
-    html += '<div class="ord-btns">';
-    html += '<button class="ord-btn" '+(i===0?'disabled':'')+' onclick="moveE(\''+e.id+'\',\''+school+'\','+i+',-1,event)">▲</button>';
-    html += '<button class="ord-btn" '+(i===list.length-1?'disabled':'')+' onclick="moveE(\''+e.id+'\',\''+school+'\','+i+',1,event)">▼</button>';
-    html += '</div>';
-    html += '<div class="e-icon e-icon-a" onclick="goADetail(\''+e.id+'\')" style="cursor:pointer;">📝</div>';
-    html += '<div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail(\''+e.id+'\')">';
-    html += '<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.name+'</div>';
-    const schoolLabel = aFilterSchool==='전체' ? '' : ' · 🏫 '+(e.school||'기본');
-    html += '<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">'+e.questions+'문항'+schoolLabel+'</div>';
-    html += '</div>';
-    html += '<div style="display:flex;gap:5px;flex-shrink:0;">';
-    html += '<button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit(\''+e.id+'\')">✏️</button>';
-    html += '<button class="btn btn-red" style="padding:6px 10px;" onclick="quickDel(\''+e.id+'\',\''+safeName+'\')">🗑️</button>';
-    html += '</div>';
-    html += '</div>';
+function tfExamListHTML(list,school){
+  let html='';
+  list.forEach(function(e,i){
+    const safe=e.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const sLabel=aFilterSchool==='전체'?'':' · 🏫 '+(e.school||'기본');
+    html+='<div class="exam-item" data-id="'+e.id+'">'
+      +'<div class="ord-btns">'
+      +'<button class="ord-btn" '+(i===0?'disabled':'')+' onclick="tfMoveE(\''+e.id+'\',\''+school+'\','+i+',-1,event)">▲</button>'
+      +'<button class="ord-btn" '+(i===list.length-1?'disabled':'')+' onclick="tfMoveE(\''+e.id+'\',\''+school+'\','+i+',1,event)">▼</button>'
+      +'</div>'
+      +'<div class="e-icon e-icon-a" onclick="goADetail(\''+e.id+'\')" style="cursor:pointer;">📝</div>'
+      +'<div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail(\''+e.id+'\')">'
+      +'<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.name+'</div>'
+      +'<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">'+e.questions+'문항'+sLabel+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:5px;flex-shrink:0;">'
+      +'<button class="btn btn-gray" style="padding:6px 10px;" onclick="quickEdit(\''+e.id+'\')">✏️</button>'
+      +'<button class="btn btn-red"  style="padding:6px 10px;" onclick="quickDel(\''+e.id+'\',\''+safe+'\')">🗑️</button>'
+      +'</div></div>';
   });
   return html;
 }
 
 function toggleF(id){
-  const el=document.getElementById(id), ar=document.getElementById('ar_'+id);
+  const el=document.getElementById(id),ar=document.getElementById('ar_'+id);
   if(!el)return;
   el.classList.toggle('open');
   if(ar)ar.classList.toggle('open');
 }
 
-async function moveE(id, school, idx, dir, ev){
+async function tfMoveE(id,school,idx,dir,ev){
   ev.stopPropagation();
-  const exams = await db.getExams();
-  const list = exams.filter(x=>(x.school||'기본')===school).sort((a,b)=>(a.order_index||0)-(b.order_index||0));
-  const tgt = idx+dir;
-  if(tgt<0||tgt>=list.length) return;
-  const a=list[idx], b=list[tgt];
-  await db.patchOrder(a.id, b.order_index??tgt);
-  await db.patchOrder(b.id, a.order_index??idx);
+  const exams=await tfDB.getExams();
+  const list=exams.filter(x=>(x.school||'기본')===school).sort((a,b)=>(a.order_index||0)-(b.order_index||0));
+  const tgt=idx+dir; if(tgt<0||tgt>=list.length)return;
+  const a=list[idx],b=list[tgt];
+  await tfDB.patchOrder(a.id,b.order_index??tgt);
+  await tfDB.patchOrder(b.id,a.order_index??idx);
   renderAList();
 }
 
 function renderASchools(){
   const sl=schools.get();
-  const tags=sl.map(s=>`<span class="school-tag">${s}${s==='기본'?'':` <span class="stag-del" onclick="doDelSchool('${s}')">×</span>`}</span>`).join('');
-  W(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <button class="btn btn-gray" onclick="aStep='list';aTab='view';render()">← 뒤로</button>
-      <div style="font-size:15px;font-weight:700;">🏫 학교 관리</div>
-    </div>
-    <div class="card">
-      <div class="sec-title">등록된 학교</div>
-      <div style="display:flex;flex-wrap:wrap;margin-bottom:12px;">${tags}</div>
-      <div class="lbl">새 학교 추가</div>
-      <div style="display:flex;gap:8px;">
-        <input class="inp" id="newSch" placeholder="학교명 입력" style="margin:0;flex:1;" onkeydown="if(event.key==='Enter')doAddSchool()">
-        <button class="btn btn-blue" style="margin:0;padding:11px 16px;" onclick="doAddSchool()">추가</button>
-      </div>
-    </div>
-    <div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;line-height:1.7;">
-      💡 학교를 추가하면 시험 만들기에서 선택할 수 있어요.<br>'기본'은 삭제할 수 없어요.
-    </div>`);
+  const tags=sl.map(s=>'<span class="school-tag">'+s+(s==='기본'?'':'<span class="stag-del" onclick="doDelSchool(\''+s+'\')">×</span>')+'</span>').join('');
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><button class="btn btn-gray" onclick="aStep=\'list\';aTab=\'view\';render()">← 뒤로</button><div style="font-size:15px;font-weight:700;">🏫 학교 관리</div></div>'
+    +'<div class="card"><div class="sec-title">등록된 학교</div>'
+    +'<div style="display:flex;flex-wrap:wrap;margin-bottom:12px;">'+tags+'</div>'
+    +'<div class="lbl">새 학교 추가</div><div style="display:flex;gap:8px;">'
+    +'<input class="inp" id="newSch" placeholder="학교명 입력" style="margin:0;flex:1;" onkeydown="if(event.key===\'Enter\')doAddSchool()">'
+    +'<button class="btn btn-blue" style="margin:0;padding:11px 16px;" onclick="doAddSchool()">추가</button>'
+    +'</div></div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;line-height:1.7;">💡 \'기본\'은 삭제할 수 없어요.</div>');
 }
-
-function doAddSchool(){
-  const inp=document.getElementById('newSch');
-  const n=inp?inp.value.trim():'';
-  if(!n){toast('학교명을 입력해주세요');return;}
-  if(schools.get().includes(n)){toast('이미 있는 학교예요');return;}
-  schools.add(n); toast('추가됐어요 ✅'); renderASchools();
-}
-function doDelSchool(n){
-  if(!confirm(`"${n}" 학교를 삭제할까요?\n(시험 데이터는 삭제되지 않아요)`))return;
-  schools.del(n); renderASchools();
-}
+function doAddSchool(){ const inp=document.getElementById('newSch'),n=inp?inp.value.trim():''; if(!n){toast('학교명을 입력해주세요');return;} if(schools.get().includes(n)){toast('이미 있는 학교예요');return;} schools.add(n);toast('추가됐어요 ✅');renderASchools(); }
+function doDelSchool(n){ if(!confirm('"'+n+'" 학교를 삭제할까요?'))return; schools.del(n);renderASchools(); }
 
 function goACreate(){
   const name=document.getElementById('aName').value.trim();
@@ -383,35 +501,22 @@ function goACreate(){
 function renderAAnswers(){
   const filled=aTempAnswers.filter(x=>x==='T'||x==='F').length;
   const sl=schools.get();
-  const schoolOpts=sl.map(s=>`<option value="${s}" ${s===aTempSchool?'selected':''}>${s}</option>`).join('');
+  const schoolOpts=sl.map(s=>'<option value="'+s+'"'+(s===aTempSchool?' selected':'')+'>'+s+'</option>').join('');
   let rows='';
   for(let i=0;i<aTempQ;i++){
     const a=aTempAnswers[i]||'';
-    rows+=`<tr><td class="c0">${i+1}</td>
-      <td class="c1"><button class="tfb ${a==='T'?'t-on':''}" onclick="setAns(${i},'T')">T</button></td>
-      <td><button class="tfb ${a==='F'?'f-on':''}" onclick="setAns(${i},'F')">F</button></td></tr>`;
+    rows+='<tr><td class="c0">'+(i+1)+'</td>'
+      +'<td class="c1"><button class="tfb '+(a==='T'?'t-on':'')+'" onclick="setAns('+i+',\'T\')">T</button></td>'
+      +'<td><button class="tfb '+(a==='F'?'f-on':'')+'" onclick="setAns('+i+',\'F\')">F</button></td></tr>';
   }
-  W(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <button class="btn btn-gray" onclick="aStep='list';aEditId='';render()">← 뒤로</button>
-      <div>
-        <div style="font-size:15px;font-weight:700;">${aTempName}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.5);" id="fillCnt">${filled}/${aTempQ} 등록됨 · ${aTempSchool}</div>
-      </div>
-    </div>
-    ${aEditId?`<div class="card" style="padding:14px 18px;">
-      <div class="lbl">학교 변경</div>
-      <div class="sel-wrap" style="margin:0;">
-        <select class="sel" id="editSchool" onchange="aTempSchool=this.value;document.getElementById('fillCnt').textContent='${filled}/${aTempQ} 등록됨 · '+this.value">${schoolOpts}</select>
-      </div>
-    </div>`:''}
-    <div class="card">
-      <div class="sec-title">정답 체크</div>
-      <table class="tbl">
-        <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>
-        <tbody id="ansBody">${rows}</tbody>
-      </table>
-      <button class="btn btn-blue btn-full" style="margin-top:14px;" onclick="doSave()">${aEditId?'수정 저장 ✓':'시험 저장 →'}</button>
-    </div>`);
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="aStep=\'list\';aEditId=\'\';render()">← 뒤로</button>'
+    +'<div><div style="font-size:15px;font-weight:700;">'+aTempName+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);" id="fillCnt">'+filled+'/'+aTempQ+' 등록됨 · '+aTempSchool+'</div></div></div>'
+    +(aEditId?'<div class="card" style="padding:14px 18px;"><div class="lbl">학교 변경</div><div class="sel-wrap" style="margin:0;"><select class="sel" id="editSchool" onchange="aTempSchool=this.value">'+schoolOpts+'</select></div></div>':'')
+    +'<div class="card"><div class="sec-title">정답 체크</div>'
+    +'<table class="tbl"><thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead><tbody id="ansBody">'+rows+'</tbody></table>'
+    +'<button class="btn btn-blue btn-full" style="margin-top:14px;" onclick="doSave()">'+(aEditId?'수정 저장 ✓':'시험 저장 →')+'</button></div>');
 }
 
 function setAns(i,v){
@@ -422,15 +527,15 @@ function setAns(i,v){
   bt[0].className='tfb '+(v==='T'?'t-on':'');
   bt[1].className='tfb '+(v==='F'?'f-on':'');
   const fc=document.getElementById('fillCnt');
-  if(fc)fc.textContent=`${aTempAnswers.filter(x=>x==='T'||x==='F').length}/${aTempQ} 등록됨 · ${aTempSchool}`;
+  if(fc)fc.textContent=aTempAnswers.filter(x=>x==='T'||x==='F').length+'/'+aTempQ+' 등록됨 · '+aTempSchool;
 }
 
 async function doSave(){
   const filled=aTempAnswers.filter(x=>x==='T'||x==='F').length;
-  if(filled<aTempQ){toast(`${aTempQ}문항 모두 체크해주세요 (${filled}/${aTempQ})`);return;}
+  if(filled<aTempQ){toast(aTempQ+'문항 모두 체크해주세요 ('+filled+'/'+aTempQ+')');return;}
   W('<div class="loading">💾 저장 중...</div>');
   const id=aEditId||'exam_'+Date.now();
-  const res=await db.saveExam({id,name:aTempName,questions:aTempQ,answers:aTempAnswers.slice(0,aTempQ),createdAt:Date.now(),school:aTempSchool,order_index:0});
+  const res=await tfDB.saveExam({id,name:aTempName,questions:aTempQ,answers:aTempAnswers.slice(0,aTempQ),createdAt:Date.now(),school:aTempSchool,order_index:0});
   if(!res.ok){toast('저장 실패: '+await res.text());renderAList();return;}
   toast('시험이 저장됐어요 ✅');
   aEditId='';aTempName='';aTempQ=10;aTempAnswers=[];
@@ -440,11 +545,11 @@ async function doSave(){
 function goADetail(id){aDetailId=id;aDetailTab='results';aStep='detail';render();}
 
 async function renderADetail(){
-  W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams=await db.getExams();
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await tfDB.getExams();
   const e=exams.find(x=>x.id===aDetailId);
   if(!e){aStep='list';render();return;}
-  const results=await db.getResults(aDetailId);
+  const results=await tfDB.getResults(aDetailId);
   const avg=results.length?Math.round(results.reduce((s,r)=>s+r.score,0)/results.length*100/e.questions):null;
   const sLink=location.href.replace(location.hash,'');
   window._curExam=e;
@@ -452,87 +557,72 @@ async function renderADetail(){
   let tabH='';
   if(aDetailTab==='results'){
     tabH=results.length
-      ?`<div class="card" style="padding:0;overflow:hidden;">${results.map(r=>{
+      ?'<div class="card" style="padding:0;overflow:hidden;">'+results.map(r=>{
           const pct=Math.round(r.score/r.total*100),cls=pct>=80?'sp-hi':pct>=60?'sp-md':'sp-lo';
-          return`<div class="res-row" onclick="goAStudent('${aDetailId}','${encodeURIComponent(r.student_name)}')">
-            <div class="res-av">${r.student_name.slice(0,4)}</div>
-            <div style="flex:1;font-size:13px;font-weight:600;">${r.student_name}</div>
-            <div style="font-size:11px;color:rgba(28,28,30,0.5);margin-right:4px;">${r.score}/${r.total}</div>
-            <div class="score-pill ${cls}">${pct}점</div>
-            <div style="color:rgba(28,28,30,0.3);margin-left:4px;font-size:18px;">›</div>
-          </div>`;
-        }).join('')}</div>`
-      :`<div class="empty"><div style="font-size:40px;margin-bottom:12px;">🕐</div><div>아직 제출한 학생이 없어요</div></div>`;
+          return '<div class="res-row" onclick="goAStudent(\''+aDetailId+'\',\''+encodeURIComponent(r.student_name)+'\')">'
+            +'<div class="res-av">'+r.student_name.slice(0,4)+'</div>'
+            +'<div style="flex:1;font-size:13px;font-weight:600;">'+r.student_name+'</div>'
+            +'<div style="font-size:11px;color:rgba(28,28,30,0.5);margin-right:4px;">'+r.score+'/'+r.total+'</div>'
+            +'<div class="score-pill '+cls+'">'+pct+'점</div>'
+            +'<div style="color:rgba(28,28,30,0.3);margin-left:4px;font-size:18px;">›</div></div>';
+        }).join('')+'</div>'
+      :'<div class="empty" style="padding:30px 0;"><div style="font-size:36px;margin-bottom:10px;">🕐</div>아직 제출한 학생이 없어요</div>';
   } else {
     let rows='';
     for(let i=0;i<e.questions;i++){
       const a=e.answers[i];
-      rows+=`<tr><td class="c0">${i+1}</td>
-        <td class="c1"><button class="tfb ${a==='T'?'t-on':''}" disabled>${a==='T'?'✓ T':'T'}</button></td>
-        <td><button class="tfb ${a==='F'?'f-on':''}" disabled>${a==='F'?'✓ F':'F'}</button></td></tr>`;
+      rows+='<tr><td class="c0">'+(i+1)+'</td>'
+        +'<td class="c1"><button class="tfb '+(a==='T'?'t-on':'')+'" disabled>'+(a==='T'?'✓ T':'T')+'</button></td>'
+        +'<td><button class="tfb '+(a==='F'?'f-on':'')+'" disabled>'+(a==='F'?'✓ F':'F')+'</button></td></tr>';
     }
-    tabH=`<div class="card"><table class="tbl">
-      <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>
-      <tbody>${rows}</tbody></table>
-      <button class="btn btn-gray" style="width:100%;margin-top:12px;" onclick="doEditExam()">정답 수정</button>
-    </div>`;
+    tabH='<div class="card"><table class="tbl"><thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead><tbody>'+rows+'</tbody></table>'
+      +'<button class="btn btn-gray" style="width:100%;margin-top:12px;" onclick="doEditExam()">정답 수정</button></div>';
   }
 
-  W(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <button class="btn btn-gray" onclick="aStep='list';render()">← 목록</button>
-      <div style="flex:1;">
-        <div style="font-size:16px;font-weight:700;">${e.name}</div>
-        <div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">🏫 ${e.school||'기본'} · ${e.questions}문항${avg!==null?` · 평균 <b style="color:#2f7af5">${avg}점</b>`:''}</div>
-      </div>
-    </div>
-    <div class="card">
-      <div class="sec-title">학생 링크 공유</div>
-      <div style="font-size:13px;color:rgba(28,28,30,0.55);margin-bottom:8px;line-height:1.6;">아래 링크를 학생들에게 공유하세요 (링크 하나로 모든 학교 학생이 사용해요)</div>
-      <div class="link-box">
-        <div style="flex:1;font-size:11px;color:#2f7af5;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${sLink}</div>
-        <div style="font-size:11px;font-weight:700;color:#2f7af5;cursor:pointer;flex-shrink:0;" onclick="copyLink('${sLink}')">복사</div>
-      </div>
-      <div style="font-size:11px;color:rgba(28,28,30,0.35);text-align:center;">⚠️ #admin 링크는 학생에게 공유하지 마세요</div>
-    </div>
-    <div class="tabs">
-      <div class="tab ${aDetailTab==='results'?'tab-on':''}" onclick="aDetailTab='results';renderADetail()">제출 결과 (${results.length}명)</div>
-      <div class="tab ${aDetailTab==='answers'?'tab-on':''}" onclick="aDetailTab='answers';renderADetail()">정답 보기</div>
-    </div>${tabH}`);
+  const detailTabs='<div class="tabs">'
+    +'<div class="tab '+(aDetailTab==='results'?'tab-on':'')+'" onclick="aDetailTab=\'results\';renderADetail()">제출 결과 ('+results.length+'명)</div>'
+    +'<div class="tab '+(aDetailTab==='answers'?'tab-on':'')+'" onclick="aDetailTab=\'answers\';renderADetail()">정답 보기</div>'
+    +'</div>';
+
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="aStep=\'list\';render()">← 목록</button>'
+    +'<div style="flex:1;"><div style="font-size:16px;font-weight:700;">'+e.name+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">🏫 '+(e.school||'기본')+' · '+e.questions+'문항'+(avg!==null?' · 평균 <b style="color:#2f7af5">'+avg+'점</b>':'')+'</div></div></div>'
+    +'<div class="card"><div class="sec-title">학생 링크 공유</div>'
+    +'<div style="font-size:13px;color:rgba(28,28,30,0.55);margin-bottom:8px;">아래 링크를 학생들에게 공유하세요</div>'
+    +'<div class="link-box"><div style="flex:1;font-size:11px;color:#2f7af5;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+sLink+'</div>'
+    +'<div style="font-size:11px;font-weight:700;color:#2f7af5;cursor:pointer;flex-shrink:0;" onclick="copyLink(\''+sLink+'\')">복사</div></div>'
+    +'<div style="font-size:11px;color:rgba(28,28,30,0.35);text-align:center;">⚠️ #admin 링크는 공유하지 마세요</div></div>'
+    +detailTabs+tabH);
 }
 
 function goAStudent(eid,enc){aDetailId=eid;aDetailStudent=enc;aStep='studet';render();}
 
 async function renderAStudentDetail(){
-  W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams=await db.getExams();
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await tfDB.getExams();
   const e=exams.find(x=>x.id===aDetailId);
   const name=decodeURIComponent(aDetailStudent);
-  const results=await db.getResults(aDetailId);
+  const results=await tfDB.getResults(aDetailId);
   const r=results.find(x=>x.student_name===name);
   if(!e||!r){aStep='detail';render();return;}
   const pct=Math.round(r.score/r.total*100),col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
   let rows='';
   for(let i=0;i<e.questions;i++){
     const cor=e.answers[i],giv=r.answers[i],ok=cor===giv;
-    rows+=`<tr><td class="c0">${i+1}</td>
-      <td class="c1"><button class="tfb ${giv==='T'?(ok?'ok':'no'):''}" disabled>${giv==='T'?(ok?'✓ T':'✗ T'):'T'}</button></td>
-      <td><button class="tfb ${giv==='F'?(ok?'ok':'no'):''}" disabled>${giv==='F'?(ok?'✓ F':'✗ F'):'F'}</button></td>
-      <td style="text-align:center;font-size:15px;">${ok?'✅':'❌'}</td></tr>`;
+    rows+='<tr><td class="c0">'+(i+1)+'</td>'
+      +'<td class="c1"><button class="tfb '+(giv==='T'?(ok?'ok':'no'):'')+'" disabled>'+(giv==='T'?(ok?'✓ T':'✗ T'):'T')+'</button></td>'
+      +'<td><button class="tfb '+(giv==='F'?(ok?'ok':'no'):'')+'" disabled>'+(giv==='F'?(ok?'✓ F':'✗ F'):'F')+'</button></td>'
+      +'<td style="text-align:center;font-size:15px;">'+(ok?'✅':'❌')+'</td></tr>';
   }
-  W(`<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">
-      <button class="btn btn-gray" onclick="aStep='detail';render()">← 뒤로</button>
-      <div style="font-size:15px;font-weight:700;">${name} · 답안</div>
-    </div>
-    <div class="score-box">
-      <div style="font-size:26px;margin-bottom:8px;">${pct>=90?'🎉':pct>=70?'👍':pct>=50?'😊':'💪'}</div>
-      <div class="score-num" style="color:${col}">${pct}점</div>
-      <div class="score-sub">${r.score} / ${r.total} 정답 · ${name}</div>
-      <div class="bar-bg"><div class="bar-fg" style="width:${pct}%;background:${col};"></div></div>
-    </div>
-    <div class="card"><table class="tbl">
-      <thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th><th>결과</th></tr></thead>
-      <tbody>${rows}</tbody></table>
-    </div>`);
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="aStep=\'detail\';render()">← 뒤로</button>'
+    +'<div style="font-size:15px;font-weight:700;">'+name+' · 답안</div></div>'
+    +'<div class="score-box"><div style="font-size:26px;margin-bottom:8px;">'+(pct>=90?'🎉':pct>=70?'👍':pct>=50?'😊':'💪')+'</div>'
+    +'<div class="score-num" style="color:'+col+'">'+pct+'점</div>'
+    +'<div class="score-sub">'+r.score+' / '+r.total+' 정답 · '+name+'</div>'
+    +'<div class="bar-bg"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div></div>'
+    +'<div class="card"><table class="tbl"><thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th><th>결과</th></tr></thead><tbody>'+rows+'</tbody></table></div>');
 }
 
 function doEditExam(){
@@ -541,57 +631,54 @@ function doEditExam(){
   aStep='answers';render();
 }
 async function quickEdit(id){
-  W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams=await db.getExams();
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await tfDB.getExams();
   const e=exams.find(x=>x.id===id);if(!e){renderAList();return;}
   window._curExam=e;
   aEditId=e.id;aTempName=e.name;aTempQ=e.questions;aTempAnswers=e.answers.slice();aTempSchool=e.school||'기본';
   aStep='answers';render();
 }
 async function quickDel(id,name){
-  if(!confirm(`"${name}" 시험을 삭제할까요?\n제출된 결과도 함께 삭제됩니다.`))return;
+  if(!confirm('"'+name+'" 시험을 삭제할까요?\n결과도 함께 삭제됩니다.'))return;
   W('<div class="loading">🗑️ 삭제 중...</div>');
-  await db.delExam(id);toast('삭제됐어요');aStep='list';render();
+  await tfDB.delExam(id);toast('삭제됐어요');aStep='list';render();
 }
 
-// ══════════════════════════════
-//  STUDENT
-// ══════════════════════════════
+// ══════════════════════════════════════════════
+//  T/F — 학생
+// ══════════════════════════════════════════════
+let sStep='entry', sExamId='', sExamData=null, sName='', sSchool='', sAnswers=[], sFixMode=false;
+
 function renderStudent(){
+  if(currentTab==='tf')   renderTFStudent();
+  else                    renderWStudent();
+}
+
+function renderTFStudent(){
   if(sStep==='entry') renderSEntry();
   else if(sStep==='list')   renderSList();
   else if(sStep==='exam')   renderSExam();
   else if(sStep==='result') renderSResult();
 }
 
-// ── 진입: 이름 + 학교 선택 ──
 async function renderSEntry(){
-  W('<div class="loading">⏳ 불러오는 중...</div>');
+  W('<div class="loading"><div class="spinner"></div></div>');
   let exams=[];
-  try {
-    exams = await db.getExams();
-    if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams));
-  } catch(e) {
-    W(`<div class="empty"><div style="font-size:32px;margin-bottom:12px;">⚠️</div><div style="font-size:13px;color:#d93025;">데이터 로드 실패<br>${e.message}</div></div>`);
-    return;
-  }
+  try{ exams=await tfDB.getExams(); if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams)); }
+  catch(e){ W('<div class="empty">⚠️ 로드 실패<br><small>'+e.message+'</small></div>'); return; }
   const dbS=[...new Set(exams.map(e=>e.school||'기본'))];
   const allS=[...new Set([...schools.get(),...dbS])].sort();
-  const opts=allS.map(s=>`<option value="${s}" ${s===sSchool?'selected':''}>${s}</option>`).join('');
-  W(`<div style="padding:36px 0 20px;">
-    <div style="text-align:center;margin-bottom:28px;">
-      <div style="font-size:40px;margin-bottom:12px;">✏️</div>
-      <div style="font-size:22px;font-weight:700;margin-bottom:6px;">T/F 시험</div>
-      <div style="font-size:14px;color:rgba(28,28,30,0.55);line-height:1.6;">이름과 학교를 선택하고 시작하세요</div>
-    </div>
-    <div class="lbl">이름</div>
-    <input class="name-inp" id="sNm" placeholder="이름 입력" maxlength="10" value="${sName}" onkeydown="if(event.key==='Enter')document.getElementById('sSch').focus()" style="margin-bottom:12px;">
-    <div class="lbl">학교</div>
-    <div class="sel-wrap" style="margin-bottom:20px;">
-      <select class="sel" id="sSch">${opts}</select>
-    </div>
-    <button class="btn btn-green btn-full" style="margin-top:0;" onclick="doSEntry()">시험 목록 보기 →</button>
-  </div>`);
+  const opts=allS.map(s=>'<option value="'+s+'"'+(s===sSchool?' selected':'')+'>'+s+'</option>').join('');
+  W('<div style="padding:36px 0 20px;">'
+    +'<div style="text-align:center;margin-bottom:28px;">'
+    +'<div style="font-size:40px;margin-bottom:12px;">✏️</div>'
+    +'<div style="font-size:22px;font-weight:700;margin-bottom:6px;">T/F 시험</div>'
+    +'<div style="font-size:14px;color:rgba(28,28,30,0.55);line-height:1.6;">이름과 학교를 선택하고 시작하세요</div></div>'
+    +'<div class="lbl">이름</div>'
+    +'<input class="name-inp" id="sNm" placeholder="이름 입력" maxlength="10" value="'+sName+'" onkeydown="if(event.key===\'Enter\')document.getElementById(\'sSch\').focus()" style="margin-bottom:12px;">'
+    +'<div class="lbl">학교</div>'
+    +'<div class="sel-wrap" style="margin-bottom:20px;"><select class="sel" id="sSch">'+opts+'</select></div>'
+    +'<button class="btn btn-green btn-full" style="margin-top:0;" onclick="doSEntry()">시험 목록 보기 →</button></div>');
   setTimeout(()=>{const el=document.getElementById('sNm');if(el)el.focus();},80);
 }
 
@@ -603,52 +690,37 @@ async function doSEntry(){
   sName=nm;sSchool=sch;sStep='list';render();
 }
 
-// ── 시험 목록 (학교 필터) ──
 async function renderSList(){
-  W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams=await db.getBySchool(sSchool);
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await tfDB.getBySchool(sSchool);
+  let doneIds=new Set();
+  try{
+    const allR=await api.get('results?student_name=eq.'+encodeURIComponent(sName));
+    if(Array.isArray(allR)) allR.forEach(r=>{if(r.score===r.total)doneIds.add(r.exam_id);});
+  }catch(e){}
 
-  // 이 학생의 100점 완료 시험 목록 가져오기
-  let doneIds = new Set();
-  try {
-    const myResults = await api.get('results?student_name=eq.'+encodeURIComponent(sName)+'&score=eq.total');
-    // score=total 필터가 안되면 전체 조회 후 필터
-    const allResults = await api.get('results?student_name=eq.'+encodeURIComponent(sName));
-    if(Array.isArray(allResults)){
-      allResults.forEach(r=>{ if(r.score===r.total) doneIds.add(r.exam_id); });
-    }
-  } catch(e){}
-
-  let h = '<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+  let h='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
     +'<button class="btn btn-gray" onclick="sStep=\'entry\';render()">← 뒤로</button>'
-    +'<div>'
-    +'<div style="font-size:15px;font-weight:700;">🏫 '+sSchool+'</div>'
-    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);">'+sName+'님, 시험을 선택하세요</div>'
-    +'</div></div>';
+    +'<div><div style="font-size:15px;font-weight:700;">🏫 '+sSchool+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);">'+sName+'님, 시험을 선택하세요</div></div></div>';
 
-  if(!exams.length){
-    h+='<div class="empty"><div style="font-size:40px;margin-bottom:12px;">📋</div><div>진행 중인 시험이 없어요<br><span style="font-size:12px;">선생님이 시험을 만들면 여기에 나타나요</span></div></div>';
+  if(!exams||!exams.length){
+    h+='<div class="empty"><div style="font-size:36px;margin-bottom:12px;">📋</div>진행 중인 시험이 없어요</div>';
   } else {
     exams.forEach(e=>{
-      const done = doneIds.has(e.id);
+      const done=doneIds.has(e.id);
       if(done){
-        h += '<div class="exam-item" style="opacity:0.45;background:#f2f2f7;">'
-          +'<div class="e-icon" style="background:#c7c7cc;width:38px;height:38px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;flex-shrink:0;">✓</div>'
-          +'<div style="flex:1;">'
-          +'<div style="font-size:14px;font-weight:700;color:rgba(28,28,30,0.45);">'+e.name+'</div>'
-          +'<div style="font-size:12px;color:rgba(28,28,30,0.35);margin-top:2px;">'+e.questions+'문항</div>'
-          +'</div>'
-          +'<span style="font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:#e5e5ea;color:rgba(28,28,30,0.4);">완료 ✓</span>'
-          +'</div>';
+        h+='<div class="exam-item" style="opacity:0.45;background:#f2f2f7;">'
+          +'<div class="e-icon e-icon-done">✓</div>'
+          +'<div style="flex:1;"><div style="font-size:14px;font-weight:700;color:rgba(28,28,30,0.45);">'+e.name+'</div>'
+          +'<div style="font-size:12px;color:rgba(28,28,30,0.35);margin-top:2px;">'+e.questions+'문항</div></div>'
+          +'<span class="badge-done">완료 ✓</span></div>';
       } else {
-        h += '<div class="exam-item" onclick="goSExam(\''+e.id+'\')">'
+        h+='<div class="exam-item clickable" onclick="goSExam(\''+e.id+'\')">'
           +'<div class="e-icon e-icon-s">✏️</div>'
-          +'<div style="flex:1;">'
-          +'<div style="font-size:14px;font-weight:700;">'+e.name+'</div>'
-          +'<div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">'+e.questions+'문항</div>'
-          +'</div>'
-          +'<div style="color:rgba(28,28,30,0.3);font-size:20px;">›</div>'
-          +'</div>';
+          +'<div style="flex:1;"><div style="font-size:14px;font-weight:700;">'+e.name+'</div>'
+          +'<div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">'+e.questions+'문항</div></div>'
+          +'<div style="color:rgba(28,28,30,0.3);font-size:20px;">›</div></div>';
       }
     });
   }
@@ -656,43 +728,29 @@ async function renderSList(){
 }
 
 async function goSExam(id){
-  W('<div class="loading">⏳ 불러오는 중...</div>');
-  const exams=await db.getExams();
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await tfDB.getExams();
   sExamData=exams.find(x=>x.id===id);
   sExamId=id;sAnswers=new Array(sExamData.questions).fill('');sFixMode=false;
   sStep='exam';render();
 }
 
-// ── 시험 응시 ──
 function renderSExam(){
   const e=sExamData;
   const filled=sAnswers.filter(a=>a).length;
-
   let rows='';
   for(let i=0;i<e.questions;i++){
     const a=sAnswers[i]||'';
-    rows+='<tr>'
-      +'<td class="c0">'+(i+1)+'</td>'
+    rows+='<tr><td class="c0">'+(i+1)+'</td>'
       +'<td class="c1"><button class="tfb '+(a==='T'?'t-on':'')+'" onclick="pickS('+i+',\'T\')">T</button></td>'
-      +'<td><button class="tfb '+(a==='F'?'f-on':'')+'" onclick="pickS('+i+',\'F\')">F</button></td>'
-      +'</tr>';
+      +'<td><button class="tfb '+(a==='F'?'f-on':'')+'" onclick="pickS('+i+',\'F\')">F</button></td></tr>';
   }
-
-  const retryBanner = sFixMode
-    ? '<div class="fix-banner">🔄 이전 답안이 그대로 있어요. 수정하고 싶은 문항을 바꿔서 다시 제출하세요!</div>'
-    : '';
-
-  W(retryBanner
+  const banner=sFixMode?'<div class="fix-banner">🔄 이전 답안이 그대로 있어요. 수정하고 싶은 문항을 바꿔서 다시 제출하세요!</div>':'';
+  W(banner
     +'<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;">'
-    +'<div>'
-    +'<div style="font-size:15px;font-weight:700;">'+e.name+'</div>'
-    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;" id="sFill">✏️ '+sName+' · '+filled+'/'+e.questions+' 체크</div>'
-    +'</div>'
-    +'</div>'
-    +'<div class="card"><table class="tbl">'
-    +'<thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead>'
-    +'<tbody id="sBody">'+rows+'</tbody>'
-    +'</table></div>'
+    +'<div><div style="font-size:15px;font-weight:700;">'+e.name+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;" id="sFill">✏️ '+sName+' · '+filled+'/'+e.questions+' 체크</div></div></div>'
+    +'<div class="card"><table class="tbl"><thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead><tbody id="sBody">'+rows+'</tbody></table></div>'
     +'<button class="btn btn-green btn-full" onclick="doSubmit()">'+(sFixMode?'다시 제출하기 →':'제출하기 →')+'</button>'
     +'<div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;margin-top:10px;">모든 문항을 체크한 후 제출하세요</div>');
 }
@@ -715,51 +773,569 @@ async function doSubmit(){
   const e=sExamData;
   const filled=sAnswers.filter(a=>a).length;
   if(filled<e.questions){toast(e.questions-filled+'문항이 남았어요');return;}
-
   let score=0;
   for(let i=0;i<e.questions;i++)if(sAnswers[i]===e.answers[i])score++;
   W('<div class="loading">📤 제출 중...</div>');
-  const res=await db.saveResult(sExamId,sName,{answers:sAnswers.slice(),score,total:e.questions,submittedAt:Date.now()});
+  const res=await tfDB.saveResult(sExamId,sName,{answers:sAnswers.slice(),score,total:e.questions,submittedAt:Date.now()});
   if(!res.ok){toast('제출 실패, 다시 시도해주세요');sStep='exam';render();return;}
   sFixMode=false;sStep='result';render();
 }
 
-// ── 결과 ──
 async function renderSResult(){
-  W('<div class="loading">⏳ 결과 불러오는 중...</div>');
-  const results=await db.getResults(sExamId);
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const results=await tfDB.getResults(sExamId);
   const r=results.find(x=>x.student_name===sName);
-  const e=sExamData;
   if(!r){sStep='list';render();return;}
   window._prevResult=r;
-
   const pct=Math.round(r.score/r.total*100),wrong=r.total-r.score;
   const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
   const msg=pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
-
-  const wrongText = wrong>0 ? '<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>' : '전부 정답! 🎯';
-  const retryBtn = wrong>0 ? '<button class="btn btn-orange btn-full" style="margin:0;" onclick="goRetry()">🔄 다시 풀기</button>' : '';
-
-  W('<div class="score-box">'
-    +'<div style="font-size:26px;margin-bottom:8px;">'+msg+'</div>'
+  const wrongText=wrong>0?'<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>':'전부 정답! 🎯';
+  const retryBtn=wrong>0?'<button class="btn btn-orange btn-full" style="margin:0;" onclick="goRetry()">🔄 다시 풀기</button>':'';
+  W('<div class="score-box"><div style="font-size:26px;margin-bottom:8px;">'+msg+'</div>'
     +'<div class="score-num" style="color:'+col+'">'+r.score+' / '+r.total+'</div>'
     +'<div class="score-sub">'+sName+' · '+wrongText+'</div>'
-    +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div>'
-    +'</div>'
-    +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'
-    +retryBtn
-    +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="sStep=\'list\';render()">✓ 완료</button>'
-    +'</div>');
+    +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div></div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'+retryBtn
+    +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="sStep=\'list\';render()">✓ 완료</button></div>');
 }
 
 function goRetry(){
-  // 이전 답안 그대로 유지, 학생이 자유롭게 수정 가능
-  sAnswers = window._prevResult.answers.slice();
-  sFixMode = true;
-  sStep = 'exam';
-  render();
+  sAnswers=window._prevResult.answers.slice();
+  sFixMode=true;sStep='exam';render();
 }
 
+// ══════════════════════════════════════════════
+//  단어시험 — 어드민
+// ══════════════════════════════════════════════
+let waStep='list', waTab='create', waDetailId='', waDetailTab='results';
+let waTempName='', waTempSchool='기본', waTempWords=[], waTempImgB64='', waEditId='';
+let waFilterSchool='전체';
+
+function renderWAdmin(){
+  if(waStep==='list')   renderWAList();
+  else if(waStep==='create') renderWACreate();
+  else if(waStep==='detail') renderWADetail();
+  else if(waStep==='schools')renderWASchools();
+}
+
+function waTabBar(){
+  const cA=waTab==='create',vA=waTab==='view';
+  return '<div class="atabs">'
+    +'<button data-tab="create" class="atab'+(cA?' on':'')+'" onclick="waTab=this.dataset.tab;renderWAList()">➕ 새 시험 만들기</button>'
+    +'<button data-tab="view"   class="atab'+(vA?' on':'')+'" onclick="waTab=this.dataset.tab;renderWAList()">🏫 학교별 시험 보기</button>'
+    +'</div>';
+}
+
+async function renderWAList(){
+  W('<div class="loading"><div class="spinner"></div></div>');
+  let exams=[];
+  try{ exams=await wDB.getExams(); if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams)); }
+  catch(e){ W('<div class="empty">⚠️ 로드 실패</div>'); return; }
+  const sl=schools.get();
+  const opts=sl.map(s=>'<option value="'+s+'"'+(s===waTempSchool?' selected':'')+'>'+s+'</option>').join('');
+
+  if(waTab==='create'){
+    W(waTabBar()+'<div class="card"><div class="sec-title">새 단어시험</div>'
+      +'<div class="lbl">학교</div><div class="sel-wrap"><select class="sel" id="waSchool" onchange="waTempSchool=this.value">'+opts+'</select></div>'
+      +'<div class="lbl">시험 이름</div><input class="inp" id="waName" placeholder="예) 4월 1주차 단어시험" value="'+waTempName+'">'
+      +'<button class="btn btn-blue btn-full" onclick="goWACreate()">다음 →</button></div>');
+    return;
+  }
+
+  const grouped={};
+  sl.forEach(s=>grouped[s]=[]);
+  exams.forEach(e=>{ const s=e.school||'기본'; if(!grouped[s])grouped[s]=[]; grouped[s].push(e); });
+  const allS=[...new Set([...sl,...Object.keys(grouped)])];
+  const filterChips=['전체',...allS].map(s=>{
+    const on=waFilterSchool===s;
+    return '<button data-school="'+s+'" onclick="waFilterSchool=this.dataset.school;renderWAList()" style="padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;background:'+(on?'#2f7af5':'white')+';color:'+(on?'white':'rgba(28,28,30,0.55)')+';border-color:'+(on?'#2f7af5':'rgba(0,0,0,0.1)')+';">'+s+'</button>';
+  }).join('');
+
+  let h=waTabBar()
+    +'<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">'+filterChips+'</div>'
+    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button class="btn btn-gray" onclick="waStep=\'schools\';render()">🏫 학교 관리</button></div>';
+
+  const showS=waFilterSchool==='전체'?allS:[waFilterSchool];
+  let hasAny=false;
+  showS.forEach(school=>{
+    const list=grouped[school]||[];
+    if(!list.length)return; hasAny=true;
+    const fid='wf_'+school.replace(/\W/g,'_');
+    if(waFilterSchool==='전체'){
+      h+='<div style="margin-bottom:14px;">'
+        +'<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:white;border-radius:12px;border:1px solid rgba(0,0,0,0.08);margin-bottom:6px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,0.05);" onclick="toggleWF(\''+fid+'\')">'
+        +'<span style="font-size:18px;">🏫</span><span style="font-size:14px;font-weight:700;flex:1;">'+school+'</span>'
+        +'<span style="font-size:12px;color:rgba(28,28,30,0.45);">'+list.length+'개</span>'
+        +'<span id="war_'+fid+'" style="font-size:14px;color:rgba(28,28,30,0.3);transition:transform 0.2s;display:inline-block;transform:rotate(90deg);">›</span></div>'
+        +'<div id="'+fid+'" style="padding-left:10px;">'+wExamListHTML(list,school)+'</div></div>';
+    } else { h+=wExamListHTML(list,school); }
+  });
+  if(!hasAny) h+='<div class="empty"><div style="font-size:36px;margin-bottom:12px;">📋</div>시험이 없어요</div>';
+  W(h);
+}
+
+function toggleWF(id){
+  const el=document.getElementById(id),ar=document.getElementById('war_'+id);
+  if(!el)return;
+  const open=el.style.display!=='none';
+  el.style.display=open?'none':'block';
+  if(ar)ar.style.transform=open?'rotate(0deg)':'rotate(90deg)';
+}
+
+function wExamListHTML(list,school){
+  let html='';
+  list.forEach(function(e,i){
+    const safe=e.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+    const sLabel=waFilterSchool==='전체'?'':' · 🏫 '+(e.school||'기본');
+    html+='<div class="exam-item" data-id="'+e.id+'">'
+      +'<div class="ord-btns">'
+      +'<button class="ord-btn" '+(i===0?'disabled':'')+' onclick="wMoveE(\''+e.id+'\',\''+school+'\','+i+',-1,event)">▲</button>'
+      +'<button class="ord-btn" '+(i===list.length-1?'disabled':'')+' onclick="wMoveE(\''+e.id+'\',\''+school+'\','+i+',1,event)">▼</button>'
+      +'</div>'
+      +'<div class="e-icon e-icon-a" onclick="goWADetail(\''+e.id+'\')" style="cursor:pointer;">📝</div>'
+      +'<div style="flex:1;cursor:pointer;min-width:0;" onclick="goWADetail(\''+e.id+'\')">'
+      +'<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.name+'</div>'
+      +'<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">'+(e.words?e.words.length:0)+'단어'+sLabel+'</div>'
+      +'</div>'
+      +'<div style="display:flex;gap:5px;flex-shrink:0;">'
+      +'<button class="btn btn-gray" style="padding:6px 10px;" onclick="doWEditExam(\''+e.id+'\')">✏️</button>'
+      +'<button class="btn btn-red"  style="padding:6px 10px;" onclick="doWDelExam(\''+e.id+'\',\''+safe+'\')">🗑️</button>'
+      +'</div></div>';
+  });
+  return html;
+}
+
+async function wMoveE(id,school,idx,dir,ev){
+  ev.stopPropagation();
+  const exams=await wDB.getExams();
+  const list=exams.filter(x=>(x.school||'기본')===school).sort((a,b)=>(a.order_index||0)-(b.order_index||0));
+  const tgt=idx+dir; if(tgt<0||tgt>=list.length)return;
+  const a=list[idx],b=list[tgt];
+  await wDB.patchOrder(a.id,b.order_index??tgt);
+  await wDB.patchOrder(b.id,a.order_index??idx);
+  renderWAList();
+}
+
+function goWACreate(){
+  const name=document.getElementById('waName').value.trim();
+  const school=document.getElementById('waSchool')?.value||waTempSchool;
+  if(!name){toast('시험 이름을 입력해주세요');return;}
+  waTempName=name;waTempSchool=school;waTempWords=[];waTempImgB64='';
+  waStep='create';render();
+}
+
+function renderWACreate(){
+  const sl=schools.get();
+  const opts=sl.map(s=>'<option value="'+s+'"'+(s===waTempSchool?' selected':'')+'>'+s+'</option>').join('');
+  let pairsHTML='';
+  waTempWords.forEach(function(w,i){
+    pairsHTML+='<div class="word-pair" id="wwp_'+i+'">'
+      +'<span class="word-pair-num">'+(i+1)+'</span>'
+      +'<input class="inp" placeholder="한글 뜻" value="'+w.ko+'" onchange="waTempWords['+i+'].ko=this.value" style="margin:0;">'
+      +'<input class="inp" placeholder="English" value="'+w.en+'" onchange="waTempWords['+i+'].en=this.value" style="margin:0;">'
+      +'<button class="word-pair-del" onclick="wRemovePair('+i+')">×</button></div>';
+  });
+  const imgSection=waTempImgB64
+    ?'<div class="img-preview"><img src="data:image/jpeg;base64,'+waTempImgB64+'"><button class="img-del" onclick="waTempImgB64=\'\';renderWACreate()">✕</button></div>'
+    +'<div class="ai-banner"><div style="font-size:13px;font-weight:600;color:#2f7af5;">📸 사진에서 단어 자동 추출 완료</div></div>'
+    :'<div class="upload-area" id="waUpload" onclick="document.getElementById(\'waImgInput\').click()">'
+    +'<div class="upload-ico">📸</div>'
+    +'<div class="upload-title">정답지 사진 업로드 (선택)</div>'
+    +'<div class="upload-sub">단어를 자동으로 읽어드려요</div>'
+    +'<input type="file" id="waImgInput" accept="image/*" onchange="handleWAImg(event)"></div>';
+
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="waStep=\'list\';render()">← 뒤로</button>'
+    +'<div style="font-size:15px;font-weight:700;">'+(waEditId?'시험 수정':'새 단어시험')+'</div></div>'
+    +'<div class="card">'
+    +'<div class="lbl">학교</div><div class="sel-wrap"><select class="sel" id="waSchool2" onchange="waTempSchool=this.value">'+opts+'</select></div>'
+    +'<div class="lbl">시험 이름</div><input class="inp" id="waName2" placeholder="예) 4월 1주차 단어시험" value="'+waTempName+'"></div>'
+    +'<div class="card"><div class="sec-title">정답지 사진 업로드</div>'+imgSection+'</div>'
+    +'<div class="card"><div class="sec-title">단어 목록</div>'
+    +'<div id="wPairsContainer">'+pairsHTML+'</div>'
+    +'<button class="btn btn-gray" style="width:100%;margin-top:4px;" onclick="wAddPair()">+ 단어 추가</button></div>'
+    +'<button class="btn btn-blue btn-full" onclick="saveWExam()">'+(waEditId?'수정 저장 ✓':'시험 저장 →')+'</button>');
+
+  const area=document.getElementById('waUpload');
+  if(area){
+    area.addEventListener('dragover',e=>{e.preventDefault();area.classList.add('drag');});
+    area.addEventListener('dragleave',()=>area.classList.remove('drag'));
+    area.addEventListener('drop',e=>{e.preventDefault();area.classList.remove('drag');const f=e.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))processWAImg(f);});
+  }
+}
+
+function wAddPair(ko,en){ waTempWords.push({ko:ko||'',en:en||''}); renderWACreate(); }
+function wRemovePair(i){ waTempWords.splice(i,1); renderWACreate(); }
+function handleWAImg(ev){ const f=ev.target.files[0]; if(f)processWAImg(f); }
+function processWAImg(file){
+  const reader=new FileReader();
+  reader.onload=ev=>{ waTempImgB64=ev.target.result.split(',')[1]; renderWACreate(); extractWAWords(waTempImgB64); };
+  reader.readAsDataURL(file);
+}
+
+async function extractWAWords(b64){
+  const container=document.getElementById('wPairsContainer');
+  if(container) container.innerHTML='<div style="text-align:center;padding:20px;"><div class="spinner" style="width:28px;height:28px;margin:0 auto 8px;"></div>AI가 단어를 읽는 중...</div>';
+  const prompt='이 이미지는 영어 단어시험 정답지입니다.\n한글 뜻과 영어 단어 쌍을 모두 추출해주세요.\n반드시 JSON만 응답:\n{"words":[{"ko":"한글뜻","en":"english"},...]}';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}]}]})
+    });
+    const data=await res.json();
+    const parsed=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    if(parsed.words&&parsed.words.length){ waTempWords=parsed.words; renderWACreate(); toast('✅ '+parsed.words.length+'개 단어를 읽었어요!'); }
+    else{ toast('직접 입력해주세요.'); renderWACreate(); }
+  }catch(e){ toast('사진 인식 실패. 직접 입력해주세요.'); renderWACreate(); }
+}
+
+async function saveWExam(){
+  const nameEl=document.getElementById('waName2');
+  const name=nameEl?nameEl.value.trim():waTempName;
+  const schoolEl=document.getElementById('waSchool2');
+  const school=schoolEl?schoolEl.value:waTempSchool;
+  const pairs=document.querySelectorAll('#wPairsContainer .word-pair');
+  const words=[];
+  pairs.forEach(row=>{
+    const inputs=row.querySelectorAll('.inp');
+    const ko=inputs[0]?inputs[0].value.trim():'';
+    const en=inputs[1]?inputs[1].value.trim():'';
+    if(ko||en)words.push({ko,en});
+  });
+  if(!name){toast('시험 이름을 입력해주세요');return;}
+  if(!words.length){toast('단어를 1개 이상 입력해주세요');return;}
+  W('<div class="loading">💾 저장 중...</div>');
+  const id=waEditId||'wexam_'+Date.now();
+  const res=await wDB.saveExam({id,name,words,school,order_index:0,createdAt:Date.now()});
+  if(!res.ok){toast('저장 실패');renderWACreate();return;}
+  toast('✅ 저장됐어요!');
+  waEditId='';waTempName='';waTempSchool='기본';waTempWords=[];waTempImgB64='';
+  waStep='detail';waDetailId=id;render();
+}
+
+async function doWEditExam(id){
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await wDB.getExams();
+  const e=exams.find(x=>x.id===id); if(!e){renderWAList();return;}
+  waEditId=e.id;waTempName=e.name;waTempSchool=e.school||'기본';
+  waTempWords=(e.words||[]).map(w=>({ko:w.ko||'',en:w.en||''}));
+  waTempImgB64='';waStep='create';render();
+}
+async function doWDelExam(id,name){
+  if(!confirm('"'+name+'" 시험을 삭제할까요?'))return;
+  W('<div class="loading">🗑️ 삭제 중...</div>');
+  await wDB.delExam(id);toast('삭제됐어요');waStep='list';render();
+}
+function goWADetail(id){waDetailId=id;waDetailTab='results';waStep='detail';render();}
+
+async function renderWADetail(){
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await wDB.getExams();
+  const e=exams.find(x=>x.id===waDetailId);
+  if(!e){waStep='list';render();return;}
+  const results=await wDB.getResults(waDetailId);
+  const avg=results.length?Math.round(results.reduce((s,r)=>s+r.score,0)/results.length*100/(results[0]?.total||1)):null;
+  const sLink=location.href.replace(location.hash,'');
+
+  let tabH='';
+  if(waDetailTab==='results'){
+    tabH=results.length
+      ?'<table class="rtable"><thead><tr><th>이름</th><th>점수</th><th>정답률</th></tr></thead><tbody>'
+        +results.map(r=>{const pct=r.total?Math.round(r.score/r.total*100):0,cls=pct>=80?'sp-hi':pct>=60?'sp-md':'sp-lo';return '<tr><td><b>'+r.student_name+'</b></td><td>'+r.score+'/'+r.total+'</td><td><span class="score-pill '+cls+'">'+pct+'%</span></td></tr>';}).join('')
+        +'</tbody></table>'
+      :'<div class="empty" style="padding:30px 0;">아직 제출한 학생이 없어요</div>';
+  } else {
+    tabH='<table class="rtable"><thead><tr><th>#</th><th>한글</th><th>영어</th></tr></thead><tbody>'
+      +(e.words||[]).map((w,i)=>'<tr><td style="color:rgba(28,28,30,0.4);">'+(i+1)+'</td><td>'+w.ko+'</td><td style="font-weight:600;">'+w.en+'</td></tr>').join('')
+      +'</tbody></table>';
+  }
+
+  const detailTabs='<div class="tabs">'
+    +'<div class="tab '+(waDetailTab==='results'?'tab-on':'')+'" onclick="waDetailTab=\'results\';renderWADetail()">제출 결과 ('+results.length+'명)</div>'
+    +'<div class="tab '+(waDetailTab==='words'?'tab-on':'')+'" onclick="waDetailTab=\'words\';renderWADetail()">단어 목록 ('+(e.words?e.words.length:0)+'개)</div>'
+    +'</div>';
+
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="waStep=\'list\';render()">← 목록</button>'
+    +'<div style="flex:1;"><div style="font-size:16px;font-weight:700;">'+e.name+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);margin-top:1px;">🏫 '+(e.school||'기본')+' · '+(e.words?e.words.length:0)+'단어'+(avg!==null?' · 평균 <b style="color:#2f7af5">'+avg+'%</b>':'')+'</div></div></div>'
+    +'<div class="card"><div class="sec-title">학생 링크 공유</div>'
+    +'<div class="link-box"><div style="flex:1;font-size:11px;color:#2f7af5;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">'+sLink+'</div>'
+    +'<div style="font-size:11px;font-weight:700;color:#2f7af5;cursor:pointer;flex-shrink:0;" onclick="copyLink(\''+sLink+'\')">복사</div></div>'
+    +'<div style="font-size:11px;color:rgba(28,28,30,0.35);text-align:center;">⚠️ #admin 링크는 공유하지 마세요</div></div>'
+    +detailTabs+'<div class="card" style="padding:0;overflow:hidden;">'+tabH+'</div>');
+}
+
+function renderWASchools(){
+  const sl=schools.get();
+  const tags=sl.map(s=>'<span class="school-tag">'+s+(s==='기본'?'':'<span class="stag-del" onclick="doWDelSchool(\''+s+'\')">×</span>')+'</span>').join('');
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><button class="btn btn-gray" onclick="waStep=\'list\';waTab=\'view\';render()">← 뒤로</button><div style="font-size:15px;font-weight:700;">🏫 학교 관리</div></div>'
+    +'<div class="card"><div class="sec-title">등록된 학교</div>'
+    +'<div style="display:flex;flex-wrap:wrap;margin-bottom:12px;">'+tags+'</div>'
+    +'<div class="lbl">새 학교 추가</div><div style="display:flex;gap:8px;">'
+    +'<input class="inp" id="wNewSch" placeholder="학교명 입력" style="margin:0;flex:1;" onkeydown="if(event.key===\'Enter\')doWAddSchool()">'
+    +'<button class="btn btn-blue" style="margin:0;padding:11px 16px;" onclick="doWAddSchool()">추가</button></div></div>');
+}
+function doWAddSchool(){ const inp=document.getElementById('wNewSch'),n=inp?inp.value.trim():''; if(!n){toast('학교명을 입력해주세요');return;} if(schools.get().includes(n)){toast('이미 있는 학교예요');return;} schools.add(n);toast('추가됐어요 ✅');renderWASchools(); }
+function doWDelSchool(n){ if(!confirm('"'+n+'" 학교를 삭제할까요?'))return; schools.del(n);renderWASchools(); }
+
+// ══════════════════════════════════════════════
+//  단어시험 — 학생
+// ══════════════════════════════════════════════
+let wsStep='entry', wsName='', wsSchool='', wsExamId='', wsExamData=null;
+let wsImgB64='', wsGradeResult=null;
+let wsRetryWords=[], wsRetryIdx=0, wsRetryAnswers=[];
+
+function renderWStudent(){
+  if(wsStep==='entry')   renderWSEntry();
+  else if(wsStep==='list')    renderWSList();
+  else if(wsStep==='upload')  renderWSUpload();
+  else if(wsStep==='grading') renderWSGrading();
+  else if(wsStep==='result')  renderWSResult();
+  else if(wsStep==='retry')   renderWSRetry();
+}
+
+async function renderWSEntry(){
+  W('<div class="loading"><div class="spinner"></div></div>');
+  let exams=[];
+  try{ exams=await wDB.getExams(); if(!Array.isArray(exams)) throw new Error(); }catch(e){}
+  const dbS=[...new Set(exams.map(e=>e.school||'기본'))];
+  const allS=[...new Set([...schools.get(),...dbS])].sort();
+  const opts=allS.map(s=>'<option value="'+s+'"'+(s===wsSchool?' selected':'')+'>'+s+'</option>').join('');
+  W('<div style="padding:32px 0 20px;">'
+    +'<div style="text-align:center;margin-bottom:28px;">'
+    +'<div style="font-size:40px;margin-bottom:12px;">📝</div>'
+    +'<div style="font-size:22px;font-weight:700;margin-bottom:6px;">영어 단어시험</div>'
+    +'<div style="font-size:14px;color:rgba(28,28,30,0.55);line-height:1.6;">이름과 학교를 입력하고 시작하세요</div></div>'
+    +'<div class="lbl">이름</div>'
+    +'<input class="inp" id="wsNm" placeholder="이름 입력" maxlength="10" value="'+wsName+'" onkeydown="if(event.key===\'Enter\')document.getElementById(\'wsSch\').focus()" style="margin-bottom:12px;">'
+    +'<div class="lbl">학교</div>'
+    +'<div class="sel-wrap" style="margin-bottom:20px;"><select class="sel" id="wsSch">'+opts+'</select></div>'
+    +'<button class="btn btn-green btn-full" style="margin-top:0;" onclick="doWSEntry()">시험 목록 보기 →</button></div>');
+  setTimeout(()=>{const el=document.getElementById('wsNm');if(el)el.focus();},80);
+}
+
+async function doWSEntry(){
+  const nm=document.getElementById('wsNm')?.value.trim();
+  const sch=document.getElementById('wsSch')?.value;
+  if(!nm){toast('이름을 입력해주세요');return;}
+  if(!sch){toast('학교를 선택해주세요');return;}
+  wsName=nm;wsSchool=sch;wsStep='list';render();
+}
+
+async function renderWSList(){
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await wDB.getBySchool(wsSchool);
+  let doneIds=new Set();
+  try{
+    const allR=await api.get('word_results?student_name=eq.'+encodeURIComponent(wsName));
+    if(Array.isArray(allR)) allR.forEach(r=>{if(r.score===r.total)doneIds.add(r.exam_id);});
+  }catch(e){}
+
+  let h='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="wsStep=\'entry\';render()">← 뒤로</button>'
+    +'<div><div style="font-size:15px;font-weight:700;">🏫 '+wsSchool+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);">'+wsName+'님, 시험을 선택하세요</div></div></div>';
+
+  if(!exams||!exams.length){
+    h+='<div class="empty"><div style="font-size:36px;margin-bottom:12px;">📋</div>진행 중인 시험이 없어요</div>';
+  } else {
+    exams.forEach(e=>{
+      const done=doneIds.has(e.id);
+      if(done){
+        h+='<div class="exam-item" style="opacity:0.45;background:#f2f2f7;">'
+          +'<div class="e-icon e-icon-done">✓</div>'
+          +'<div style="flex:1;"><div style="font-size:14px;font-weight:700;color:rgba(28,28,30,0.45);">'+e.name+'</div>'
+          +'<div style="font-size:12px;color:rgba(28,28,30,0.35);margin-top:2px;">'+(e.words?e.words.length:0)+'단어</div></div>'
+          +'<span class="badge-done">완료 ✓</span></div>';
+      } else {
+        h+='<div class="exam-item clickable" onclick="goWSExam(\''+e.id+'\')">'
+          +'<div class="e-icon e-icon-s">📝</div>'
+          +'<div style="flex:1;"><div style="font-size:14px;font-weight:700;">'+e.name+'</div>'
+          +'<div style="font-size:12px;color:rgba(28,28,30,0.55);margin-top:2px;">'+(e.words?e.words.length:0)+'단어</div></div>'
+          +'<div style="color:rgba(28,28,30,0.3);font-size:20px;">›</div></div>';
+      }
+    });
+  }
+  W(h);
+}
+
+async function goWSExam(id){
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const exams=await wDB.getExams();
+  wsExamData=exams.find(x=>x.id===id);
+  wsExamId=id;wsImgB64='';wsGradeResult=null;wsStep='upload';render();
+}
+
+function renderWSUpload(){
+  const e=wsExamData;
+  const imgSection=wsImgB64
+    ?'<div class="img-preview"><img src="data:image/jpeg;base64,'+wsImgB64+'"><button class="img-del" onclick="wsImgB64=\'\';renderWSUpload()">✕</button></div>'
+    +'<button class="btn btn-green btn-full" onclick="startWSGrading()">🤖 채점 시작</button>'
+    :'<div class="upload-area" id="wsUploadArea" onclick="document.getElementById(\'wsImgInput\').click()">'
+    +'<div class="upload-ico">📄</div>'
+    +'<div class="upload-title">시험지 사진 업로드</div>'
+    +'<div class="upload-sub">클릭하거나 드래그해서 올려주세요</div>'
+    +'<input type="file" id="wsImgInput" accept="image/*" onchange="handleWSImg(event)"></div>';
+
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="wsStep=\'list\';render()">← 뒤로</button>'
+    +'<div><div style="font-size:15px;font-weight:700;">'+e.name+'</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.5);">'+(e.words?e.words.length:0)+'단어 · '+wsName+'</div></div></div>'
+    +'<div class="card"><div class="sec-title">시험지 업로드</div>'+imgSection+'</div>');
+
+  const area=document.getElementById('wsUploadArea');
+  if(area){
+    area.addEventListener('dragover',ev=>{ev.preventDefault();area.classList.add('drag');});
+    area.addEventListener('dragleave',()=>area.classList.remove('drag'));
+    area.addEventListener('drop',ev=>{ev.preventDefault();area.classList.remove('drag');const f=ev.dataTransfer.files[0];if(f&&f.type.startsWith('image/'))processWSImg(f);});
+  }
+}
+
+function handleWSImg(ev){ const f=ev.target.files[0]; if(f)processWSImg(f); }
+function processWSImg(file){
+  const reader=new FileReader();
+  reader.onload=ev=>{ wsImgB64=ev.target.result.split(',')[1]; renderWSUpload(); };
+  reader.readAsDataURL(file);
+}
+
+function renderWSGrading(){
+  W('<div class="loading"><div class="spinner"></div>'
+    +'<div style="margin-top:8px;font-weight:600;">AI가 채점 중이에요...</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.45);margin-top:6px;">10~20초 정도 걸려요</div></div>');
+}
+
+async function startWSGrading(){
+  if(!wsImgB64){toast('시험지 사진을 올려주세요');return;}
+  wsStep='grading';renderWSGrading();
+  const words=wsExamData.words||[];
+  const answerKey=words.map((w,i)=>(i+1)+'. 한글: "'+w.ko+'" → 정답 영어: "'+w.en+'"').join('\n');
+  const prompt='영어 단어시험 채점.\n\n정답지:\n'+answerKey
+    +'\n\n채점 규칙: 대소문자 무시, 철자 1~2개 오류 허용, 빈칸=오답\n\nJSON만 응답:\n{"results":[{"num":1,"ko":"한글","correct_en":"정답","written":"학생답","ok":true}]}';
+  try{
+    const res=await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
+      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:2000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:wsImgB64}},{type:'text',text:prompt}]}]})
+    });
+    const data=await res.json();
+    wsGradeResult=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
+    const results=wsGradeResult.results||[];
+    const score=results.filter(r=>r.ok).length;
+    const wrongWords=results.filter(r=>!r.ok).map(r=>({ko:r.ko,en:r.correct_en,written:r.written}));
+    await wDB.saveResult(wsExamId,wsName,{score,total:results.length,wrongWords,allResults:results});
+    wsStep='result';render();
+  }catch(e){ toast('채점 실패: '+e.message); wsStep='upload';render(); }
+}
+
+function renderWSResult(){
+  const results=wsGradeResult?wsGradeResult.results:[];
+  const score=results.filter(r=>r.ok).length;
+  const total=results.length;
+  const wrong=total-score;
+  const pct=total?Math.round(score/total*100):0;
+  const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
+  const msg=pct>=90?'🎉 훌륭해요!':pct>=70?'👍 잘했어요!':pct>=50?'😊 조금만 더!':'💪 다시 도전!';
+  const wrongText=wrong>0?'<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>':'전부 정답! 🎯';
+
+  let rowsHTML='';
+  results.forEach(r=>{
+    rowsHTML+='<div class="result-row '+(r.ok?'ok':'ng')+'">'
+      +'<span class="result-ico">'+(r.ok?'✓':'✗')+'</span>'
+      +'<span class="result-ko">'+r.ko+'</span>'
+      +'<span class="result-en">'+r.correct_en+'</span>'
+      +(r.ok?'':'<span class="result-written">내 답: '+(r.written||'(빈칸)')+'</span>')
+      +'</div>';
+  });
+
+  const retryBtn=wrong>0?'<button class="btn btn-orange btn-full" style="margin:0;" onclick="goWSRetry()">🔄 틀린 단어 재시험</button>':'';
+  W('<div class="score-box"><div style="font-size:26px;margin-bottom:8px;">'+msg+'</div>'
+    +'<div class="score-num" style="color:'+col+'">'+score+' / '+total+'</div>'
+    +'<div class="score-sub">'+wsName+' · '+wrongText+'</div>'
+    +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div></div>'
+    +'<div class="card" style="padding:0;overflow:hidden;">'+rowsHTML+'</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'+retryBtn
+    +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="wsStep=\'list\';render()">✓ 완료</button></div>');
+}
+
+function goWSRetry(){
+  const results=wsGradeResult?wsGradeResult.results:[];
+  wsRetryWords=results.filter(r=>!r.ok).map(r=>({ko:r.ko,en:r.correct_en}));
+  wsRetryIdx=0;wsRetryAnswers=[];wsStep='retry';render();
+}
+
+function renderWSRetry(){
+  if(!wsRetryWords.length||wsRetryIdx>=wsRetryWords.length){ renderWSRetryResult(); return; }
+  const w=wsRetryWords[wsRetryIdx];
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
+    +'<button class="btn btn-gray" onclick="wsStep=\'result\';render()">← 뒤로</button>'
+    +'<div style="font-size:15px;font-weight:700;">틀린 단어 재시험</div></div>'
+    +'<div class="retry-card">'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.4);margin-bottom:10px;">'+(wsRetryIdx+1)+' / '+wsRetryWords.length+'</div>'
+    +'<div style="font-size:13px;color:rgba(28,28,30,0.45);margin-bottom:10px;">영어로 입력하세요</div>'
+    +'<div class="retry-ko">'+w.ko+'</div>'
+    +'<div class="retry-hint">= ?</div>'
+    +'<input class="inp inp-lg" id="wsRetryInp" placeholder="영어 단어 입력" autocomplete="off" autocorrect="off" spellcheck="false" onkeydown="if(event.key===\'Enter\')submitWSRetry()">'
+    +'<button class="btn btn-green btn-full" style="margin-top:0;" onclick="submitWSRetry()">확인 →</button></div>'
+    +'<div class="bar-bg" style="margin-top:8px;"><div class="bar-fg" style="width:'+Math.round(wsRetryIdx/wsRetryWords.length*100)+'%;background:#2f7af5;"></div></div>');
+  setTimeout(()=>{const el=document.getElementById('wsRetryInp');if(el)el.focus();},80);
+}
+
+function submitWSRetry(){
+  const inp=document.getElementById('wsRetryInp');
+  const answer=inp?inp.value.trim():'';
+  if(!answer){toast('단어를 입력해주세요');return;}
+  const w=wsRetryWords[wsRetryIdx];
+  let ok=answer.toLowerCase()===w.en.toLowerCase();
+  if(!ok) ok=wsLevenshtein(answer.toLowerCase(),w.en.toLowerCase())<=1;
+  wsRetryAnswers.push({ko:w.ko,en:w.en,written:answer,ok});
+  wsRetryIdx++;render();
+}
+
+function wsLevenshtein(a,b){
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>[i,...Array(n).fill(0)]);
+  for(let j=0;j<=n;j++)dp[0][j]=j;
+  for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+
+function renderWSRetryResult(){
+  const score=wsRetryAnswers.filter(r=>r.ok).length;
+  const total=wsRetryAnswers.length;
+  const wrong=total-score;
+  const pct=total?Math.round(score/total*100):0;
+  const col=pct>=80?'#1a9e45':pct>=60?'#c4600a':'#d93025';
+  const msg=pct===100?'🎉 모두 맞았어요!':pct>=70?'👍 잘했어요!':'💪 조금 더 연습해요!';
+  const wrongText=wrong>0?'<span style="color:#d93025;font-weight:600;">'+wrong+'개 틀림</span>':'전부 정답! 🎯';
+  let rowsHTML='';
+  wsRetryAnswers.forEach(r=>{
+    rowsHTML+='<div class="result-row '+(r.ok?'ok':'ng')+'">'
+      +'<span class="result-ico">'+(r.ok?'✓':'✗')+'</span>'
+      +'<span class="result-ko">'+r.ko+'</span>'
+      +'<span class="result-en">'+r.en+'</span>'
+      +(r.ok?'':'<span class="result-written">내 답: '+(r.written||'(빈칸)')+'</span>')
+      +'</div>';
+  });
+  const stillWrong=wsRetryAnswers.filter(r=>!r.ok);
+  const againBtn=stillWrong.length?'<button class="btn btn-orange btn-full" style="margin:0;" onclick="goWSRetryAgain()">🔄 다시 한번 더</button>':'';
+  W('<div class="score-box"><div style="font-size:22px;margin-bottom:8px;">'+msg+'</div>'
+    +'<div class="score-num" style="color:'+col+'">'+score+' / '+total+'</div>'
+    +'<div class="score-sub">재시험 결과 · '+wrongText+'</div>'
+    +'<div class="bar-bg" style="margin-top:12px;"><div class="bar-fg" style="width:'+pct+'%;background:'+col+';"></div></div></div>'
+    +'<div class="card" style="padding:0;overflow:hidden;">'+rowsHTML+'</div>'
+    +'<div style="display:flex;flex-direction:column;gap:10px;margin-top:4px;">'+againBtn
+    +'<button class="btn btn-gray btn-full" style="margin:0;" onclick="wsStep=\'list\';render()">✓ 완료</button></div>');
+}
+function goWSRetryAgain(){
+  wsRetryWords=wsRetryAnswers.filter(r=>!r.ok).map(r=>({ko:r.ko,en:r.en}));
+  wsRetryIdx=0;wsRetryAnswers=[];wsStep='retry';render();
+}
+
+// ── 시작 ──
 render();
 </script>
 
