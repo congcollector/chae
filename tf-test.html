@@ -603,8 +603,11 @@ async function renderAAnswers(){
 
 function toggleAStudent(name){
   const idx=aTempStudents.indexOf(name);
-  if(idx>=0)aTempStudents.splice(idx,1);
+  if(idx>=0) aTempStudents.splice(idx,1);
   else aTempStudents.push(name);
+  // 현재 이름/문항수 입력값 보존
+  const nm=document.getElementById('aName'); if(nm) aTempName=nm.value||aTempName;
+  const q=document.getElementById('aQ'); if(q) aTempQ=parseInt(q.value)||aTempQ;
   renderAAnswers();
 }
 async function toggleAAllStudents(){
@@ -1067,12 +1070,20 @@ async function renderWACreate(){
 }
 
 function toggleWStudent(name){
+  // 현재 입력값 저장
+  const nm=document.getElementById('waName2'); if(nm) waTempName=nm.value||waTempName;
+  const pairs=document.querySelectorAll('#wPairsContainer .word-pair');
+  pairs.forEach(function(row,i){
+    const inputs=row.querySelectorAll('.inp');
+    if(waTempWords[i]){waTempWords[i].ko=inputs[0]?inputs[0].value:waTempWords[i].ko;waTempWords[i].en=inputs[1]?inputs[1].value:waTempWords[i].en;}
+  });
   const idx=waTempStudents.indexOf(name);
-  if(idx>=0)waTempStudents.splice(idx,1);
+  if(idx>=0) waTempStudents.splice(idx,1);
   else waTempStudents.push(name);
   renderWACreate();
 }
 async function toggleWAllStudents(){
+  const nm=document.getElementById('waName2'); if(nm) waTempName=nm.value||waTempName;
   let studs=[];
   try{ studs=await studentsDB.getBySchool(waTempSchool); if(!Array.isArray(studs))studs=[]; }catch(e){}
   if(waTempStudents.length===studs.length) waTempStudents=[];
@@ -1571,11 +1582,11 @@ async function renderStatusTab(){
     if(!Array.isArray(wExams)) throw new Error('word_exams 로드 실패: '+JSON.stringify(wExams));
   }catch(e){ W('<div class="empty">⚠️ '+e.message+'</div>'); return; }
   try{
-    tfResults=await api.get('results?order=submitted_at.desc');
+    tfResults=await api.get('results?order=exam_id.asc');
     if(!Array.isArray(tfResults)) throw new Error('results 로드 실패: '+JSON.stringify(tfResults));
   }catch(e){ W('<div class="empty">⚠️ '+e.message+'</div>'); return; }
   try{
-    wResults=await api.get('word_results?order=submitted_at.desc');
+    wResults=await api.get('word_results?order=exam_id.asc');
     if(!Array.isArray(wResults)) throw new Error('word_results 로드 실패: '+JSON.stringify(wResults));
   }catch(e){ W('<div class="empty">⚠️ '+e.message+'</div>'); return; }
 
