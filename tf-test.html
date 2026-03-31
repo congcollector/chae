@@ -626,7 +626,8 @@ function toggleAStudent(name){
     if(idx>=0) aTempStudents.splice(idx,1);
     else aTempStudents.push(name);
   }
-  renderAList();
+  if(aStep==='answers') renderAAnswers();
+  else renderAList();
 }
 async function toggleAAllStudents(){
   const nm=document.getElementById('aName'); if(nm) aTempName=nm.value||aTempName;
@@ -845,7 +846,7 @@ async function renderSList(){
   let doneIds=new Set();
   try{
     const allR=await api.get('results?student_name=eq.'+encodeURIComponent(sName));
-    if(Array.isArray(allR)) allR.forEach(r=>{if(r.score===r.total)doneIds.add(r.exam_id);});
+    if(Array.isArray(allR)) allR.forEach(r=>{if(parseInt(r.score)===parseInt(r.total)&&r.total>0)doneIds.add(r.exam_id);});
   }catch(e){}
 
   let h='<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
@@ -1671,7 +1672,7 @@ async function renderStatusTab(){
         +'<span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px;background:'+typeBg+';color:'+typeColor+';flex-shrink:0;">'+typeLabel+'</span>'
         +'<div style="flex:1;min-width:0;">'
         +'<div style="font-size:14px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+exam.name+'</div>'
-        +'<div style="font-size:11px;color:rgba(28,28,30,0.4);margin-top:2px;">'+school+'</div>'
+        +'<div style="font-size:11px;color:rgba(28,28,30,0.4);margin-top:2px;">'+(exam.school||'기본')+'</div>'
         +'</div>'
         +'<div style="display:flex;gap:5px;align-items:center;flex-shrink:0;">'+summaryDots+'</div>'
         +'<span id="ch_'+cardId+'" style="font-size:14px;color:rgba(28,28,30,0.3);margin-left:6px;transition:transform 0.2s;display:inline-block;">›</span>'
