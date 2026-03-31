@@ -217,6 +217,11 @@ border-top: 2.5px solid transparent;
     <span class="btab-lbl">단어시험</span>
     <span class="btab-indicator"></span>
   </button>
+  <button class="btab" id="btab-status" onclick="switchTab('status')" style="display:none;">
+    <span class="btab-ico">📊</span>
+    <span class="btab-lbl">현황</span>
+    <span class="btab-indicator"></span>
+  </button>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -258,6 +263,11 @@ function setMode(mode){
   sessionStorage.setItem('ch_admin', IS_ADMIN?'1':'0');
   document.getElementById('mtab-student').classList.toggle('on', !IS_ADMIN);
   document.getElementById('mtab-admin').classList.toggle('on', IS_ADMIN);
+  // 현황 탭 — 선생님 모드일 때만 표시
+  const statusBtn=document.getElementById('btab-status');
+  if(statusBtn) statusBtn.style.display=IS_ADMIN?'':'none';
+  // 학생 모드 전환 시 현황 탭 활성이면 tf로 이동
+  if(!IS_ADMIN && currentTab==='status') currentTab='tf';
   render();
 }
 
@@ -325,10 +335,14 @@ let currentTab = 'tf';
 function switchTab(tab){
   currentTab = tab;
   document.querySelectorAll('.btab').forEach(b=>b.classList.remove('active'));
-  document.getElementById('btab-'+tab).classList.add('active');
+  const btn=document.getElementById('btab-'+tab);
+  if(btn) btn.classList.add('active');
   render();
 }
-function render(){ IS_ADMIN ? renderAdmin() : renderStudent(); }
+function render(){
+  if(currentTab==='status'){ renderStatusTab(); return; }
+  IS_ADMIN ? renderAdmin() : renderStudent();
+}
 
 // ══════════════════════════════════════════════
 //  T/F 시험 — DB
@@ -395,11 +409,10 @@ function renderTFAdmin(){
 }
 
 function aTabBar(){
-  const cA=aTab==='create', vA=aTab==='view', sA=aTab==='status';
+  const cA=aTab==='create', vA=aTab==='view';
   return '<div class="atabs">'
     +'<button data-tab="create" class="atab'+(cA?' on':'')+'" onclick="aTab=this.dataset.tab;renderAList()">➕ 새 시험</button>'
     +'<button data-tab="view"   class="atab'+(vA?' on':'')+'" onclick="aTab=this.dataset.tab;renderAList()">학교별 보기</button>'
-    +'<button data-tab="status" class="atab'+(sA?' on':'')+'" onclick="aTab=this.dataset.tab;renderAList()">📊 현황</button>'
     +'</div>';
 }
 
@@ -419,7 +432,6 @@ async function renderAList(){
       +'<button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button></div>');
     return;
   }
-  if(aTab==='status'){ renderStatusTab(); return; }
 
   const grouped={};
   sl.forEach(s=>grouped[s]=[]);
@@ -899,11 +911,10 @@ function renderWAdmin(){
 }
 
 function waTabBar(){
-  const cA=waTab==='create',vA=waTab==='view',sA=waTab==='status';
+  const cA=waTab==='create',vA=waTab==='view';
   return '<div class="atabs">'
     +'<button data-tab="create" class="atab'+(cA?' on':'')+'" onclick="waTab=this.dataset.tab;renderWAList()">➕ 새 시험</button>'
     +'<button data-tab="view"   class="atab'+(vA?' on':'')+'" onclick="waTab=this.dataset.tab;renderWAList()">학교별 보기</button>'
-    +'<button data-tab="status" class="atab'+(sA?' on':'')+'" onclick="waTab=this.dataset.tab;renderWAList()">📊 현황</button>'
     +'</div>';
 }
 
@@ -922,7 +933,6 @@ async function renderWAList(){
       +'<button class="btn btn-blue btn-full" onclick="goWACreate()">다음 →</button></div>');
     return;
   }
-  if(waTab==='status'){ renderStatusTab(); return; }
 
   const grouped={};
   sl.forEach(s=>grouped[s]=[]);
@@ -1551,14 +1561,23 @@ async function renderStatusTab(){
   W('<div class="loading"><div class="spinner"></div></div>');
 
   // T/F + 단어시험 전체 로드
-  let tfExams=[], wExams=[];
-  try{ tfExams=await tfDB.getExams(); if(!Array.isArray(tfExams))tfExams=[]; }catch(e){}
-  try{ wExams=await wDB.getExams(); if(!Array.isArray(wExams))wExams=[]; }catch(e){}
-
-  // 모든 결과 로드
-  let tfResults=[], wResults=[];
-  try{ tfResults=await api.get('results?order=submitted_at.desc'); if(!Array.isArray(tfResults))tfResults=[]; }catch(e){}
-  try{ wResults=await api.get('word_results?order=submitted_at.desc'); if(!Array.isArray(wResults))wResults=[]; }catch(e){}
+  let tfExams=[], wExams=[], tfResults=[], wResults=[];
+  try{
+    tfExams=await tfDB.getExams();
+    if(!Array.isArray(tfExams)) throw new Error('exams 로드 실패: '+JSON.stringify(tfExams));
+  }catch(e){ W('<div class="empty">⚠️ '+e.message+'</div>'); return; }
+  try{
+    wExams=await wDB.getExams();
+    if(!Array.isArray(wExams)) throw new Error('word_exams 로드 실패: '+JSON.stringify(wExams));
+  }catch(e){ W('<div class="empty">⚠️ '+e.message+'</div>'); return; }
+  try{
+    tfResults=await api.get('results?order=submitted_at.desc');
+    if(!Array.isArray(tfResults)) throw new Error('results 로드 실패: '+JSON.stringify(tfResults));
+  }catch(e){ W('<div class="empty">⚠️ '+e.message+'</div>'); return; }
+  try{
+    wResults=await api.get('word_results?order=submitted_at.desc');
+    if(!Array.isArray(wResults)) throw new Error('word_results 로드 실패: '+JSON.stringify(wResults));
+  }catch(e){ W('<div class="empty">⚠️ '+e.message+'</div>'); return; }
 
   // 응시 이력 있는 시험만 추출
   const tfSubmitted=new Set(tfResults.map(r=>r.exam_id));
