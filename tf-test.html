@@ -227,13 +227,17 @@ const api = {
   del:   p     => fetch(SUPA_URL+'/rest/v1/'+p,{method:'DELETE',headers:H})
 };
 
-// 학교 목록 (기존 cs_schools 키 그대로 유지 — T/F 데이터 호환)
-const schools = {
-  get: ()    => { try{ return JSON.parse(localStorage.getItem('cs_schools')||'["기본"]'); }catch{ return['기본']; } },
-  set: (arr) => localStorage.setItem('cs_schools',JSON.stringify(arr)),
-  add: (s)   => { const a=schools.get(); if(!a.includes(s)){a.push(s);schools.set(a);} },
-  del: (s)   => schools.set(schools.get().filter(x=>x!==s))
+// 학교 목록 — Supabase 기반, T/F와 단어시험 독립
+const schoolsDB = {
+  getTF:  ()     => api.get('schools?exam_type=eq.tf&order=name.asc'),
+  getW:   ()     => api.get('schools?exam_type=eq.word&order=name.asc'),
+  addTF:  (name) => api.post('schools',{name,exam_type:'tf'},'return=minimal'),
+  addW:   (name) => api.post('schools',{name,exam_type:'word'},'return=minimal'),
+  delTF:  (name) => api.del('schools?name=eq.'+encodeURIComponent(name)+'&exam_type=eq.tf'),
+  delW:   (name) => api.del('schools?name=eq.'+encodeURIComponent(name)+'&exam_type=eq.word')
 };
+async function getTFSchoolNames(){ try{ const r=await schoolsDB.getTF(); return Array.isArray(r)?r.map(s=>s.name):['기본']; }catch{ return['기본']; } }
+async function getWSchoolNames(){  try{ const r=await schoolsDB.getW();  return Array.isArray(r)?r.map(s=>s.name):['기본']; }catch{ return['기본']; } }
 
 // ── PIN 설정 (변경하려면 이 값만 수정) ──
 const ADMIN_PIN = '1234';
@@ -409,7 +413,7 @@ async function renderAList(){
   let exams=[];
   try{ exams=await tfDB.getExams(); if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams)); }
   catch(e){ W('<div class="empty">⚠️ 로드 실패<br><small>'+e.message+'</small></div>'); return; }
-  const sl=schools.get();
+  const sl=await getTFSchoolNames();
   const opts=sl.map(s=>'<option value="'+s+'"'+(s===aTempSchool?' selected':'')+'>'+s+'</option>').join('');
 
   if(aTab==='create'){
@@ -428,17 +432,16 @@ async function renderAList(){
   const grouped={};
   sl.forEach(s=>grouped[s]=[]);
   exams.forEach(e=>{ const s=e.school||'기본'; if(!grouped[s])grouped[s]=[]; grouped[s].push(e); });
-  const allS=[...new Set([...sl,...Object.keys(grouped)])];
-  const filterChips=['전체',...allS].map(s=>{
+  const filterChips=['전체',...sl].map(s=>{
     const on=aFilterSchool===s;
     return '<button data-school="'+s+'" onclick="aFilterSchool=this.dataset.school;renderAList()" style="padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;background:'+(on?'#2f7af5':'white')+';color:'+(on?'white':'rgba(28,28,30,0.55)')+';border-color:'+(on?'#2f7af5':'rgba(0,0,0,0.1)')+';">'+s+'</button>';
   }).join('');
 
   let h=aTabBar()
     +'<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">'+filterChips+'</div>'
-    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button class="btn btn-gray" onclick="aStep=\'schools\';render()">🏫 학교 관리</button></div>';
+    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button class="btn btn-gray" onclick="aStep=\'schools\';render()">학교 관리</button></div>';
 
-  const showS=aFilterSchool==='전체'?allS:[aFilterSchool];
+  const showS=aFilterSchool==='전체'?sl:[aFilterSchool];
   let hasAny=false;
   showS.forEach(school=>{
     const list=grouped[school]||[];
@@ -447,10 +450,10 @@ async function renderAList(){
     if(aFilterSchool==='전체'){
       h+='<div style="margin-bottom:14px;">'
         +'<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:white;border-radius:12px;border:1px solid rgba(0,0,0,0.08);margin-bottom:6px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,0.05);" onclick="toggleF(\''+fid+'\')">'
-        +'<span style="font-size:18px;">🏫</span><span style="font-size:14px;font-weight:700;flex:1;">'+school+'</span>'
+        +'<span style="font-size:14px;font-weight:700;flex:1;">'+school+'</span>'
         +'<span style="font-size:12px;color:rgba(28,28,30,0.45);">'+list.length+'개</span>'
-        +'<span class="school-arrow open" id="ar_'+fid+'">›</span></div>'
-        +'<div class="school-exams open" id="'+fid+'" style="padding-left:10px;">'+tfExamListHTML(list,school)+'</div></div>';
+        +'<span style="font-size:14px;color:rgba(28,28,30,0.3);transition:transform 0.2s;display:inline-block;" id="ar_'+fid+'">›</span></div>'
+        +'<div id="'+fid+'" style="padding-left:10px;display:none;">'+tfExamListHTML(list,school)+'</div></div>';
     } else { h+=tfExamListHTML(list,school); }
   });
   if(!hasAny) h+='<div class="empty"><div style="font-size:36px;margin-bottom:12px;">📋</div>시험이 없어요</div>';
@@ -459,14 +462,11 @@ async function renderAList(){
 
 function tfExamListHTML(list,school){
   let html='';
-  list.forEach(function(e,i){
+  list.forEach(function(e){
     const safe=e.name.replace(/"/g,'&quot;').replace(/'/g,'&#39;');
     const sLabel=aFilterSchool==='전체'?'':' · '+(e.school||'기본');
     html+='<div class="exam-item" data-id="'+e.id+'">'
-      +'<div class="ord-btns">'
-      +'<button class="ord-btn" '+(i===0?'disabled':'')+' onclick="tfMoveE(\''+e.id+'\',\''+school+'\','+i+',-1,event)">▲</button>'
-      +'<button class="ord-btn" '+(i===list.length-1?'disabled':'')+' onclick="tfMoveE(\''+e.id+'\',\''+school+'\','+i+',1,event)">▼</button>'
-      +'</div>'
+      +'<div style="cursor:grab;padding:8px 10px;color:rgba(28,28,30,0.25);font-size:18px;line-height:1;touch-action:none;user-select:none;-webkit-user-select:none;" onmousedown="tfDragStart(event,\''+e.id+'\',\''+school+'\')" ontouchstart="tfDragStart(event,\''+e.id+'\',\''+school+'\')" onclick="event.stopPropagation()">⠿</div>'
       +'<div style="flex:1;cursor:pointer;min-width:0;" onclick="goADetail(\''+e.id+'\')">'
       +'<div style="font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">'+e.name+'</div>'
       +'<div style="font-size:12px;color:rgba(28,28,30,0.45);margin-top:2px;">'+e.questions+'문항'+sLabel+'</div>'
@@ -482,18 +482,58 @@ function tfExamListHTML(list,school){
 function toggleF(id){
   const el=document.getElementById(id),ar=document.getElementById('ar_'+id);
   if(!el)return;
-  el.classList.toggle('open');
-  if(ar)ar.classList.toggle('open');
+  const isOpen=el.style.display!=='none';
+  el.style.display=isOpen?'none':'block';
+  if(ar)ar.style.transform=isOpen?'rotate(0deg)':'rotate(90deg)';
 }
 
-async function tfMoveE(id,school,idx,dir,ev){
-  ev.stopPropagation();
+// T/F 드래그앤드롭
+let _tfDrag={active:false,id:null,school:null,el:null,ghost:null,offsetY:0};
+function tfDragStart(e,id,school){
+  e.stopPropagation();
+  const item=e.currentTarget.closest('.exam-item');if(!item)return;
+  const touch=e.touches?e.touches[0]:e;
+  const rect=item.getBoundingClientRect();
+  _tfDrag={active:true,id,school,el:item,ghost:null,offsetY:touch.clientY-rect.top};
+  const g=item.cloneNode(true);
+  g.style.cssText='position:fixed;left:'+rect.left+'px;top:'+rect.top+'px;width:'+rect.width+'px;opacity:0.8;pointer-events:none;z-index:999;box-shadow:0 8px 24px rgba(0,0,0,0.2);border-radius:12px;background:white;';
+  document.body.appendChild(g);_tfDrag.ghost=g;
+  item.style.opacity='0.3';
+  document.addEventListener(e.touches?'touchmove':'mousemove',tfDragMove,{passive:false});
+  document.addEventListener(e.touches?'touchend':'mouseup',tfDragEnd);
+}
+function tfDragMove(e){
+  if(!_tfDrag.active||!_tfDrag.ghost)return;
+  e.preventDefault();
+  const touch=e.touches?e.touches[0]:e;
+  _tfDrag.ghost.style.top=(touch.clientY-_tfDrag.offsetY)+'px';
+}
+async function tfDragEnd(e){
+  if(!_tfDrag.active)return;
+  document.removeEventListener('touchmove',tfDragMove);
+  document.removeEventListener('mousemove',tfDragMove);
+  document.removeEventListener('touchend',tfDragEnd);
+  document.removeEventListener('mouseup',tfDragEnd);
+  const ghost=_tfDrag.ghost,fromEl=_tfDrag.el;
+  if(fromEl)fromEl.style.opacity='';
+  if(ghost)ghost.style.display='none';
+  const touch=e.changedTouches?e.changedTouches[0]:e;
+  const pts=document.elementsFromPoint?document.elementsFromPoint(touch.clientX,touch.clientY):[];
+  if(ghost)ghost.remove();
+  const target=pts.find(el=>el.classList&&el.classList.contains('exam-item')&&el.dataset.id&&el!==fromEl);
+  const fromId=_tfDrag.id,school=_tfDrag.school;
+  _tfDrag={active:false,id:null,school:null,el:null,ghost:null,offsetY:0};
+  if(target&&target.dataset.id!==fromId){ await tfReorderExams(school,fromId,target.dataset.id); }
+  else { renderAList(); }
+}
+async function tfReorderExams(school,fromId,toId){
   const exams=await tfDB.getExams();
   const list=exams.filter(x=>(x.school||'기본')===school).sort((a,b)=>(a.order_index||0)-(b.order_index||0));
-  const tgt=idx+dir; if(tgt<0||tgt>=list.length)return;
-  const a=list[idx],b=list[tgt];
-  await tfDB.patchOrder(a.id,b.order_index??tgt);
-  await tfDB.patchOrder(b.id,a.order_index??idx);
+  const fi=list.findIndex(x=>x.id===fromId),ti=list.findIndex(x=>x.id===toId);
+  if(fi<0||ti<0||fi===ti){renderAList();return;}
+  const a=list[fi],b=list[ti];
+  await tfDB.patchOrder(a.id,b.order_index??ti);
+  await tfDB.patchOrder(b.id,a.order_index??fi);
   renderAList();
 }
 
@@ -501,9 +541,9 @@ let schMgmtSchool='기본';
 
 async function renderASchools(){
   W('<div class="loading"><div class="spinner"></div></div>');
+  const sl=await getTFSchoolNames();
   let allStudents=[];
   try{ allStudents=await studentsDB.getAll(); if(!Array.isArray(allStudents))allStudents=[]; }catch(e){}
-  const sl=[...new Set(['기본',...(await tfDB.getExams().then(r=>Array.isArray(r)?r.map(e=>e.school||'기본'):[]).catch(()=>[]))])];
   const schoolTags=sl.map(s=>'<span class="school-tag">'+s+(s==='기본'?'':'<span class="stag-del" onclick="doDelSchool(\''+s+'\')">×</span>')+'</span>').join('');
   const schoolOpts=sl.map(s=>'<option value="'+s+'"'+(s===schMgmtSchool?' selected':'')+'>'+s+'</option>').join('');
   const studs=allStudents.filter(s=>s.school===schMgmtSchool);
@@ -511,15 +551,13 @@ async function renderASchools(){
     ? studs.map(s=>'<span class="school-tag">'+s.name+'<span class="stag-del" onclick="doDelStudent('+s.id+')">×</span></span>').join('')
     : '<span style="font-size:12px;color:rgba(28,28,30,0.35);">등록된 학생이 없어요</span>';
 
-  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><button class="btn btn-gray" onclick="aStep=\'list\';aTab=\'view\';render()">← 뒤로</button><div style="font-size:15px;font-weight:700;">🏫 학교 · 학생 관리</div></div>'
-    // 학교 관리
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><button class="btn btn-gray" onclick="aStep=\'list\';aTab=\'view\';render()">← 뒤로</button><div style="font-size:15px;font-weight:700;">학교 · 학생 관리 (T/F)</div></div>'
     +'<div class="card"><div class="sec-title">학교</div>'
     +'<div style="display:flex;flex-wrap:wrap;margin-bottom:12px;">'+schoolTags+'</div>'
     +'<div style="display:flex;gap:8px;">'
     +'<input class="inp" id="newSch" placeholder="새 학교명" style="margin:0;flex:1;" onkeydown="if(event.key===\'Enter\')doAddSchool()">'
     +'<button class="btn btn-blue" style="margin:0;padding:11px 16px;" onclick="doAddSchool()">추가</button>'
     +'</div></div>'
-    // 학생 명단 관리
     +'<div class="card"><div class="sec-title">학생 명단</div>'
     +'<div class="lbl">학교 선택</div>'
     +'<div class="sel-wrap" style="margin-bottom:12px;"><select class="sel" id="schMgmtSel" onchange="schMgmtSchool=this.value;renderASchools()">'+schoolOpts+'</select></div>'
@@ -530,8 +568,8 @@ async function renderASchools(){
     +'</div></div>'
     +'<div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;">💡 \'기본\'은 삭제할 수 없어요.</div>');
 }
-function doAddSchool(){ const inp=document.getElementById('newSch'),n=inp?inp.value.trim():''; if(!n){toast('학교명을 입력해주세요');return;} schools.add(n);toast('추가됐어요 ✅');renderASchools(); }
-function doDelSchool(n){ if(!confirm('"'+n+'" 학교를 삭제할까요?'))return; schools.del(n);renderASchools(); }
+async function doAddSchool(){ const inp=document.getElementById('newSch'),n=inp?inp.value.trim():''; if(!n){toast('학교명을 입력해주세요');return;} await schoolsDB.addTF(n);toast('추가됐어요 ✅');renderASchools(); }
+async function doDelSchool(n){ if(!confirm('"'+n+'" 학교를 삭제할까요?'))return; await schoolsDB.delTF(n);renderASchools(); }
 async function doAddStudent(){
   const inp=document.getElementById('newStud'),n=inp?inp.value.trim():'';
   if(!n){toast('이름을 입력해주세요');return;}
@@ -561,7 +599,7 @@ async function goACreate(){
 
 async function renderAAnswers(){
   const filled=aTempAnswers.filter(x=>x==='T'||x==='F').length;
-  const sl=schools.get();
+  const sl=await getTFSchoolNames();
   const schoolOpts=sl.map(s=>'<option value="'+s+'"'+(s===aTempSchool?' selected':'')+'>'+s+'</option>').join('');
 
   // 학생 목록 로드
@@ -802,9 +840,8 @@ async function renderSEntry(){
   let exams=[];
   try{ exams=await tfDB.getExams(); if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams)); }
   catch(e){ W('<div class="empty">⚠️ 로드 실패<br><small>'+e.message+'</small></div>'); return; }
-  const dbS=[...new Set(exams.map(e=>e.school||'기본'))];
-  const allS=[...new Set([...schools.get(),...dbS])].sort();
-  const opts=allS.map(s=>'<option value="'+s+'"'+(s===sSchool?' selected':'')+'>'+s+'</option>').join('');
+  const sl=await getTFSchoolNames();
+  const opts=sl.map(s=>'<option value="'+s+'"'+(s===sSchool?' selected':'')+'>'+s+'</option>').join('');
   W('<div style="padding:36px 0 20px;">'
     +'<div style="text-align:center;margin-bottom:28px;">'
     +'<div style="font-size:40px;margin-bottom:12px;">✏️</div>'
@@ -952,7 +989,7 @@ async function renderWAdmin(){
   if(waStep==='list')          renderWAList();
   else if(waStep==='create')   await renderWACreate();
   else if(waStep==='detail')   await renderWADetail();
-  else if(waStep==='schools')  await renderASchools();
+  else if(waStep==='schools')  await renderWSchoolsPage();
 }
 
 function waTabBar(){
@@ -968,7 +1005,7 @@ async function renderWAList(){
   let exams=[];
   try{ exams=await wDB.getExams(); if(!Array.isArray(exams)) throw new Error(JSON.stringify(exams)); }
   catch(e){ W('<div class="empty">⚠️ 로드 실패<br><small style="color:#d93025;">'+e.message+'</small></div>'); return; }
-  const sl=schools.get();
+  const sl=await getWSchoolNames();
   const opts=sl.map(s=>'<option value="'+s+'"'+(s===waTempSchool?' selected':'')+'>'+s+'</option>').join('');
 
   if(waTab==='create'){
@@ -985,17 +1022,16 @@ async function renderWAList(){
   const grouped={};
   sl.forEach(s=>grouped[s]=[]);
   exams.forEach(e=>{ const s=e.school||'기본'; if(!grouped[s])grouped[s]=[]; grouped[s].push(e); });
-  const allS=[...new Set([...sl,...Object.keys(grouped)])];
-  const filterChips=['전체',...allS].map(s=>{
+  const filterChips=['전체',...sl].map(s=>{
     const on=waFilterSchool===s;
     return '<button data-school="'+s+'" onclick="waFilterSchool=this.dataset.school;renderWAList()" style="padding:6px 14px;border-radius:20px;border:1.5px solid;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:inherit;background:'+(on?'#2f7af5':'white')+';color:'+(on?'white':'rgba(28,28,30,0.55)')+';border-color:'+(on?'#2f7af5':'rgba(0,0,0,0.1)')+';">'+s+'</button>';
   }).join('');
 
   let h=waTabBar()
     +'<div style="display:flex;gap:6px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none;">'+filterChips+'</div>'
-    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button class="btn btn-gray" onclick="waStep=\'schools\';render()">🏫 학교 관리</button></div>';
+    +'<div style="display:flex;justify-content:flex-end;margin-bottom:10px;"><button class="btn btn-gray" onclick="waStep=\'schools\';render()">학교 관리</button></div>';
 
-  const showS=waFilterSchool==='전체'?allS:[waFilterSchool];
+  const showS=waFilterSchool==='전체'?sl:[waFilterSchool];
   let hasAny=false;
   showS.forEach(school=>{
     const list=grouped[school]||[];
@@ -1004,7 +1040,7 @@ async function renderWAList(){
     if(waFilterSchool==='전체'){
       h+='<div style="margin-bottom:14px;">'
         +'<div style="display:flex;align-items:center;gap:8px;padding:11px 14px;background:white;border-radius:12px;border:1px solid rgba(0,0,0,0.08);margin-bottom:6px;cursor:pointer;box-shadow:0 1px 6px rgba(0,0,0,0.05);" onclick="toggleWF(\''+fid+'\')">'
-        +'<span style="font-size:18px;">🏫</span><span style="font-size:14px;font-weight:700;flex:1;">'+school+'</span>'
+        +'<span style="font-size:14px;font-weight:700;flex:1;">'+school+'</span>'
         +'<span style="font-size:12px;color:rgba(28,28,30,0.45);">'+list.length+'개</span>'
         +'<span id="war_'+fid+'" style="font-size:14px;color:rgba(28,28,30,0.3);transition:transform 0.2s;display:inline-block;transform:rotate(90deg);">›</span></div>'
         +'<div id="'+fid+'" style="padding-left:10px;">'+wExamListHTML(list,school)+'</div></div>';
@@ -1230,12 +1266,21 @@ async function changeWExamType(id,type,btn){
   else toast('변경 실패');
 }
 
-function renderWASchools(){
-  aStep='schools'; waStep='schools';
-  renderASchools();
+async function renderWSchoolsPage(){
+  W('<div class="loading"><div class="spinner"></div></div>');
+  const sl=await getWSchoolNames();
+  const schoolTags=sl.map(s=>'<span class="school-tag">'+s+(s==='기본'?'':'<span class="stag-del" onclick="doDelWSchool(\''+s+'\')">×</span>')+'</span>').join('');
+  W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;"><button class="btn btn-gray" onclick="waStep=\'list\';waTab=\'view\';render()">← 뒤로</button><div style="font-size:15px;font-weight:700;">학교 관리 (단어시험)</div></div>'
+    +'<div class="card"><div class="sec-title">학교</div>'
+    +'<div style="display:flex;flex-wrap:wrap;margin-bottom:12px;">'+schoolTags+'</div>'
+    +'<div style="display:flex;gap:8px;">'
+    +'<input class="inp" id="newWSch" placeholder="새 학교명" style="margin:0;flex:1;" onkeydown="if(event.key===\'Enter\')doAddWSchool()">'
+    +'<button class="btn btn-blue" style="margin:0;padding:11px 16px;" onclick="doAddWSchool()">추가</button>'
+    +'</div></div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.45);text-align:center;">💡 \'기본\'은 삭제할 수 없어요.</div>');
 }
-function doWAddSchool(){ doAddSchool(); }
-function doWDelSchool(n){ doDelSchool(n); }
+async function doAddWSchool(){ const inp=document.getElementById('newWSch'),n=inp?inp.value.trim():''; if(!n){toast('학교명을 입력해주세요');return;} await schoolsDB.addW(n);toast('추가됐어요 ✅');renderWSchoolsPage(); }
+async function doDelWSchool(n){ if(!confirm('"'+n+'" 학교를 삭제할까요?'))return; await schoolsDB.delW(n);renderWSchoolsPage(); }
 
 // ══════════════════════════════════════════════
 //  단어시험 — 학생
@@ -1262,9 +1307,8 @@ async function renderWSEntry(){
     W('<div class="empty">⚠️ 로드 실패<br><small style="color:#d93025;word-break:break-all;">'+e.message+'</small></div>');
     return;
   }
-  const dbS=[...new Set(exams.map(e=>e.school||'기본'))];
-  const allS=[...new Set([...schools.get(),...dbS])].sort();
-  const opts=allS.map(s=>'<option value="'+s+'"'+(s===wsSchool?' selected':'')+'>'+s+'</option>').join('');
+  const wsl=await getWSchoolNames();
+  const opts=wsl.map(s=>'<option value="'+s+'"'+(s===wsSchool?' selected':'')+'>'+s+'</option>').join('');
   W('<div style="padding:32px 0 20px;">'
     +'<div style="text-align:center;margin-bottom:28px;">'
     +'<div style="font-size:40px;margin-bottom:12px;">📝</div>'
@@ -1538,7 +1582,6 @@ const STATUS_PER_PAGE=10;
 function statusTabBar(){
   return '<div style="margin-bottom:16px;">'
     +'<div style="font-size:16px;font-weight:700;">📊 현황</div>'
-    +'<div style="font-size:12px;color:rgba(28,28,30,0.45);margin-top:3px;">응시 이력이 있는 시험만 표시 · 최신순</div>'
     +'</div>';
 }
 
@@ -1567,14 +1610,15 @@ async function renderStatusTab(){
   const tfSubmitted=new Set(tfResults.map(r=>r.exam_id));
   const wSubmitted=new Set(wResults.map(r=>r.exam_id));
 
-  // 통합 시험 목록 (응시 이력 있는 것만)
+  // 전체 시험 포함
   let allExams=[];
-  tfExams.forEach(e=>{ if(tfSubmitted.has(e.id)) allExams.push({...e, _type:'tf'}); });
-  wExams.forEach(e=>{ if(wSubmitted.has(e.id)) allExams.push({...e, _type:'word'}); });
+  tfExams.forEach(e=>{ allExams.push({...e, _type:'tf'}); });
+  wExams.forEach(e=>{ allExams.push({...e, _type:'word'}); });
 
-  // 완료 여부 사전 계산 (테스트 이름 제외)
+  // 완료 여부 사전 계산 (테스트 이름 제외, 응시 이력 있는 것만)
   const allDoneIds=new Set();
   allExams.forEach(function(exam){
+    if(!(exam._type==='tf'?tfSubmitted:wSubmitted).has(exam.id))return;
     const res=(exam._type==='tf'?tfResults:wResults).filter(r=>r.exam_id===exam.id&&!TEST_NAMES.includes(r.student_name));
     const studs=(Array.isArray(exam.students)&&exam.students.length>0?exam.students:[...new Set(res.map(r=>r.student_name))]).filter(n=>!TEST_NAMES.includes(n));
     if(!studs.length)return;
@@ -1587,10 +1631,16 @@ async function renderStatusTab(){
     if(isDone)allDoneIds.add(exam.id);
   });
 
-  // 완료된 시험은 맨 아래, 같은 그룹 내에서는 최신순
+  // 3단계 정렬: 응시중(0) > 미응시(1) > 완료(2), 그룹 내 최신순
   allExams.sort(function(a,b){
-    const aDone=allDoneIds.has(a.id), bDone=allDoneIds.has(b.id);
-    if(aDone!==bDone)return aDone?1:-1;
+    function grp(exam){
+      const hasSub=(exam._type==='tf'?tfSubmitted:wSubmitted).has(exam.id);
+      if(!hasSub)return 1;
+      if(allDoneIds.has(exam.id))return 2;
+      return 0;
+    }
+    const diff=grp(a)-grp(b);
+    if(diff!==0)return diff;
     return (b.created_at||0)-(a.created_at||0);
   });
 
