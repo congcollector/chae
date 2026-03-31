@@ -40,21 +40,21 @@ position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
 background: white;
 border-top: 1px solid rgba(0,0,0,0.1);
 display: flex;
-padding: 6px 0;
-padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+padding: 0;
+padding-bottom: env(safe-area-inset-bottom, 0px);
 }
 .btab {
 flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
-gap: 3px; border: none; cursor: pointer; font-family: inherit;
+gap: 0; border: none; cursor: pointer; font-family: inherit;
 background: transparent;
-padding: 8px 4px;
+padding: 12px 4px;
 transition: opacity 0.15s;
 min-width: 0;
 border-top: 2.5px solid transparent;
 }
 .btab:active { opacity: 0.6; }
-.btab-ico  { font-size: clamp(18px, 4vw, 22px); line-height: 1; }
-.btab-lbl  { font-size: clamp(9px, 2vw, 11px); font-weight: 700; color: rgba(28,28,30,0.35); letter-spacing: 0.1px; white-space: nowrap; }
+.btab-ico  { display: none; }
+.btab-lbl  { font-size: clamp(11px, 2.5vw, 13px); font-weight: 700; color: rgba(28,28,30,0.35); letter-spacing: 0.1px; white-space: nowrap; }
 .btab.active { border-top-color: #2f7af5; }
 .btab.active .btab-lbl { color: #2f7af5; }
 .btab-indicator { display: none; }
@@ -198,17 +198,14 @@ border-top: 2.5px solid transparent;
 
 <div class="bottom-tab-bar">
   <button class="btab active" id="btab-tf" onclick="switchTab('tf')">
-    <span class="btab-ico">✏️</span>
     <span class="btab-lbl">T/F 시험</span>
     <span class="btab-indicator"></span>
   </button>
   <button class="btab" id="btab-word" onclick="switchTab('word')">
-    <span class="btab-ico">🔤</span>
     <span class="btab-lbl">단어시험</span>
     <span class="btab-indicator"></span>
   </button>
   <button class="btab" id="btab-status" onclick="switchTab('status')" style="display:none;">
-    <span class="btab-ico">📊</span>
     <span class="btab-lbl">현황</span>
     <span class="btab-indicator"></span>
   </button>
@@ -413,11 +410,32 @@ async function renderAList(){
   const opts=sl.map(s=>'<option value="'+s+'"'+(s===aTempSchool?' selected':'')+'>'+s+'</option>').join('');
 
   if(aTab==='create'){
+    // 전체 학생 목록 로드 (학교 구분 없이)
+    let studs=[];
+    try{ studs=await studentsDB.getAll(); if(!Array.isArray(studs))studs=[]; }catch(e){}
+    // 디폴트: 처음 진입 시 전체 선택
+    const isAllMode = aTempStudents.length===0 || aTempStudents.length===studs.length;
+    const allSel = isAllMode && studs.length>0;
+    const studBtns=studs.map(s=>{
+      const on=!allSel&&aTempStudents.includes(s.name);
+      return '<button onclick="toggleAStudent(\''+s.name+'\')" style="padding:6px 13px;border-radius:20px;border:2px solid;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;background:'+(on?'#2f7af5':'white')+';color:'+(on?'white':'rgba(28,28,30,0.55)')+';border-color:'+(on?'#2f7af5':'rgba(0,0,0,0.1)')+';">'+s.name+'</button>';
+    }).join('');
+    const allBtn='<button onclick="toggleAAllStudents()" style="padding:6px 13px;border-radius:20px;border:2px solid;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;background:'+(allSel?'#1a9e45':'white')+';color:'+(allSel?'white':'rgba(28,28,30,0.55)')+';border-color:'+(allSel?'#1a9e45':'rgba(0,0,0,0.1)')+';">전체</button>';
+    const addBtn='<button onclick="doAddStudentInline(\'tf\')" style="width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,0,0,0.1);background:#f2f2f7;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;line-height:1;">+</button>';
+
     W(aTabBar()+'<div class="card"><div class="sec-title">새 시험 만들기</div>'
-      +'<div class="lbl">학교</div><div class="sel-wrap"><select class="sel" id="aSchool" onchange="aTempSchool=this.value">'+opts+'</select></div>'
-      +'<div class="lbl">시험 이름</div><input class="inp" id="aName" placeholder="예) 3월 4주차 Test" value="'+aTempName+'">'
-      +'<div class="lbl">문항 수</div><input class="inp inp-sm" id="aQ" type="number" min="1" max="60" value="'+aTempQ+'">'
-      +'<button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button></div>');
+      +'<div class="lbl">학교</div>'
+      +'<div class="sel-wrap"><select class="sel" id="aSchool" onchange="aTempSchool=this.value">'+opts+'</select></div>'
+      +'<div class="lbl">시험 이름</div>'
+      +'<input class="inp" id="aName" placeholder="예) 3월 4주차 Test" value="'+aTempName+'">'
+      +'<div class="lbl">문항 수</div>'
+      +'<input class="inp inp-sm" id="aQ" type="number" min="1" max="60" value="'+aTempQ+'">'
+      +'<div class="lbl">응시 학생</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">'
+      +(studs.length?allBtn+studBtns:'')+addBtn
+      +'</div>'
+      +'</div>'
+      +'<button class="btn btn-blue btn-full" onclick="goACreate()">정답 등록하기 →</button>');
     return;
   }
 
@@ -540,14 +558,18 @@ async function doDelStudent(id){
   renderASchools();
 }
 
-function goACreate(){
-  const name=document.getElementById('aName').value.trim();
-  const q=parseInt(document.getElementById('aQ').value);
+async function goACreate(){
+  const name=document.getElementById('aName')?.value.trim();
+  const q=parseInt(document.getElementById('aQ')?.value);
   const school=document.getElementById('aSchool')?.value||aTempSchool;
   if(!name){toast('시험 이름을 입력해주세요');return;}
   if(!q||q<1){toast('문항 수를 입력해주세요');return;}
   aTempName=name;aTempQ=q;aTempSchool=school;
-  if(!aEditId){aTempAnswers=new Array(q).fill('');aTempStudents=[];}
+  // 전체 모드(빈 배열)면 실제 전체 학생 목록으로 저장
+  if(aTempStudents.length===0){
+    try{ const all=await studentsDB.getAll(); if(Array.isArray(all)) aTempStudents=all.map(s=>s.name); }catch(e){}
+  }
+  if(!aEditId){aTempAnswers=new Array(q).fill('');}
   aStep='answers';render();
 }
 
@@ -594,19 +616,61 @@ async function renderAAnswers(){
 }
 
 function toggleAStudent(name){
-  const idx=aTempStudents.indexOf(name);
-  if(idx>=0) aTempStudents.splice(idx,1);
-  else aTempStudents.push(name);
   const nm=document.getElementById('aName'); if(nm) aTempName=nm.value||aTempName;
-  const q=document.getElementById('aQ'); if(q) aTempQ=parseInt(q.value)||aTempQ;
-  renderAAnswers(); // async지만 fire-and-forget OK — 순서 보장 불필요
+  const q=document.getElementById('aQ'); if(q&&q.value) aTempQ=parseInt(q.value)||aTempQ;
+  // 전체 모드에서 개별 선택 시 → 해당 학생만 선택 상태로 시작
+  if(aTempStudents.length===0){
+    aTempStudents=[name];
+  } else {
+    const idx=aTempStudents.indexOf(name);
+    if(idx>=0) aTempStudents.splice(idx,1);
+    else aTempStudents.push(name);
+  }
+  renderAList();
 }
 async function toggleAAllStudents(){
-  let studs=[];
-  try{ studs=await studentsDB.getBySchool(aTempSchool); if(!Array.isArray(studs))studs=[]; }catch(e){}
-  if(aTempStudents.length===studs.length) aTempStudents=[];
-  else aTempStudents=studs.map(s=>s.name);
-  await renderAAnswers();
+  const nm=document.getElementById('aName'); if(nm) aTempName=nm.value||aTempName;
+  const q=document.getElementById('aQ'); if(q&&q.value) aTempQ=parseInt(q.value)||aTempQ;
+  // 전체 선택 → 빈 배열(전체모드 표시)
+  aTempStudents=[];
+  renderAList();
+}
+async function doAddStudentInline(type){
+  const n=prompt('추가할 학생 이름을 입력하세요');
+  if(!n||!n.trim()) return;
+  const name=n.trim();
+  if(type==='tf'){
+    const school=document.getElementById('aSchool')?.value||aTempSchool;
+    await studentsDB.add(name,school);
+    const nm=document.getElementById('aName'); if(nm) aTempName=nm.value||aTempName;
+    const q=document.getElementById('aQ'); if(q&&q.value) aTempQ=parseInt(q.value)||aTempQ;
+    // 개별 선택 모드면 추가 학생도 선택
+    if(aTempStudents.length>0) aTempStudents.push(name);
+    renderAList();
+  } else {
+    const school=document.getElementById('waSchool')?.value||waTempSchool;
+    await studentsDB.add(name,school);
+    const nm=document.getElementById('waName'); if(nm) waTempName=nm.value||waTempName;
+    if(waTempStudents.length>0) waTempStudents.push(name);
+    renderWAList();
+  }
+}
+
+function toggleWStudent(name){
+  const nm=document.getElementById('waName'); if(nm) waTempName=nm.value||waTempName;
+  if(waTempStudents.length===0){
+    waTempStudents=[name];
+  } else {
+    const idx=waTempStudents.indexOf(name);
+    if(idx>=0) waTempStudents.splice(idx,1);
+    else waTempStudents.push(name);
+  }
+  renderWAList();
+}
+async function toggleWAllStudents(){
+  const nm=document.getElementById('waName'); if(nm) waTempName=nm.value||waTempName;
+  waTempStudents=[];
+  renderWAList();
 }
 
 function setAns(i,v){
@@ -921,10 +985,29 @@ async function renderWAList(){
   const opts=sl.map(s=>'<option value="'+s+'"'+(s===waTempSchool?' selected':'')+'>'+s+'</option>').join('');
 
   if(waTab==='create'){
+    // 전체 학생 목록 로드 (학교 구분 없이)
+    let studs=[];
+    try{ studs=await studentsDB.getAll(); if(!Array.isArray(studs))studs=[]; }catch(e){}
+    const isAllMode = waTempStudents.length===0 || waTempStudents.length===studs.length;
+    const allSel = isAllMode && studs.length>0;
+    const studBtns=studs.map(s=>{
+      const on=!allSel&&waTempStudents.includes(s.name);
+      return '<button onclick="toggleWStudent(\''+s.name+'\')" style="padding:6px 13px;border-radius:20px;border:2px solid;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;background:'+(on?'#2f7af5':'white')+';color:'+(on?'white':'rgba(28,28,30,0.55)')+';border-color:'+(on?'#2f7af5':'rgba(0,0,0,0.1)')+';">'+s.name+'</button>';
+    }).join('');
+    const allBtn='<button onclick="toggleWAllStudents()" style="padding:6px 13px;border-radius:20px;border:2px solid;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;background:'+(allSel?'#1a9e45':'white')+';color:'+(allSel?'white':'rgba(28,28,30,0.55)')+';border-color:'+(allSel?'#1a9e45':'rgba(0,0,0,0.1)')+';">전체</button>';
+    const addBtn='<button onclick="doAddStudentInline(\'word\')" style="width:32px;height:32px;border-radius:50%;border:2px solid rgba(0,0,0,0.1);background:#f2f2f7;font-size:18px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;font-family:inherit;line-height:1;">+</button>';
+
     W(waTabBar()+'<div class="card"><div class="sec-title">새 단어시험</div>'
-      +'<div class="lbl">학교</div><div class="sel-wrap"><select class="sel" id="waSchool" onchange="waTempSchool=this.value">'+opts+'</select></div>'
-      +'<div class="lbl">시험 이름</div><input class="inp" id="waName" placeholder="예) 4월 1주차 단어시험" value="'+waTempName+'">'
-      +'<button class="btn btn-blue btn-full" onclick="goWACreate()">다음 →</button></div>');
+      +'<div class="lbl">학교</div>'
+      +'<div class="sel-wrap"><select class="sel" id="waSchool" onchange="waTempSchool=this.value">'+opts+'</select></div>'
+      +'<div class="lbl">시험 이름</div>'
+      +'<input class="inp" id="waName" placeholder="예) 4월 1주차 단어시험" value="'+waTempName+'">'
+      +'<div class="lbl">응시 학생</div>'
+      +'<div style="display:flex;flex-wrap:wrap;gap:6px;align-items:center;">'
+      +(studs.length?allBtn+studBtns:'')+addBtn
+      +'</div>'
+      +'</div>'
+      +'<button class="btn btn-blue btn-full" onclick="goWACreate()">단어 입력하기 →</button>');
     return;
   }
 
@@ -1001,11 +1084,16 @@ async function wMoveE(id,school,idx,dir,ev){
   renderWAList();
 }
 
-function goWACreate(){
-  const name=document.getElementById('waName').value.trim();
+async function goWACreate(){
+  const name=document.getElementById('waName')?.value.trim();
   const school=document.getElementById('waSchool')?.value||waTempSchool;
   if(!name){toast('시험 이름을 입력해주세요');return;}
-  waTempName=name;waTempSchool=school;waTempWords=[];
+  waTempName=name;waTempSchool=school;
+  // 전체 모드(빈 배열)면 실제 전체 학생 목록으로 저장
+  if(waTempStudents.length===0){
+    try{ const all=await studentsDB.getAll(); if(Array.isArray(all)) waTempStudents=all.map(s=>s.name); }catch(e){}
+  }
+  if(!waEditId) waTempWords=[];
   waStep='create';render();
 }
 
@@ -1027,64 +1115,23 @@ async function renderWACreate(){
       +'<button class="word-pair-del" onclick="wRemovePair('+i+')">×</button></div>';
   });
 
-  // 학생 목록 로드
-  let studs=[], studsErr='';
-  try{
-    studs=await studentsDB.getBySchool(waTempSchool);
-    if(!Array.isArray(studs)){ studsErr=JSON.stringify(studs); studs=[]; }
-  }catch(e){ studsErr=e.message; studs=[]; }
-  const allSel=studs.length>0&&waTempStudents.length===studs.length;
-  const studBtns=studs.map(s=>{
-    const on=waTempStudents.includes(s.name);
-    return '<button onclick="toggleWStudent(\''+s.name+'\')" style="padding:6px 13px;border-radius:20px;border:2px solid;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;background:'+(on?'#2f7af5':'white')+';color:'+(on?'white':'rgba(28,28,30,0.55)')+';border-color:'+(on?'#2f7af5':'rgba(0,0,0,0.1)')+';">'+s.name+'</button>';
-  }).join('');
-  const allBtn='<button onclick="toggleWAllStudents()" style="padding:6px 13px;border-radius:20px;border:2px solid;font-size:12px;font-weight:700;cursor:pointer;font-family:inherit;transition:all 0.15s;background:'+(allSel?'#1a9e45':'white')+';color:'+(allSel?'white':'rgba(28,28,30,0.55)')+';border-color:'+(allSel?'#1a9e45':'rgba(0,0,0,0.1)')+';">전체</button>';
-
   W('<div style="display:flex;align-items:center;gap:10px;margin-bottom:16px;">'
-    +'<button class="btn btn-gray" onclick="waStep=\'list\';render()">← 뒤로</button>'
+    +'<button class="btn btn-gray" onclick="waStep=\'list\';waTempWords=[];render()">← 뒤로</button>'
     +'<div style="font-size:15px;font-weight:700;">'+(waEditId?'시험 수정':'새 단어시험')+'</div></div>'
     +'<div class="card">'
-    +'<div class="lbl">학교</div><div class="sel-wrap"><select class="sel" id="waSchool2" onchange="waTempSchool=this.value;renderWACreate()">'+opts+'</select></div>'
     +'<div class="lbl">시험 이름</div><input class="inp" id="waName2" placeholder="예) 4월 1주차 단어시험" value="'+waTempName+'">'
     +'<div class="lbl">출제 방식</div>'
-    +'<div style="display:flex;gap:8px;margin-bottom:10px;">'
+    +'<div style="display:flex;gap:8px;margin-bottom:4px;">'
     +'<button class="type-btn'+(waTempType==='ko_to_en'?' on':'')+'" data-type="ko_to_en" onclick="waTempType=\'ko_to_en\';updateWTypeBtns()">한 → 영</button>'
     +'<button class="type-btn'+(waTempType==='en_to_ko'?' on':'')+'" data-type="en_to_ko" onclick="waTempType=\'en_to_ko\';updateWTypeBtns()">영 → 한</button>'
     +'<button class="type-btn'+(waTempType==='mix'?' on':'')+'" data-type="mix" onclick="waTempType=\'mix\';updateWTypeBtns()">섞어서</button>'
-    +'</div>'
-    +'<div class="lbl">응시 학생</div>'
-    +(studsErr?'<div style="font-size:11px;color:#d93025;margin-bottom:8px;">⚠️ '+studsErr+'</div>':'')
-    +(studs.length
-      ?'<div style="display:flex;flex-wrap:wrap;gap:6px;">'+allBtn+studBtns+'</div>'
-      :'<div style="font-size:12px;color:rgba(28,28,30,0.4);">학교 관리에서 학생을 먼저 추가해주세요<br><span style="color:rgba(28,28,30,0.3);font-size:11px;">현재 학교: '+waTempSchool+'</span></div>')
-    +'</div>'
+    +'</div></div>'
     +'<div class="card"><div class="sec-title">단어 목록</div>'
     +'<div id="wPairsContainer">'+pairsHTML+'</div>'
     +'<button class="btn btn-gray" style="width:100%;margin-top:4px;" onclick="wAddPairAndFocus()">+ 단어 추가</button></div>'
     +'<button class="btn btn-blue btn-full" onclick="saveWExam()">'+(waEditId?'수정 저장 ✓':'시험 저장 →')+'</button>');
 }
 
-function toggleWStudent(name){
-  // 현재 입력값 저장
-  const nm=document.getElementById('waName2'); if(nm) waTempName=nm.value||waTempName;
-  const pairs=document.querySelectorAll('#wPairsContainer .word-pair');
-  pairs.forEach(function(row,i){
-    const inputs=row.querySelectorAll('.inp');
-    if(waTempWords[i]){waTempWords[i].ko=inputs[0]?inputs[0].value:waTempWords[i].ko;waTempWords[i].en=inputs[1]?inputs[1].value:waTempWords[i].en;}
-  });
-  const idx=waTempStudents.indexOf(name);
-  if(idx>=0) waTempStudents.splice(idx,1);
-  else waTempStudents.push(name);
-  renderWACreate();
-}
-async function toggleWAllStudents(){
-  const nm=document.getElementById('waName2'); if(nm) waTempName=nm.value||waTempName;
-  let studs=[];
-  try{ studs=await studentsDB.getBySchool(waTempSchool); if(!Array.isArray(studs))studs=[]; }catch(e){}
-  if(waTempStudents.length===studs.length) waTempStudents=[];
-  else waTempStudents=studs.map(s=>s.name);
-  renderWACreate();
-}
 
 function wAddPairAndFocus(){
   // 현재 입력된 값 저장
@@ -1118,8 +1165,7 @@ function updateWTypeBtns(){
 async function saveWExam(){
   const nameEl=document.getElementById('waName2');
   const name=nameEl?nameEl.value.trim():waTempName;
-  const schoolEl=document.getElementById('waSchool2');
-  const school=schoolEl?schoolEl.value:waTempSchool;
+  const school=waTempSchool;
   const pairs=document.querySelectorAll('#wPairsContainer .word-pair');
   const words=[];
   pairs.forEach(row=>{
@@ -1528,26 +1574,7 @@ function statusTabBar(){
 async function renderStatusTab(){
   W('<div class="loading"><div class="spinner"></div></div>');
 
-  // 디버그: 각 테이블 접근 테스트
-  const debugResults = {};
-  for(const t of ['exams','results','word_exams','word_results','students']){
-    try{
-      const r = await api.get(t+'?limit=1');
-      debugResults[t] = Array.isArray(r) ? '✅ OK ('+r.length+'건)' : '❌ '+JSON.stringify(r).substring(0,80);
-    }catch(e){ debugResults[t]='❌ '+e.message; }
-  }
-
-  const debugHTML = Object.entries(debugResults).map(([t,v])=>
-    '<div style="font-size:11px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.06);">'
-    +'<b>'+t+'</b>: '+v+'</div>'
-  ).join('');
-
-  W('<div class="card" style="margin-bottom:16px;">'
-    +'<div class="sec-title">DB 연결 진단</div>'
-    +debugHTML
-    +'<button class="btn btn-blue btn-full" style="margin-top:12px;" onclick="renderStatusTab()">진단 완료 후 새로고침</button>'
-    +'</div>');
-  return; // 진단 후 아래 주석 제거
+  let tfExams=[], wExams=[], tfResults=[], wResults=[];
   try{
     tfExams=await tfDB.getExams();
     if(!Array.isArray(tfExams)) throw new Error('exams 로드 실패: '+JSON.stringify(tfExams));
