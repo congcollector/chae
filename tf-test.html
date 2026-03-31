@@ -339,9 +339,9 @@ function switchTab(tab){
   if(btn) btn.classList.add('active');
   render();
 }
-function render(){
-  if(currentTab==='status'){ renderStatusTab(); return; }
-  IS_ADMIN ? renderAdmin() : renderStudent();
+async function render(){
+  if(currentTab==='status'){ await renderStatusTab(); return; }
+  IS_ADMIN ? await renderAdmin() : renderStudent();
 }
 
 // ══════════════════════════════════════════════
@@ -388,9 +388,9 @@ const studentsDB = {
 // ══════════════════════════════════════════════
 //  어드민 라우터
 // ══════════════════════════════════════════════
-function renderAdmin(){
-  if(currentTab==='tf')   renderTFAdmin();
-  else                    renderWAdmin();
+async function renderAdmin(){
+  if(currentTab==='tf') await renderTFAdmin();
+  else                  await renderWAdmin();
 }
 
 // ══════════════════════════════════════════════
@@ -400,12 +400,12 @@ let aStep='list', aTab='create', aDetailId='', aDetailStudent='', aDetailTab='re
 let aTempName='', aTempQ=10, aTempAnswers=[], aEditId='', aTempSchool='기본', aTempStudents=[];
 let aFilterSchool='전체';
 
-function renderTFAdmin(){
-  if(aStep==='list')    renderAList();
-  else if(aStep==='answers') renderAAnswers();
-  else if(aStep==='detail')  renderADetail();
-  else if(aStep==='studet')  renderAStudentDetail();
-  else if(aStep==='schools') renderASchools();
+async function renderTFAdmin(){
+  if(aStep==='list')         renderAList();
+  else if(aStep==='answers') await renderAAnswers();
+  else if(aStep==='detail')  await renderADetail();
+  else if(aStep==='studet')  await renderAStudentDetail();
+  else if(aStep==='schools') await renderASchools();
 }
 
 function aTabBar(){
@@ -569,8 +569,11 @@ async function renderAAnswers(){
   const schoolOpts=sl.map(s=>'<option value="'+s+'"'+(s===aTempSchool?' selected':'')+'>'+s+'</option>').join('');
 
   // 학생 목록 로드
-  let studs=[];
-  try{ studs=await studentsDB.getBySchool(aTempSchool); if(!Array.isArray(studs))studs=[]; }catch(e){}
+  let studs=[], studsErr='';
+  try{
+    studs=await studentsDB.getBySchool(aTempSchool);
+    if(!Array.isArray(studs)){ studsErr=JSON.stringify(studs); studs=[]; }
+  }catch(e){ studsErr=e.message; studs=[]; }
 
   const allSel=studs.length>0&&aTempStudents.length===studs.length;
   const studBtns=studs.map(s=>{
@@ -592,9 +595,10 @@ async function renderAAnswers(){
     +'<div style="font-size:12px;color:rgba(28,28,30,0.5);" id="fillCnt">'+filled+'/'+aTempQ+' 등록됨 · '+aTempSchool+'</div></div></div>'
     +(aEditId?'<div class="card" style="padding:14px 18px;"><div class="lbl">학교 변경</div><div class="sel-wrap" style="margin:0;"><select class="sel" id="editSchool" onchange="aTempSchool=this.value">'+schoolOpts+'</select></div></div>':'')
     +'<div class="card"><div class="sec-title">응시 학생</div>'
+    +(studsErr?'<div style="font-size:11px;color:#d93025;margin-bottom:8px;">⚠️ '+studsErr+'</div>':'')
     +(studs.length
       ?'<div style="display:flex;flex-wrap:wrap;gap:6px;">'+allBtn+studBtns+'</div>'
-      :'<div style="font-size:12px;color:rgba(28,28,30,0.4);">학교 관리에서 학생을 먼저 추가해주세요</div>')
+      :'<div style="font-size:12px;color:rgba(28,28,30,0.4);">학교 관리에서 학생을 먼저 추가해주세요<br><span style="color:rgba(28,28,30,0.3);font-size:11px;">현재 학교: '+aTempSchool+'</span></div>')
     +'</div>'
     +'<div class="card"><div class="sec-title">정답 체크</div>'
     +'<table class="tbl"><thead><tr><th class="c0">#</th><th class="c1">True</th><th>False</th></tr></thead><tbody id="ansBody">'+rows+'</tbody></table>'
@@ -605,17 +609,16 @@ function toggleAStudent(name){
   const idx=aTempStudents.indexOf(name);
   if(idx>=0) aTempStudents.splice(idx,1);
   else aTempStudents.push(name);
-  // 현재 이름/문항수 입력값 보존
   const nm=document.getElementById('aName'); if(nm) aTempName=nm.value||aTempName;
   const q=document.getElementById('aQ'); if(q) aTempQ=parseInt(q.value)||aTempQ;
-  renderAAnswers();
+  renderAAnswers(); // async지만 fire-and-forget OK — 순서 보장 불필요
 }
 async function toggleAAllStudents(){
   let studs=[];
   try{ studs=await studentsDB.getBySchool(aTempSchool); if(!Array.isArray(studs))studs=[]; }catch(e){}
   if(aTempStudents.length===studs.length) aTempStudents=[];
   else aTempStudents=studs.map(s=>s.name);
-  renderAAnswers();
+  await renderAAnswers();
 }
 
 function setAns(i,v){
@@ -906,11 +909,11 @@ let waStep='list', waTab='create', waDetailId='', waDetailTab='results';
 let waTempName='', waTempSchool='기본', waTempWords=[], waTempImgB64='', waEditId='', waTempType='ko_to_en', waTempStudents=[];
 let waFilterSchool='전체';
 
-function renderWAdmin(){
-  if(waStep==='list')   renderWAList();
-  else if(waStep==='create') renderWACreate();
-  else if(waStep==='detail') renderWADetail();
-  else if(waStep==='schools')renderWASchools();
+async function renderWAdmin(){
+  if(waStep==='list')          renderWAList();
+  else if(waStep==='create')   await renderWACreate();
+  else if(waStep==='detail')   await renderWADetail();
+  else if(waStep==='schools')  await renderASchools();
 }
 
 function waTabBar(){
@@ -1037,8 +1040,11 @@ async function renderWACreate(){
   });
 
   // 학생 목록 로드
-  let studs=[];
-  try{ studs=await studentsDB.getBySchool(waTempSchool); if(!Array.isArray(studs))studs=[]; }catch(e){}
+  let studs=[], studsErr='';
+  try{
+    studs=await studentsDB.getBySchool(waTempSchool);
+    if(!Array.isArray(studs)){ studsErr=JSON.stringify(studs); studs=[]; }
+  }catch(e){ studsErr=e.message; studs=[]; }
   const allSel=studs.length>0&&waTempStudents.length===studs.length;
   const studBtns=studs.map(s=>{
     const on=waTempStudents.includes(s.name);
@@ -1059,9 +1065,10 @@ async function renderWACreate(){
     +'<button class="type-btn'+(waTempType==='mix'?' on':'')+'" data-type="mix" onclick="waTempType=\'mix\';updateWTypeBtns()">섞어서</button>'
     +'</div>'
     +'<div class="lbl">응시 학생</div>'
+    +(studsErr?'<div style="font-size:11px;color:#d93025;margin-bottom:8px;">⚠️ '+studsErr+'</div>':'')
     +(studs.length
       ?'<div style="display:flex;flex-wrap:wrap;gap:6px;">'+allBtn+studBtns+'</div>'
-      :'<div style="font-size:12px;color:rgba(28,28,30,0.4);">학교 관리에서 학생을 먼저 추가해주세요</div>')
+      :'<div style="font-size:12px;color:rgba(28,28,30,0.4);">학교 관리에서 학생을 먼저 추가해주세요<br><span style="color:rgba(28,28,30,0.3);font-size:11px;">현재 학교: '+waTempSchool+'</span></div>')
     +'</div>'
     +'<div class="card"><div class="sec-title">단어 목록</div>'
     +'<div id="wPairsContainer">'+pairsHTML+'</div>'
@@ -1548,24 +1555,10 @@ let statusFilter='all', statusPage=1;
 const STATUS_PER_PAGE=10;
 
 function statusTabBar(){
-  // 현재 탭 기준으로 T/F or 단어 탭바 출력
-  const isTF = currentTab==='tf';
-  const cA=isTF?(aTab==='create'):(waTab==='create');
-  const vA=isTF?(aTab==='view'):(waTab==='view');
-  const sA=true;
-  if(isTF){
-    return '<div class="atabs">'
-      +'<button data-tab="create" class="atab'+(cA?' on':'')+'" onclick="aTab=this.dataset.tab;renderAList()">➕ 새 시험</button>'
-      +'<button data-tab="view"   class="atab'+(vA?' on':'')+'" onclick="aTab=this.dataset.tab;renderAList()">학교별 보기</button>'
-      +'<button data-tab="status" class="atab on">📊 현황</button>'
-      +'</div>';
-  } else {
-    return '<div class="atabs">'
-      +'<button data-tab="create" class="atab'+(cA?' on':'')+'" onclick="waTab=this.dataset.tab;renderWAList()">➕ 새 시험</button>'
-      +'<button data-tab="view"   class="atab'+(vA?' on':'')+'" onclick="waTab=this.dataset.tab;renderWAList()">학교별 보기</button>'
-      +'<button data-tab="status" class="atab on">📊 현황</button>'
-      +'</div>';
-  }
+  return '<div style="margin-bottom:16px;">'
+    +'<div style="font-size:16px;font-weight:700;">📊 현황</div>'
+    +'<div style="font-size:12px;color:rgba(28,28,30,0.45);margin-top:3px;">응시 이력이 있는 시험만 표시 · 최신순</div>'
+    +'</div>';
 }
 
 async function renderStatusTab(){
@@ -1594,19 +1587,13 @@ async function renderStatusTab(){
   const tfSubmitted=new Set(tfResults.map(r=>r.exam_id));
   const wSubmitted=new Set(wResults.map(r=>r.exam_id));
 
-  // 통합 시험 목록 (응시 이력 있는 것만, 최신순)
+  // 통합 시험 목록 (응시 이력 있는 것만, 최신 생성순)
   let allExams=[];
   tfExams.forEach(e=>{ if(tfSubmitted.has(e.id)) allExams.push({...e, _type:'tf'}); });
   wExams.forEach(e=>{ if(wSubmitted.has(e.id)) allExams.push({...e, _type:'word'}); });
 
-  // 최신 응시일 기준 정렬
-  allExams.sort(function(a,b){
-    const rA=(a._type==='tf'?tfResults:wResults).filter(r=>r.exam_id===a.id);
-    const rB=(b._type==='tf'?tfResults:wResults).filter(r=>r.exam_id===b.id);
-    const tA=rA.length?Math.max(...rA.map(r=>r.submitted_at||0)):0;
-    const tB=rB.length?Math.max(...rB.map(r=>r.submitted_at||0)):0;
-    return tB-tA;
-  });
+  // 시험 생성일 기준 최신순 정렬
+  allExams.sort(function(a,b){ return (b.created_at||0)-(a.created_at||0); });
 
   // 학교별 학생 목록 구성 (전체 결과에서 추출)
   const allStudents=new Map(); // school → Set of names
