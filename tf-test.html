@@ -104,15 +104,6 @@ border-top: 2.5px solid transparent;
 .fix-banner { background: rgba(255,149,0,0.1); border: 1.5px solid rgba(255,149,0,0.3); border-radius: 12px; padding: 11px 14px; margin-bottom: 12px; font-size: 13px; color: #c4600a; font-weight: 600; }
 
 /* ── 단어시험 전용 ── */
-.upload-area { border: 2px dashed rgba(0,0,0,0.15); border-radius: 14px; padding: 36px 20px; text-align: center; cursor: pointer; background: #f9f9fb; transition: all 0.2s; }
-.upload-area:hover, .upload-area.drag { border-color: #2f7af5; background: rgba(47,122,245,0.04); }
-.upload-area input { display: none; }
-.upload-ico   { font-size: 32px; margin-bottom: 10px; }
-.upload-title { font-size: 15px; font-weight: 600; margin-bottom: 4px; }
-.upload-sub   { font-size: 12px; color: rgba(28,28,30,0.45); }
-.img-preview  { position: relative; border-radius: 12px; overflow: hidden; margin-bottom: 12px; background: #f2f2f7; border: 1px solid rgba(0,0,0,0.08); }
-.img-preview img { width: 100%; max-height: 300px; object-fit: contain; display: block; }
-.img-del { position: absolute; top: 8px; right: 8px; width: 28px; height: 28px; border-radius: 50%; background: rgba(0,0,0,0.55); border: none; color: white; font-size: 14px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
 .word-pair { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
 .word-pair input { margin: 0; flex: 1; }
 .word-pair-num { font-size: 11px; color: rgba(28,28,30,0.35); min-width: 18px; text-align: right; }
@@ -129,7 +120,6 @@ border-top: 2.5px solid transparent;
 .retry-card { background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); padding: 28px 20px; margin-bottom: 12px; box-shadow: 0 1px 8px rgba(0,0,0,0.06); text-align: center; }
 .retry-ko { font-size: 28px; font-weight: 700; margin-bottom: 6px; }
 .retry-hint { font-size: 13px; color: rgba(28,28,30,0.45); margin-bottom: 20px; }
-.ai-banner { background: rgba(47,122,245,0.07); border: 1.5px solid rgba(47,122,245,0.2); border-radius: 12px; padding: 14px 16px; margin-bottom: 12px; text-align: center; }
 
 /* ── 공통 리스트/결과 ── */
 .score-box { text-align: center; padding: 28px 20px; background: white; border-radius: 16px; border: 1px solid rgba(0,0,0,0.08); box-shadow: 0 1px 8px rgba(0,0,0,0.06); margin-bottom: 12px; }
@@ -232,8 +222,6 @@ border-top: 2.5px solid transparent;
 // ══════════════════════════════════════════════
 const SUPA_URL  = 'https://pithlzhuqezeesprcbze.supabase.co';
 const SUPA_KEY  = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBpdGhsemh1cWV6ZWVzcHJjYnplIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzQwMDc1NjgsImV4cCI6MjA4OTU4MzU2OH0.GFBnUKHQ_B_GQEQIy9nBWr38gnok_b__fAyTX7v7tNQ';
-const CLAUDE_KEY = 'YOUR_CLAUDE_API_KEY';
-
 const H = {'apikey':SUPA_KEY,'Authorization':'Bearer '+SUPA_KEY,'Content-Type':'application/json'};
 const api = {
   get:   p     => fetch(SUPA_URL+'/rest/v1/'+p,{headers:H}).then(r=>r.json()),
@@ -364,8 +352,8 @@ const tfDB = {
 //  단어시험 — DB
 // ══════════════════════════════════════════════
 const wDB = {
-  getExams:    ()  => api.get('word_exams?order=school.asc,order_index.asc,created_at.desc'),
-  getBySchool: (s) => api.get('word_exams?school=eq.'+encodeURIComponent(s)+'&order=order_index.asc,created_at.desc'),
+  getExams:    ()  => api.get('word_exams?order=school.asc,order_index.asc'),
+  getBySchool: (s) => api.get('word_exams?school=eq.'+encodeURIComponent(s)+'&order=order_index.asc'),
   saveExam:    (e) => api.post('word_exams',{id:e.id,name:e.name,words:e.words,school:e.school||'기본',order_index:e.order_index||0,created_at:e.createdAt,exam_type:e.exam_type||'ko_to_en',students:e.students||[]},'resolution=merge-duplicates,return=representation'),
   patchOrder:  (id,oi) => api.patch('word_exams?id=eq.'+id,{order_index:oi}),
   patchType:   (id,t)  => api.patch('word_exams?id=eq.'+id,{exam_type:t}),
@@ -906,7 +894,7 @@ function goRetry(){
 //  단어시험 — 어드민
 // ══════════════════════════════════════════════
 let waStep='list', waTab='create', waDetailId='', waDetailTab='results';
-let waTempName='', waTempSchool='기본', waTempWords=[], waTempImgB64='', waEditId='', waTempType='ko_to_en', waTempStudents=[];
+let waTempName='', waTempSchool='기본', waTempWords=[], waEditId='', waTempType='ko_to_en', waTempStudents=[];
 let waFilterSchool='전체';
 
 async function renderWAdmin(){
@@ -1017,7 +1005,7 @@ function goWACreate(){
   const name=document.getElementById('waName').value.trim();
   const school=document.getElementById('waSchool')?.value||waTempSchool;
   if(!name){toast('시험 이름을 입력해주세요');return;}
-  waTempName=name;waTempSchool=school;waTempWords=[];waTempImgB64='';
+  waTempName=name;waTempSchool=school;waTempWords=[];
   waStep='create';render();
 }
 
@@ -1127,30 +1115,6 @@ function updateWTypeBtns(){
     btn.classList.toggle('on', btn.dataset.type===waTempType);
   });
 }
-function handleWAImg(ev){ const f=ev.target.files[0]; if(f)processWAImg(f); }
-function processWAImg(file){
-  const reader=new FileReader();
-  reader.onload=ev=>{ waTempImgB64=ev.target.result.split(',')[1]; renderWACreate(); extractWAWords(waTempImgB64); };
-  reader.readAsDataURL(file);
-}
-
-async function extractWAWords(b64){
-  const container=document.getElementById('wPairsContainer');
-  if(container) container.innerHTML='<div style="text-align:center;padding:20px;"><div class="spinner" style="width:28px;height:28px;margin:0 auto 8px;"></div>AI가 단어를 읽는 중...</div>';
-  const prompt='이 이미지는 영어 단어시험 정답지입니다.\n한글 뜻과 영어 단어 쌍을 모두 추출해주세요.\n반드시 JSON만 응답:\n{"words":[{"ko":"한글뜻","en":"english"},...]}';
-  try{
-    const res=await fetch('https://api.anthropic.com/v1/messages',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','x-api-key':CLAUDE_KEY,'anthropic-version':'2023-06-01','anthropic-dangerous-direct-browser-access':'true'},
-      body:JSON.stringify({model:'claude-haiku-4-5-20251001',max_tokens:1000,messages:[{role:'user',content:[{type:'image',source:{type:'base64',media_type:'image/jpeg',data:b64}},{type:'text',text:prompt}]}]})
-    });
-    const data=await res.json();
-    const parsed=JSON.parse(data.content[0].text.replace(/```json|```/g,'').trim());
-    if(parsed.words&&parsed.words.length){ waTempWords=parsed.words; renderWACreate(); toast('✅ '+parsed.words.length+'개 단어를 읽었어요!'); }
-    else{ toast('직접 입력해주세요.'); renderWACreate(); }
-  }catch(e){ toast('사진 인식 실패. 직접 입력해주세요.'); renderWACreate(); }
-}
-
 async function saveWExam(){
   const nameEl=document.getElementById('waName2');
   const name=nameEl?nameEl.value.trim():waTempName;
@@ -1169,9 +1133,9 @@ async function saveWExam(){
   W('<div class="loading">💾 저장 중...</div>');
   const id=waEditId||'wexam_'+Date.now();
   const res=await wDB.saveExam({id,name,words,school,order_index:0,createdAt:Date.now(),exam_type:waTempType,students:waTempStudents});
-  if(!res.ok){toast('저장 실패');renderWACreate();return;}
+  if(!res.ok){const err=await res.text();toast('저장 실패: '+err);renderWACreate();return;}
   toast('✅ 저장됐어요!');
-  waEditId='';waTempName='';waTempSchool='기본';waTempWords=[];waTempImgB64='';waTempType='ko_to_en';waTempStudents=[];
+  waEditId='';waTempName='';waTempSchool='기본';waTempWords=[];waTempType='ko_to_en';waTempStudents=[];
   waStep='detail';waDetailId=id;render();
 }
 
@@ -1183,7 +1147,7 @@ async function doWEditExam(id){
   waTempWords=(e.words||[]).map(w=>({ko:w.ko||'',en:w.en||''}));
   waTempType=e.exam_type||'ko_to_en';
   waTempStudents=Array.isArray(e.students)?e.students:[];
-  waTempImgB64='';waStep='create';render();
+  waStep='create';render();
 }
 async function doWDelExam(id,name){
   if(!confirm('"'+name+'" 시험을 삭제할까요?'))return;
@@ -1453,8 +1417,8 @@ function goWSRetry(){
   wsRetryIdx=0;wsRetryAnswers=[];wsStep='retry';render();
 }
 
-function renderWSRetry(){
-  if(!wsRetryWords.length||wsRetryIdx>=wsRetryWords.length){ renderWSRetryResult(); return; }
+async function renderWSRetry(){
+  if(!wsRetryWords.length||wsRetryIdx>=wsRetryWords.length){ await renderWSRetryResult(); return; }
   const w=wsRetryWords[wsRetryIdx];
   const isKoToEn=w.dir==='ko_to_en';
   const question=isKoToEn?w.ko:w.en;
