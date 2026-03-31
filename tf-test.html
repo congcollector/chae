@@ -1528,8 +1528,26 @@ function statusTabBar(){
 async function renderStatusTab(){
   W('<div class="loading"><div class="spinner"></div></div>');
 
-  // T/F + 단어시험 전체 로드
-  let tfExams=[], wExams=[], tfResults=[], wResults=[];
+  // 디버그: 각 테이블 접근 테스트
+  const debugResults = {};
+  for(const t of ['exams','results','word_exams','word_results','students']){
+    try{
+      const r = await api.get(t+'?limit=1');
+      debugResults[t] = Array.isArray(r) ? '✅ OK ('+r.length+'건)' : '❌ '+JSON.stringify(r).substring(0,80);
+    }catch(e){ debugResults[t]='❌ '+e.message; }
+  }
+
+  const debugHTML = Object.entries(debugResults).map(([t,v])=>
+    '<div style="font-size:11px;padding:4px 0;border-bottom:1px solid rgba(0,0,0,0.06);">'
+    +'<b>'+t+'</b>: '+v+'</div>'
+  ).join('');
+
+  W('<div class="card" style="margin-bottom:16px;">'
+    +'<div class="sec-title">DB 연결 진단</div>'
+    +debugHTML
+    +'<button class="btn btn-blue btn-full" style="margin-top:12px;" onclick="renderStatusTab()">진단 완료 후 새로고침</button>'
+    +'</div>');
+  return; // 진단 후 아래 주석 제거
   try{
     tfExams=await tfDB.getExams();
     if(!Array.isArray(tfExams)) throw new Error('exams 로드 실패: '+JSON.stringify(tfExams));
